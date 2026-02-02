@@ -1,0 +1,7 @@
+export { default as authService } from "./auth";
+export { default as courseService } from "./courses";
+export { default as assignmentService } from "./assignments";
+export { default as submissionService } from "./submissions";
+export { default as chatService } from "./chat";
+export { default as notificationService } from "./notifications";
+export { default as scheduleService } from "./schedule";
