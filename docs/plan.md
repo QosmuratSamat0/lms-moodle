@@ -1,4 +1,4 @@
-# Project Plan (Weeks 7–10) — Mini-Moodle
+# Project Plan (Weeks 7–10) Mini-Moodle
 
 ## Team Responsibilities
 - **Bauyrzhan**: Student-side functionality, half of Admin logic, backend integration

@@ -1,4 +1,4 @@
-# Mini-Moodle — Architecture & Design (Monolith)
+# Mini-Moodl Architecture & Design (Monolith)
 
 ## 1. Architecture Overview
 Mini-Moodle is built as a **monolithic Go backend** with a clear layered structure. The system exposes a REST API used by clients (web/mobile). Data is stored in **PostgreSQL**. The monolith approach is chosen for the milestone because it simplifies development, deployment, and team coordination while keeping module boundaries clear and scalable for future evolution.
@@ -19,19 +19,19 @@ Access control is enforced on the backend using **role-based authorization** (RB
 ## 3. Backend Structure (Layered Design)
 The backend is organized into modules by domain. Each domain follows the same internal structure:
 
-- **Handler (HTTP layer)**  
+- **Handler (HTTP layer)**
   Parses request, validates input (DTO), calls service, returns HTTP response.
 
-- **DTO (Data Transfer Objects)**  
+- **DTO (Data Transfer Objects)**
   Request/response schemas for API communication. Used for validation and to avoid exposing internal models directly.
 
-- **Service (Business logic layer)**  
+- **Service (Business logic layer)**
   Implements core use-cases: rules, permissions, workflow decisions. Service does not talk directly to HTTP or SQL.
 
-- **Repository (Data access layer)**  
+- **Repository (Data access layer)**
   Handles database queries and persistence. Service calls repository interfaces to read/write data.
 
-- **Model (Domain entities)**  
+- **Model (Domain entities)**
   Core business objects (e.g., User, Course, Assignment, Submission, Grade). Models are close to database structure but can evolve.
 
 This pattern ensures separation of concerns and makes the project easier to test and maintain.
