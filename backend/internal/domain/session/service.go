@@ -7,7 +7,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/errorx"
+	"github.com/ap1-final-mini-moodle/internal/shared/errorx"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )

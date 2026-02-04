@@ -1,66 +1,66 @@
 # Routes Package - Clean Architecture
 
-## Обзор
+## Overview
 
-Пакет `routes` организован согласно принципам **Clean Architecture**. Каждый роутер отвечает за свой домен и инкапсулирует логику маршрутизации.
+The `routes` package is organized according to **Clean Architecture** principles. Each router is responsible for its domain and encapsulates routing logic.
 
-## Структура
+## Structure
 
 ```
 routes/
-├── public.go          # Публичные маршруты (регистрация, логин)
-├── user.go           # Пользовательские маршруты
-├── course.go         # Маршруты курсов
-├── enrollment.go     # Маршруты записи на курсы
-├── assignment.go     # Маршруты заданий
-├── submission.go     # Маршруты сдачи работ
-├── grade.go          # Маршруты оценок
-├── attendance.go     # Маршруты посещаемости
-├── chat.go           # Маршруты чата
-├── notification.go   # Маршруты уведомлений
-├── schedule.go       # Маршруты расписания
-├── analytics.go      # Маршруты аналитики
-├── session.go        # Маршруты сессий
-├── student.go        # Маршруты студентов
-├── teacher.go        # Маршруты преподавателей
-├── manager.go        # Маршруты менеджеров
-├── plagiarism.go     # Маршруты проверки плагиата
-├── upload.go         # Маршруты загрузки файлов
-├── group.go          # Маршруты групп
-└── admin.go          # Зарезервировано для будущих админ маршрутов
+├── public.go          # Public routes (registration, login)
+├── user.go           # User routes
+├── course.go         # Course routes
+├── enrollment.go     # Course enrollment routes
+├── assignment.go     # Assignment routes
+├── submission.go     # Submission routes
+├── grade.go          # Grade routes
+├── attendance.go     # Attendance routes
+├── chat.go           # Chat routes
+├── notification.go   # Notification routes
+├── schedule.go       # Schedule routes
+├── analytics.go      # Analytics routes
+├── session.go        # Session routes
+├── student.go        # Student routes
+├── teacher.go        # Teacher routes
+├── manager.go        # Manager routes
+├── plagiarism.go     # Plagiarism check routes
+├── upload.go         # File upload routes
+├── group.go          # Group routes
+└── admin.go          # Reserved for future admin routes
 ```
 
-## Принципы
+## Principles
 
-### 1. Инкапсуляция
-Каждый роутер инкапсулирует:
-- Конструктор (`New*Router`)
-- Метод настройки маршрутов (`SetupRoutes`)
-- Необходимые зависимости (handlers)
+### 1. Encapsulation
+Each router encapsulates:
+- Constructor (`New*Router`)
+- Route setup method (`SetupRoutes`)
+- Required dependencies (handlers)
 
-### 2. Разделение ответственности
-- **Router** - только маршрутизация и middleware
-- **Handler** - обработка HTTP запросов
-- **Service** - бизнес-логика
-- **Repository** - работа с данными
+### 2. Separation of Concerns
+- **Router** - routing and middleware only
+- **Handler** - HTTP request processing
+- **Service** - business logic
+- **Repository** - data access
 
-### 3. Независимость
-Каждый роутер может быть:
-- Протестирован независимо
-- Изменен без влияния на другие роутеры
-- Повторно использован
+### 3. Independence
+Each router can be:
+- Tested independently
+- Modified without affecting other routers
+- Reused
 
-## Пример использования
+## Usage Example
 
-### Создание нового роутера
+### Creating a New Router
 
 ```go
 // routes/example.go
 package routes
 
 import (
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/domain/example"
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/middleware"
+	"ap1-final-mini-moodle/internal/domain/example"
+	"ap1-final-mini-moodle/internal/shared/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -77,11 +77,11 @@ func NewExampleRouter(exampleHandler *example.Handler) *ExampleRouter {
 func (er *ExampleRouter) SetupRoutes(api *gin.RouterGroup) {
 	examples := api.Group("/examples")
 	{
-		// Публичные маршруты
+		// Public routes
 		examples.GET("", er.exampleHandler.List)
 		examples.GET("/:id", er.exampleHandler.GetByID)
 
-		// Защищенные маршруты (только для админов)
+		// Protected routes (admin only)
 		adminRoutes := examples.Group("")
 		adminRoutes.Use(middleware.RequireRole("admin"))
 		{
@@ -93,48 +93,48 @@ func (er *ExampleRouter) SetupRoutes(api *gin.RouterGroup) {
 }
 ```
 
-### Интеграция в router.go
+### Integration in router.go
 
 ```go
-// В методе SetupRoutes главного Router
+// In the main Router's SetupRoutes method
 exampleRouter := routes.NewExampleRouter(r.handlers.Example)
 exampleRouter.SetupRoutes(protected)
 ```
 
 ## Middleware
 
-### Аутентификация
+### Authentication
 ```go
 protected := api.Group("")
 protected.Use(r.auth.Authenticate())
 ```
 
-### Авторизация по роли
+### Role-based Authorization
 ```go
 adminRoutes := group.Group("")
 adminRoutes.Use(middleware.RequireRole("admin"))
 ```
 
-Доступные роли:
-- `admin` - администратор системы
-- `manager` - менеджер
-- `teacher` - преподаватель
-- `student` - студент
+Available roles:
+- `admin` - System administrator
+- `manager` - Manager
+- `teacher` - Teacher
+- `student` - Student
 
-## Специальные маршруты
+## Special Routes
 
 ### WebSocket (chat.go)
 ```go
-// Отдельная функция для настройки WebSocket
+// Separate function for WebSocket setup
 func SetupChatWebSocket(engine *gin.Engine, auth *middleware.AuthMiddleware, 
                         service chat.Service, hub *websocket.Hub) {
-	// WebSocket требует прямой доступ к engine
+	// WebSocket requires direct access to engine
 }
 ```
 
-## Тестирование
+## Testing
 
-Пример unit-теста для роутера:
+Example unit test for a router:
 
 ```go
 func TestUserRouter_SetupRoutes(t *testing.T) {
@@ -147,35 +147,35 @@ func TestUserRouter_SetupRoutes(t *testing.T) {
 	api := engine.Group("/api/v1")
 	router.SetupRoutes(api)
 	
-	// Проверяем зарегистрированные маршруты
+	// Check registered routes
 	routes := engine.Routes()
 	assert.Contains(t, routes, "GET /api/v1/users/me")
 }
 ```
 
-## Миграция
+## Migration
 
-При добавлении новых маршрутов:
+When adding new routes:
 
-1. Создайте новый файл в `routes/` или обновите существующий
-2. Следуйте паттерну: Router struct → Constructor → SetupRoutes
-3. Добавьте handler в `api.Handlers` если нужен новый
-4. Инициализируйте роутер в `router.go`
-5. Вызовите `SetupRoutes()` в нужном месте
+1. Create a new file in `routes/` or update an existing one
+2. Follow the pattern: Router struct → Constructor → SetupRoutes
+3. Add handler to `api.Handlers` if a new one is needed
+4. Initialize the router in `router.go`
+5. Call `SetupRoutes()` in the appropriate place
 
-## Преимущества текущей архитектуры
+## Benefits of Current Architecture
 
-✅ **Модульность** - каждый роутер независим  
-✅ **Тестируемость** - легко писать unit-тесты  
-✅ **Масштабируемость** - просто добавлять новые роутеры  
-✅ **Читаемость** - понятная структура файлов  
-✅ **Поддерживаемость** - изменения локализованы  
-✅ **Clean Architecture** - разделение ответственности  
+**Modularity** - each router is independent
+**Testability** - easy to write unit tests
+**Scalability** - simple to add new routers
+**Readability** - clear file structure
+**Maintainability** - changes are localized
+**Clean Architecture** - separation of concerns
 
-## Рекомендации
+## Recommendations
 
-1. **Один роутер = один домен** - не смешивайте разные доменные области
-2. **Минимум логики** - роутеры только регистрируют маршруты
-3. **Используйте middleware** - для общих задач (auth, logging, etc.)
-4. **Документируйте** - комментируйте сложные маршруты
-5. **Группируйте** - используйте router groups для организации
+1. **One router = one domain** - do not mix different domain areas
+2. **Minimal logic** - routers only register routes
+3. **Use middleware** - for common tasks (auth, logging, etc.)
+4. **Document** - comment complex routes
+5. **Group** - use router groups for organization

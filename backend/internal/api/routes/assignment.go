@@ -2,8 +2,8 @@
 package routes
 
 import (
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/domain/assignment"
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/middleware"
+	"github.com/ap1-final-mini-moodle/internal/domain/assignment"
+	"github.com/ap1-final-mini-moodle/internal/shared/middleware"
 	"github.com/gin-gonic/gin"
 )
 

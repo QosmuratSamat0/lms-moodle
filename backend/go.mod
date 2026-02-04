@@ -1,4 +1,4 @@
-module github.com/MaqsattoTeam/aLMS/golang-service
+module github.com/ap1-final-mini-moodle
 
 go 1.25.5
 

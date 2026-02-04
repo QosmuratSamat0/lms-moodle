@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/tests/testutil"
+	"github.com/ap1-final-mini-moodle/tests/testutil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

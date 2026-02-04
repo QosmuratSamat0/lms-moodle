@@ -2,7 +2,7 @@
 package routes
 
 import (
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/domain/session"
+	"github.com/ap1-final-mini-moodle/internal/domain/session"
 	"github.com/gin-gonic/gin"
 )
 

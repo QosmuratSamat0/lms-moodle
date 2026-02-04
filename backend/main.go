@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/config"
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/database"
+	"github.com/ap1-final-mini-moodle/internal/shared/config"
+	"github.com/ap1-final-mini-moodle/internal/shared/database"
 	"github.com/joho/godotenv"
 )
 

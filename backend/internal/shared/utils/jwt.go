@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/config"
+	"github.com/ap1-final-mini-moodle/internal/shared/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )

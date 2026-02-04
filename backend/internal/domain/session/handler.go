@@ -3,9 +3,9 @@ package session
 import (
 	"net/http"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/errorx"
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/middleware"
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/utils"
+	"github.com/ap1-final-mini-moodle/internal/shared/errorx"
+	"github.com/ap1-final-mini-moodle/internal/shared/middleware"
+	"github.com/ap1-final-mini-moodle/internal/shared/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"mime/multipart"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/shared/errorx"
-	cloudupload "github.com/MaqsattoTeam/aLMS/golang-service/pkg/upload"
+	"github.com/ap1-final-mini-moodle/internal/shared/errorx"
+	cloudupload "github.com/ap1-final-mini-moodle/pkg/upload"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )

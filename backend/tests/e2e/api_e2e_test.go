@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/tests/testutil"
+	"github.com/ap1-final-mini-moodle/tests/testutil"
 )
 
 func TestHealthEndpoint(t *testing.T) {

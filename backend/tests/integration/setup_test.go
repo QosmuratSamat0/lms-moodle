@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/tests/testutil"
+	"github.com/ap1-final-mini-moodle/tests/testutil"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

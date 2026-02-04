@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/MaqsattoTeam/aLMS/golang-service/internal/domain/chat"
-	"github.com/MaqsattoTeam/aLMS/golang-service/tests/testutil"
+	"github.com/ap1-final-mini-moodle/internal/domain/chat"
+	"github.com/ap1-final-mini-moodle/tests/testutil"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
