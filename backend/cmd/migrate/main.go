@@ -85,5 +85,5 @@ func main() {
 		log.Fatalf("migration failed: %v", err)
 	}
 
-	log.Println("✅ migration finished successfully")
+	log.Println("migration finished successfully")
 }
