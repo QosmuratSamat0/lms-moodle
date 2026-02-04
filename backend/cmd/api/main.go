@@ -9,31 +9,24 @@ import (
 )
 
 func main() {
-	// Load configuration
 	cfg := config.Load()
 
-	// Initialize database
 	db := appDeps.InitDatabaseWithConfig(cfg)
 	defer db.Close()
 
-	// Build dependencies
 	deps := appDeps.BuildDeps(db)
 
-	// Build HTTP modules
 	modules := appDeps.BuildHTTPModules(deps, cfg.JWTSecret)
 
-	// Create gin engine
 	if cfg.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := gin.Default()
 
-	// Register all modules
 	for _, module := range modules {
 		module.Register(router)
 	}
 
-	// Background workers
 	appInstance := appDeps.New(db)
 	defer appInstance.Close()
 

@@ -5,8 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
-	"github.com/ap1-final-mini-moodle/internal/shared/config"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -23,17 +23,36 @@ func main() {
 	version := flag.Int("version", 0, "version to force (only used with -cmd force)")
 	flag.Parse()
 
-	// load config
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("config error: %v", err)
+	// get env vars with defaults
+	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "localhost"
+	}
+	dbPort := os.Getenv("DB_PORT")
+	if dbPort == "" {
+		dbPort = "5432"
+	}
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = "moodle"
+	}
+	dbUser := os.Getenv("DB_USER")
+	if dbUser == "" {
+		dbUser = "postgres"
+	}
+	dbPassword := os.Getenv("DB_PASSWORD")
+	if dbPassword == "" {
+		dbPassword = "postgres"
+	}
+	sslMode := os.Getenv("DB_SSLMODE")
+	if sslMode == "" {
+		sslMode = "require"
 	}
 
-	// connect DB using stdlib sql
+	// build DSN
 	dsn := fmt.Sprintf(
-		"host=%s port=%s dbname=%s user=%s password=%s sslmode=%s",
-		cfg.Database.Host, cfg.Database.Port, cfg.Database.Name,
-		cfg.Database.User, cfg.Database.Password, cfg.Database.SSLMode,
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		dbUser, dbPassword, dbHost, dbPort, dbName, sslMode,
 	)
 
 	db, err := sql.Open("postgres", dsn)
@@ -45,6 +64,7 @@ func main() {
 	if err := db.Ping(); err != nil {
 		log.Fatalf("db ping error: %v", err)
 	}
+	log.Println("connected to database")
 
 	// create migrate driver
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
@@ -52,9 +72,9 @@ func main() {
 		log.Fatalf("migrate driver error: %v", err)
 	}
 
-	// init migrate
+	// init migrate with correct migrations path
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
+		"file://./migrations",
 		"postgres",
 		driver,
 	)
@@ -65,15 +85,15 @@ func main() {
 	// execute command
 	switch *cmd {
 	case "up":
-		log.Println("⬆ running migrations UP")
+		log.Println("running migrations UP")
 		err = m.Up()
 
 	case "down":
-		log.Println("⬇ running migrations DOWN")
+		log.Println("running migrations DOWN")
 		err = m.Down()
 
 	case "force":
-		log.Printf("🔧 forcing version %d", *version)
+		log.Printf("forcing version %d", *version)
 		err = m.Force(*version)
 
 	default:
