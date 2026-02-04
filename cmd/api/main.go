@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	appDeps "github.com/ap1-final-mini-moodle/internal/app"
 	"github.com/ap1-final-mini-moodle/internal/shared/config"
@@ -29,16 +28,10 @@ func main() {
 	}
 
 	appInstance := appDeps.New(db)
-	appInstance.startBackgroundWorkers()
 	defer appInstance.Close()
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	log.Printf("Starting server on :%s (env: %s)\n", port, cfg.Env)
-	if err := router.Run(":" + port); err != nil {
+	log.Printf("Starting server on port %s (env: %s)\n", cfg.Port, cfg.Env)
+	if err := router.Run(":" + cfg.Port); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}
 }
