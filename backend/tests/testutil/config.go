@@ -1,43 +1,39 @@
-// Package testutil provides testing utilities for the aLMS project.
 package testutil
 
 import (
 	"os"
-	"strconv"
-	"time"
+
+	"github.com/ap1-final-mini-moodle/internal/shared/config"
 )
 
-// TestConfig holds configuration for test environment.
-type TestConfig struct {
-	DatabaseURL string
-	RedisURL    string
-	Timeout     time.Duration
-}
-
-// DefaultTestConfig returns the default test configuration
-// with values from environment variables or sensible defaults.
-func DefaultTestConfig() TestConfig {
-	return TestConfig{
-		DatabaseURL: getEnv("TEST_DATABASE_URL", "postgres://alms_test:alms_test_secret@localhost:5433/alms_test_db?sslmode=disable"),
-		RedisURL:    getEnv("TEST_REDIS_URL", "redis://localhost:6380/0"),
-		Timeout:     getDurationEnv("TEST_TIMEOUT", 30*time.Second),
+// GetTestConfig returns test database configuration
+func GetTestConfig() *config.Config {
+	// Set test environment variables
+	os.Setenv("ENV", "test")
+	os.Setenv("DB_HOST", os.Getenv("TEST_DB_HOST"))
+	if os.Getenv("TEST_DB_HOST") == "" {
+		os.Setenv("DB_HOST", "localhost")
 	}
-}
 
-// getEnv returns the value of the environment variable or the default value.
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
+	os.Setenv("DB_PORT", os.Getenv("TEST_DB_PORT"))
+	if os.Getenv("TEST_DB_PORT") == "" {
+		os.Setenv("DB_PORT", "5432")
 	}
-	return defaultValue
-}
 
-// getDurationEnv returns the duration value of the environment variable or the default value.
-func getDurationEnv(key string, defaultValue time.Duration) time.Duration {
-	if value := os.Getenv(key); value != "" {
-		if seconds, err := strconv.Atoi(value); err == nil {
-			return time.Duration(seconds) * time.Second
-		}
+	os.Setenv("DB_NAME", os.Getenv("TEST_DB_NAME"))
+	if os.Getenv("TEST_DB_NAME") == "" {
+		os.Setenv("DB_NAME", "moodle_test")
 	}
-	return defaultValue
+
+	os.Setenv("DB_USER", os.Getenv("TEST_DB_USER"))
+	if os.Getenv("TEST_DB_USER") == "" {
+		os.Setenv("DB_USER", "postgres")
+	}
+
+	os.Setenv("DB_PASSWORD", os.Getenv("TEST_DB_PASSWORD"))
+	if os.Getenv("TEST_DB_PASSWORD") == "" {
+		os.Setenv("DB_PASSWORD", "postgres")
+	}
+
+	return config.Load()
 }

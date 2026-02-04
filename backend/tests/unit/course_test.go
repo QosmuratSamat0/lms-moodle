@@ -1,4 +1,4 @@
-package course_test
+package unit
 
 import (
 	"testing"
