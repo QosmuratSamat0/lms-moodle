@@ -3,6 +3,7 @@ package user
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/user"
@@ -71,4 +72,27 @@ func (s *Service) List(skip, take int) ([]*user.User, error) {
 
 func (s *Service) Delete(id string) error {
 	return s.repo.Delete(id)
+}
+
+func (s *Service) Login(email, password string) (string, error) {
+	u, err := s.repo.GetByEmail(email)
+	if err != nil {
+		return "", errors.New("user not found")
+	}
+	
+	hash := sha256.Sum256([]byte(password))
+	hashedPassword := hex.EncodeToString(hash[:])
+	
+	if hashedPassword != u.Password {
+		return "", errors.New("invalid password")
+	}
+	
+	if !u.Active {
+		return "", errors.New("user is inactive")
+	}
+	
+	// For now, return a simple token (email + timestamp)
+	// In production, use JWT
+	token := email + ":" + string(rune(time.Now().Unix()))
+	return token, nil
 }
