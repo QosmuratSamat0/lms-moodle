@@ -1,0 +1,2 @@
+-- No rollback needed - these are data fixes, not schema changes
+-- The inserted records are valid and needed for the application to work correctly
