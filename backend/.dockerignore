@@ -1,0 +1,13 @@
+.git
+.gitignore
+*.md
+tests/
+Makefile
+docker-compose.yml
+.env.local
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store

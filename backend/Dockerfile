@@ -1,27 +1,23 @@
 FROM golang:1.21-alpine AS builder
+
 WORKDIR /app
+
 COPY go.mod go.sum ./
 RUN go mod download
+
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o api ./cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOFLAGS="-mod=readonly" go build -o api ./cmd/api/main.go
 
 FROM alpine:latest
+
 RUN apk --no-cache add ca-certificates
-WORKDIR /root/
+
+WORKDIR /app
+
 COPY --from=builder /app/api .
 COPY --from=builder /app/migrations ./migrations
-EXPOSE 8080
-CMD ["./api"]
 
-# Copy migrations folder (needed for migrate container)
-COPY --from=builder /build/migrations /migrations
-
-# Run as non-root
-USER appuser
-
-# Configurable port (default 8080)
 ENV PORT=8080
-EXPOSE ${PORT}
+EXPOSE 8080
 
-# Run the API
-ENTRYPOINT ["/api"]
+CMD ["./api"]
