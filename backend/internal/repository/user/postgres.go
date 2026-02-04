@@ -17,40 +17,40 @@ func NewPostgresRepository(db *pgxpool.Pool) user.Repository {
 
 func (r *PostgresRepository) Create(u *user.User) error {
 	_, err := r.db.Exec(context.Background(),
-		`INSERT INTO users (id, email, password, first_name, last_name, role, active, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-		u.ID, u.Email, u.Password, u.FirstName, u.LastName, u.Role, u.Active, u.CreatedAt, u.UpdatedAt)
+		`INSERT INTO users (id, email, password_hash, role, is_active, created_at, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		u.ID, u.Email, u.Password, u.Role, u.Active, u.CreatedAt, u.UpdatedAt)
 	return err
 }
 
 func (r *PostgresRepository) GetByID(id string) (*user.User, error) {
 	u := &user.User{}
 	err := r.db.QueryRow(context.Background(),
-		`SELECT id, email, password, first_name, last_name, role, active, created_at, updated_at
+		`SELECT id, email, password_hash, role, is_active, created_at, updated_at
 		 FROM users WHERE id = $1`, id).
-		Scan(&u.ID, &u.Email, &u.Password, &u.FirstName, &u.LastName, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt)
+		Scan(&u.ID, &u.Email, &u.Password, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt)
 	return u, err
 }
 
 func (r *PostgresRepository) GetByEmail(email string) (*user.User, error) {
 	u := &user.User{}
 	err := r.db.QueryRow(context.Background(),
-		`SELECT id, email, password, first_name, last_name, role, active, created_at, updated_at
+		`SELECT id, email, password_hash, role, is_active, created_at, updated_at
 		 FROM users WHERE email = $1`, email).
-		Scan(&u.ID, &u.Email, &u.Password, &u.FirstName, &u.LastName, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt)
+		Scan(&u.ID, &u.Email, &u.Password, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt)
 	return u, err
 }
 
 func (r *PostgresRepository) Update(u *user.User) error {
 	_, err := r.db.Exec(context.Background(),
-		`UPDATE users SET first_name=$1, last_name=$2, active=$3, updated_at=$4 WHERE id=$5`,
-		u.FirstName, u.LastName, u.Active, u.UpdatedAt, u.ID)
+		`UPDATE users SET is_active=$1, updated_at=$2 WHERE id=$3`,
+		u.Active, u.UpdatedAt, u.ID)
 	return err
 }
 
 func (r *PostgresRepository) List(skip, take int) ([]*user.User, error) {
 	rows, err := r.db.Query(context.Background(),
-		`SELECT id, email, password, first_name, last_name, role, active, created_at, updated_at
+		`SELECT id, email, password_hash, role, is_active, created_at, updated_at
 		 FROM users OFFSET $1 LIMIT $2`, skip, take)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (r *PostgresRepository) List(skip, take int) ([]*user.User, error) {
 	var users []*user.User
 	for rows.Next() {
 		u := &user.User{}
-		if err := rows.Scan(&u.ID, &u.Email, &u.Password, &u.FirstName, &u.LastName, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt); err != nil {
+		if err := rows.Scan(&u.ID, &u.Email, &u.Password, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt); err != nil {
 			return nil, err
 		}
 		users = append(users, u)
