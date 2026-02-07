@@ -11,20 +11,15 @@ import (
 )
 
 const (
-	// Time allowed to write a message to the peer.
 	writeWait = 10 * time.Second
 
-	// Time allowed to read the next pong message from the peer.
 	pongWait = 60 * time.Second
 
-	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
 
-	// Maximum message size allowed from peer.
 	maxMessageSize = 4096
 )
 
-// Client represents a websocket client connected to a room.
 type Client struct {
 	ID     string
 	UserID uuid.UUID
@@ -35,7 +30,6 @@ type Client struct {
 	mu     sync.Mutex
 }
 
-// NewClient creates a new websocket client.
 func NewClient(userID, roomID uuid.UUID, conn *websocket.Conn, hub *Hub) *Client {
 	return &Client{
 		ID:     uuid.New().String(),
@@ -47,7 +41,6 @@ func NewClient(userID, roomID uuid.UUID, conn *websocket.Conn, hub *Hub) *Client
 	}
 }
 
-// ReadPump pumps messages from the websocket connection to the hub.
 func (c *Client) ReadPump(onMessage func(client *Client, msg *InboundMessage)) {
 	defer func() {
 		c.hub.Unregister(c)
@@ -82,7 +75,6 @@ func (c *Client) ReadPump(onMessage func(client *Client, msg *InboundMessage)) {
 	}
 }
 
-// WritePump pumps messages from the hub to the websocket connection.
 func (c *Client) WritePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -106,7 +98,6 @@ func (c *Client) WritePump() {
 			}
 			w.Write(message)
 
-			// Add queued messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write([]byte{'\n'})
@@ -125,7 +116,6 @@ func (c *Client) WritePump() {
 	}
 }
 
-// Send sends a message to the client.
 func (c *Client) Send(msg *OutboundMessage) {
 	data, err := json.Marshal(msg)
 	if err != nil {
@@ -139,17 +129,14 @@ func (c *Client) Send(msg *OutboundMessage) {
 	select {
 	case c.send <- data:
 	default:
-		// Buffer is full, client is too slow.
 		log.Printf("client %s buffer full, dropping message", c.ID)
 	}
 }
 
-// SendError sends an error message to the client.
 func (c *Client) SendError(errMsg string) {
 	c.Send(NewErrorMessage(errMsg))
 }
 
-// Close closes the client connection.
 func (c *Client) Close() {
 	c.mu.Lock()
 	defer c.mu.Unlock()

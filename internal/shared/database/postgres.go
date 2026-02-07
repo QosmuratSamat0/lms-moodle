@@ -15,7 +15,7 @@ type DB struct {
 }
 
 // NewPostgres creates a new PostgreSQL connection pool
-func NewPostgres(cfg config.DBConfig) (*DB, error) {
+func NewPostgres(cfg config.Database) (*DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=%s pool_max_conns=%d pool_min_conns=%d pool_max_conn_lifetime=%s",
 		cfg.Host, cfg.Port, cfg.Name, cfg.User, cfg.Password, cfg.SSLMode,

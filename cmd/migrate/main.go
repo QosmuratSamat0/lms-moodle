@@ -15,15 +15,12 @@ import (
 )
 
 func main() {
-	// load .env for local/dev
 	_ = godotenv.Load()
 
-	// command: up | down | force
 	cmd := flag.String("cmd", "up", "migration command: up | down | force")
 	version := flag.Int("version", 0, "version to force (only used with -cmd force)")
 	flag.Parse()
 
-	// get env vars with defaults
 	dbHost := os.Getenv("DB_HOST")
 	if dbHost == "" {
 		dbHost = "localhost"
@@ -49,7 +46,6 @@ func main() {
 		sslMode = "require"
 	}
 
-	// build DSN
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		dbUser, dbPassword, dbHost, dbPort, dbName, sslMode,
@@ -66,13 +62,11 @@ func main() {
 	}
 	log.Println("connected to database")
 
-	// create migrate driver
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
 		log.Fatalf("migrate driver error: %v", err)
 	}
 
-	// init migrate with correct migrations path
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://./migrations",
 		"postgres",
@@ -100,7 +94,6 @@ func main() {
 		log.Fatalf("unknown command: %s (use up, down, or force)", *cmd)
 	}
 
-	// handle result
 	if err != nil && err != migrate.ErrNoChange {
 		log.Fatalf("migration failed: %v", err)
 	}

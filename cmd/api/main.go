@@ -30,7 +30,6 @@ func main() {
 	appInstance := appDeps.New(db)
 	defer appInstance.Close()
 
-	log.Printf("Starting server on port %s (env: %s)\n", cfg.Port, cfg.Env)
 	if err := router.Run(":" + cfg.Port); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}

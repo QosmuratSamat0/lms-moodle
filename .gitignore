@@ -1,4 +1,3 @@
-# Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
@@ -7,49 +6,35 @@
 /cmd/api/api
 /cmd/worker/worker
 /cmd/migrate/migrate
-
-# Test binary, built with `go test -c`
 *.test
-
-# Output of the go coverage tool
 *.out
 coverage.txt
 coverage.html
-
-# Go workspace file
 go.work
 
-# Environment variables
 .env
 .env.local
 .env.*.local
 
-# Dependency directories
 vendor/
 
-# Build output
 /bin/
 /dist/
 /build/
 
-# Temporary files
 *.tmp
 *.swp
 *.swo
 *~
 
-# Database files (if using SQLite locally)
 *.db
 *.sqlite
 *.sqlite3
 
-# Log files
 *.log
 logs/
 
-# OS generated files
 .DS_Store
 Thumbs.db
 
-# Test cache
 .cache/

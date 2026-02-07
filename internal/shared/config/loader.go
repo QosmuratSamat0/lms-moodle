@@ -7,26 +7,40 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type Database struct {
+	Host            string
+	Port            string
+	Name            string
+	User            string
+	Password        string
+	SSLMode         string
+	MaxOpenConns    int
+	MaxIdleConns    int
+	ConnMaxLifetime time.Duration
+}
+
+type RedisURL struct {
+	Host     string
+	Port     string
+	Password string
+	DB       int
+}
+
 type Config struct {
-	// Database
 	DBHost     string
 	DBPort     string
 	DBUser     string
 	DBPassword string
 	DBName     string
 
-	// Server
 	Port string
 	Env  string
 
-	// JWT
 	JWTSecret string
 	JWTExpiry time.Duration
 
-	// Redis
 	RedisURL string
 
-	// Cloudinary
 	CloudinaryURL string
 }
 
@@ -34,25 +48,20 @@ func Load() *Config {
 	godotenv.Load()
 
 	return &Config{
-		// Database
 		DBHost:     getEnv("DB_HOST", "localhost"),
 		DBPort:     getEnv("DB_PORT", "5432"),
 		DBUser:     getEnv("DB_USER", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "postgres"),
 		DBName:     getEnv("DB_NAME", "moodle"),
 
-		// Server
 		Port: getEnv("PORT", "8080"),
 		Env:  getEnv("ENV", "development"),
 
-		// JWT
 		JWTSecret: getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
 		JWTExpiry: parseDuration(getEnv("JWT_EXPIRY", "24h")),
 
-		// Redis
 		RedisURL: getEnv("REDIS_URL", "redis://localhost:6379"),
 
-		// Cloudinary
 		CloudinaryURL: getEnv("CLOUDINARY_URL", ""),
 	}
 }
