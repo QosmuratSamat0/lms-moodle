@@ -51,12 +51,14 @@ func (m *GroupModule) Register(r *gin.Engine) {
 			middleware.RequireRole("teacher", "admin", "super_admin"),
 			m.handler.AddMember,
 		)
-		groups.DELETE("/:id/members/:studentID",
+		groups.DELETE("/:id/members/:memberId",
 			middleware.RequireRole("teacher", "admin", "super_admin"),
 			m.handler.RemoveMember,
 		)
-	}
 
-	api.GET("/courses/:courseID/groups", m.handler.ListByCourse)
-	api.GET("/students/:studentID/groups", m.handler.GetStudentGroups)
+		// LIST BY COURSE
+		groups.GET("/course/:courseId",
+			m.handler.ListByCourse,
+		)
+	}
 }

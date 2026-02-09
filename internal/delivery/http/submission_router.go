@@ -25,8 +25,8 @@ func (m *SubmissionModule) Register(r *gin.Engine) {
 	{
 		// VIEW — студент видит свои, учитель видит все в своём курсе, админ видит все
 		submissions.GET("/:id", m.handler.GetByID)
-		submissions.GET("/assignment/:assignmentID", m.handler.ListByAssignment)
-		submissions.GET("/student/:studentID", m.handler.ListByStudent)
+		submissions.GET("/assignment/:assignmentId", m.handler.ListByAssignment)
+		submissions.GET("/student/:studentId", m.handler.ListByStudent)
 
 		// CREATE — только student/teacher/admin
 		submissions.POST("",

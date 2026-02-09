@@ -56,6 +56,4 @@ func (m *QuizModule) Register(r *gin.Engine) {
 		attempts.POST("/:attemptID/submit", m.handler.SubmitAttempt)
 		attempts.GET("/:attemptID/result", m.handler.GetAttemptResult)
 	}
-
-	api.GET("/courses/:courseID/quizzes", m.handler.ListByCourse)
 }

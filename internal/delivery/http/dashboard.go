@@ -63,13 +63,13 @@ func (h *DashboardHandler) GetTeacherDashboard(c *gin.Context) {
 // @Tags dashboard
 // @Security BearerAuth
 // @Produce json
-// @Param courseID path string true "Course ID"
+// @Param courseId path string true "Course ID"
 // @Success 200 {object} dashboard.CourseProgress
-// @Router /api/v1/dashboard/student/courses/{courseID} [get]
+// @Router /api/v1/dashboard/student/courses/{courseId} [get]
 func (h *DashboardHandler) GetStudentCourseStats(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	studentID := userID.(string)
-	courseID := c.Param("courseID")
+	courseID := c.Param("courseId")
 
 	stats, err := h.service.GetStudentCourseStats(c.Request.Context(), studentID, courseID)
 	if err != nil {

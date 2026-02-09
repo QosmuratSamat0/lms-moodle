@@ -25,7 +25,7 @@ func (m *AssignmentModule) Register(r *gin.Engine) {
 	{
 		// VIEW — студенты видят свои, учителя свои, админы все
 		assignments.GET("/:id", m.handler.GetByID)
-		assignments.GET("/course/:courseID", m.handler.ListByCourse)
+		assignments.GET("/course/:courseId", m.handler.ListByCourse)
 
 		// CREATE — только teacher/admin
 		assignments.POST("",

@@ -24,7 +24,7 @@ func (m *AttendanceModule) Register(r *gin.Engine) {
 	attendance.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
 		// VIEW — teacher видит свои, admin видит все
-		attendance.GET("/course/:courseID", m.handler.ListByCourse)
+		attendance.GET("/course/:courseId", m.handler.ListByCourse)
 
 		// CREATE — только teacher/admin
 		attendance.POST("",

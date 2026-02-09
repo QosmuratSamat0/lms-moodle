@@ -94,11 +94,11 @@ func (h *GroupHandler) GetByID(c *gin.Context) {
 // @Tags groups
 // @Security BearerAuth
 // @Produce json
-// @Param courseID path string true "Course ID"
+// @Param courseId path string true "Course ID"
 // @Success 200 {array} group.Group "Groups list"
-// @Router /api/v1/courses/{courseID}/groups [get]
+// @Router /api/v1/courses/{courseId}/groups [get]
 func (h *GroupHandler) ListByCourse(c *gin.Context) {
-	courseID := c.Param("courseID")
+	courseID := c.Param("courseId")
 	groups, err := h.service.GetByCourseID(c.Request.Context(), courseID)
 	if err != nil {
 		status := getStatusCode(err)
@@ -197,12 +197,12 @@ func (h *GroupHandler) AddMember(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Param id path string true "Group ID"
-// @Param studentID path string true "Student ID"
+// @Param memberId path string true "Member ID"
 // @Success 204 "No content"
-// @Router /api/v1/groups/{id}/members/{studentID} [delete]
+// @Router /api/v1/groups/{id}/members/{memberId} [delete]
 func (h *GroupHandler) RemoveMember(c *gin.Context) {
 	groupID := c.Param("id")
-	studentID := c.Param("studentID")
+	studentID := c.Param("memberId")
 
 	if err := h.service.RemoveMember(c.Request.Context(), groupID, studentID); err != nil {
 		status := getStatusCode(err)

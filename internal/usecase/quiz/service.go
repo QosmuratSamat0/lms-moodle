@@ -67,7 +67,7 @@ func (s *Service) CreateQuiz(ctx context.Context, createdBy string, input *quiz.
 			QuizID:        q.ID,
 			Type:          qInput.Type,
 			Text:          qInput.Text,
-			Options:       optionsToJSON(qInput.Options),
+			Options:       qInput.Options,
 			CorrectAnswer: qInput.CorrectAnswer,
 			Points:        qInput.Points,
 			OrderIndex:    i + 1,

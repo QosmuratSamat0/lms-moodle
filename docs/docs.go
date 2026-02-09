@@ -8830,8 +8830,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "This is a Mini Moodle API server.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {

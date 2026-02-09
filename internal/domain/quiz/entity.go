@@ -1,7 +1,6 @@
 package quiz
 
 import (
-	"encoding/json"
 	"time"
 )
 

@@ -24,7 +24,7 @@ func (m *ChatModule) Register(r *gin.Engine) {
 	chat.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
 		// VIEW — все в группе могут видеть
-		chat.GET("/course/:courseID", m.handler.ListByCourse)
+		chat.GET("/course/:courseId", m.handler.ListByCourse)
 
 		// CREATE — все может отправить сообщение
 		chat.POST("", m.handler.SendMessage)

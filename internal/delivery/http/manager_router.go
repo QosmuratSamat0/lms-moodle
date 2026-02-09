@@ -77,7 +77,7 @@ func (m *ManagerModule) Register(r *gin.Engine) {
 			middleware.RequireRole("admin", "super_admin"),
 			m.handler.AddManagedCategory,
 		)
-		managers.DELETE("/:id/categories/:categoryID",
+		managers.DELETE("/:id/categories/:categoryId",
 			middleware.RequireRole("admin", "super_admin"),
 			m.handler.RemoveManagedCategory,
 		)
@@ -85,7 +85,7 @@ func (m *ManagerModule) Register(r *gin.Engine) {
 			middleware.RequireRole("admin", "super_admin"),
 			m.handler.AddManagedTeacher,
 		)
-		managers.DELETE("/:id/teachers/:teacherID",
+		managers.DELETE("/:id/teachers/:teacherId",
 			middleware.RequireRole("admin", "super_admin"),
 			m.handler.RemoveManagedTeacher,
 		)

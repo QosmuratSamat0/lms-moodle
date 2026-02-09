@@ -39,7 +39,7 @@ func (m *CategoryManagerModule) Register(r *gin.Engine) {
 
 		catMgrs.GET("/by-user/:userID", m.handler.GetByUserID)
 
-		catMgrs.GET("/by-category/:categoryID", m.handler.GetByCategoryID)
+		catMgrs.GET("/by-category/:categoryId", m.handler.GetByCategoryID)
 
 		// UPDATE — требует edit permission
 		catMgrs.PUT("/:id",

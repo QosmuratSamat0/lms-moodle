@@ -45,6 +45,4 @@ func (m *AnnouncementModule) Register(r *gin.Engine) {
 			m.handler.Delete,
 		)
 	}
-
-	api.GET("/courses/:courseID/announcements", m.handler.ListByCourse)
 }

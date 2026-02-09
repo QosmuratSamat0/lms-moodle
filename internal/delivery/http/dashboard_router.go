@@ -29,7 +29,7 @@ func (m *DashboardModule) Register(r *gin.Engine) {
 			middleware.RequireRole("student"),
 			m.handler.GetStudentDashboard,
 		)
-		dashboard.GET("/student/courses/:courseID",
+		dashboard.GET("/student/courses/:courseId",
 			middleware.RequireRole("student"),
 			m.handler.GetStudentCourseStats,
 		)

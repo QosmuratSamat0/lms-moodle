@@ -59,16 +59,16 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 // @Tags chat
 // @Security BearerAuth
 // @Produce json
-// @Param courseID path string true "Course ID"
+// @Param courseId path string true "Course ID"
 // @Param skip query int false "Skip" default(0)
 // @Param take query int false "Take" default(20)
 // @Success 200 {array} chat.Message "Messages list"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
-// @Router /api/v1/chat/course/{courseID} [get]
+// @Router /api/v1/chat/course/{courseId} [get]
 func (h *ChatHandler) ListByCourse(c *gin.Context) {
-	courseID := c.Param("courseID")
+	courseID := c.Param("courseId")
 	var req struct {
 		Skip int `form:"skip,default=0"`
 		Take int `form:"take,default=20"`

@@ -202,6 +202,7 @@ func BuildHTTPModules(d *Deps, jwtSecret string) []http.RoutesRegistrar {
 	return []http.RoutesRegistrar{
 		http.NewAuthModule(authHandler, d.AuthSvc),
 		http.NewUserModule(userHandler, d.AuthSvc),
+		http.NewGroupModule(groupHandler, d.AuthSvc),
 		http.NewCourseModule(courseHandler, d.AuthSvc),
 		http.NewAssignmentModule(assignmentHandler, d.AuthSvc),
 		http.NewEnrollmentModule(enrollmentHandler, d.AuthSvc),
@@ -211,7 +212,6 @@ func BuildHTTPModules(d *Deps, jwtSecret string) []http.RoutesRegistrar {
 		http.NewNotificationModule(notificationHandler, d.AuthSvc),
 		http.NewChatModule(chatHandler, d.AuthSvc),
 		http.NewUploadModule(uploadHandler, d.AuthSvc),
-		http.NewGroupModule(groupHandler, d.AuthSvc),
 		http.NewAnnouncementModule(announcementHandler, d.AuthSvc),
 		http.NewQuizModule(quizHandler, d.AuthSvc),
 		http.NewAppealModule(appealHandler, d.AuthSvc),

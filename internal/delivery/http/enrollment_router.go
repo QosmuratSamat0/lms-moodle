@@ -24,8 +24,8 @@ func (m *EnrollmentModule) Register(r *gin.Engine) {
 	enrollments.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
 		// VIEW — teacher видит в своём курсе, admin видит все
-		enrollments.GET("/course/:courseID", m.handler.ListByCourse)
-		enrollments.GET("/student/:studentID", m.handler.ListByStudent)
+		enrollments.GET("/course/:courseId", m.handler.ListByCourse)
+		enrollments.GET("/student/:studentId", m.handler.ListByStudent)
 
 		// CREATE — студент, учитель или админ
 		enrollments.POST("",

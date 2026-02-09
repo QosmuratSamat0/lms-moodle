@@ -63,15 +63,15 @@ func (h *AttendanceHandler) Record(c *gin.Context) {
 // @Tags attendance
 // @Security BearerAuth
 // @Produce json
-// @Param courseID path string true "Course ID"
+// @Param courseId path string true "Course ID"
 // @Param skip query int false "Skip" default(0)
 // @Param take query int false "Take" default(10)
 // @Success 200 {array} attendance.Attendance "Attendance list"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
-// @Router /api/v1/attendance/course/{courseID} [get]
+// @Router /api/v1/attendance/course/{courseId} [get]
 func (h *AttendanceHandler) ListByCourse(c *gin.Context) {
-	courseID := c.Param("courseID")
+	courseID := c.Param("courseId")
 	var req struct {
 		Skip int `form:"skip,default=0"`
 		Take int `form:"take,default=10"`

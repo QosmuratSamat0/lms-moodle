@@ -117,11 +117,11 @@ func (h *CategoryManagerHandler) GetByUserID(c *gin.Context) {
 // @Tags category-managers
 // @Security BearerAuth
 // @Produce json
-// @Param categoryID path string true "Category ID"
+// @Param categoryId path string true "Category ID"
 // @Success 200 {array} categorymanager.CategoryManager
-// @Router /api/v1/category-managers/by-category/{categoryID} [get]
+// @Router /api/v1/category-managers/by-category/{categoryId} [get]
 func (h *CategoryManagerHandler) GetByCategoryID(c *gin.Context) {
-	categoryID := c.Param("categoryID")
+	categoryID := c.Param("categoryId")
 	managers, err := h.service.GetByCategoryID(c.Request.Context(), categoryID)
 	if err != nil {
 		status := getStatusCode(err)

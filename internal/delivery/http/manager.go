@@ -268,12 +268,12 @@ func (h *ManagerHandler) AddManagedCategory(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Param id path string true "Manager ID"
-// @Param categoryID path string true "Category ID"
+// @Param categoryId path string true "Category ID"
 // @Success 204 "No Content"
-// @Router /api/v1/managers/{id}/categories/{categoryID} [delete]
+// @Router /api/v1/managers/{id}/categories/{categoryId} [delete]
 func (h *ManagerHandler) RemoveManagedCategory(c *gin.Context) {
 	managerID := c.Param("id")
-	categoryID := c.Param("categoryID")
+	categoryID := c.Param("categoryId")
 
 	if err := h.service.RemoveManagedCategory(c.Request.Context(), managerID, categoryID); err != nil {
 		status := getStatusCode(err)
@@ -317,12 +317,12 @@ func (h *ManagerHandler) AddManagedTeacher(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Param id path string true "Manager ID"
-// @Param teacherID path string true "Teacher ID"
+// @Param teacherId path string true "Teacher ID"
 // @Success 204 "No Content"
-// @Router /api/v1/managers/{id}/teachers/{teacherID} [delete]
+// @Router /api/v1/managers/{id}/teachers/{teacherId} [delete]
 func (h *ManagerHandler) RemoveManagedTeacher(c *gin.Context) {
 	managerID := c.Param("id")
-	teacherID := c.Param("teacherID")
+	teacherID := c.Param("teacherId")
 
 	if err := h.service.RemoveManagedTeacher(c.Request.Context(), managerID, teacherID); err != nil {
 		status := getStatusCode(err)

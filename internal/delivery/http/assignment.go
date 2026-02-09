@@ -86,16 +86,16 @@ func (h *AssignmentHandler) GetByID(c *gin.Context) {
 // @Tags assignments
 // @Security BearerAuth
 // @Produce json
-// @Param courseID path string true "Course ID"
+// @Param courseId path string true "Course ID"
 // @Param skip query int false "Skip" default(0)
 // @Param take query int false "Take" default(10)
 // @Success 200 {array} assignment.Assignment "Assignments list"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
-// @Router /api/v1/assignments/course/{courseID} [get]
+// @Router /api/v1/assignments/course/{courseId} [get]
 func (h *AssignmentHandler) ListByCourse(c *gin.Context) {
-	courseID := c.Param("courseID")
+	courseID := c.Param("courseId")
 	var req struct {
 		Skip int `form:"skip,default=0"`
 		Take int `form:"take,default=10"`

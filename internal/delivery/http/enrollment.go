@@ -57,16 +57,16 @@ func (h *EnrollmentHandler) Enroll(c *gin.Context) {
 // @Tags enrollments
 // @Security BearerAuth
 // @Produce json
-// @Param courseID path string true "Course ID"
+// @Param courseId path string true "Course ID"
 // @Param skip query int false "Skip" default(0)
 // @Param take query int false "Take" default(10)
 // @Success 200 {array} enrollment.Enrollment "Enrollments list"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
-// @Router /api/v1/enrollments/course/{courseID} [get]
+// @Router /api/v1/enrollments/course/{courseId} [get]
 func (h *EnrollmentHandler) ListByCourse(c *gin.Context) {
-	courseID := c.Param("courseID")
+	courseID := c.Param("courseId")
 	var req struct {
 		Skip int `form:"skip,default=0"`
 		Take int `form:"take,default=10"`
@@ -89,16 +89,16 @@ func (h *EnrollmentHandler) ListByCourse(c *gin.Context) {
 // @Tags enrollments
 // @Security BearerAuth
 // @Produce json
-// @Param studentID path string true "Student ID"
+// @Param studentId path string true "Student ID"
 // @Param skip query int false "Skip" default(0)
 // @Param take query int false "Take" default(10)
 // @Success 200 {array} enrollment.Enrollment "Enrollments list"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
-// @Router /api/v1/enrollments/student/{studentID} [get]
+// @Router /api/v1/enrollments/student/{studentId} [get]
 func (h *EnrollmentHandler) ListByStudent(c *gin.Context) {
-	studentID := c.Param("studentID")
+	studentID := c.Param("studentId")
 	var req struct {
 		Skip int `form:"skip,default=0"`
 		Take int `form:"take,default=10"`

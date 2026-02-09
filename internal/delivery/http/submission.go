@@ -82,16 +82,16 @@ func (h *SubmissionHandler) GetByID(c *gin.Context) {
 // @Tags submissions
 // @Security BearerAuth
 // @Produce json
-// @Param assignmentID path string true "Assignment ID"
+// @Param assignmentId path string true "Assignment ID"
 // @Param skip query int false "Skip" default(0)
 // @Param take query int false "Take" default(10)
 // @Success 200 {array} submission.Submission "Submissions list"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
-// @Router /api/v1/submissions/assignment/{assignmentID} [get]
+// @Router /api/v1/submissions/assignment/{assignmentId} [get]
 func (h *SubmissionHandler) ListByAssignment(c *gin.Context) {
-	assignmentID := c.Param("assignmentID")
+	assignmentID := c.Param("assignmentId")
 	var req struct {
 		Skip int `form:"skip,default=0"`
 		Take int `form:"take,default=10"`
@@ -114,16 +114,16 @@ func (h *SubmissionHandler) ListByAssignment(c *gin.Context) {
 // @Tags submissions
 // @Security BearerAuth
 // @Produce json
-// @Param studentID path string true "Student ID"
+// @Param studentId path string true "Student ID"
 // @Param skip query int false "Skip" default(0)
 // @Param take query int false "Take" default(10)
 // @Success 200 {array} submission.Submission "Submissions list"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
-// @Router /api/v1/submissions/student/{studentID} [get]
+// @Router /api/v1/submissions/student/{studentId} [get]
 func (h *SubmissionHandler) ListByStudent(c *gin.Context) {
-	studentID := c.Param("studentID")
+	studentID := c.Param("studentId")
 	var req struct {
 		Skip int `form:"skip,default=0"`
 		Take int `form:"take,default=10"`
