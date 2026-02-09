@@ -1,24 +1,27 @@
 package http
 
 import (
+	"github.com/ap1-final-mini-moodle/internal/delivery/http/middleware"
+	authUC "github.com/ap1-final-mini-moodle/internal/usecase/auth"
 	"github.com/gin-gonic/gin"
 )
 
 type CourseModule struct {
-	handler *CourseHandler
-	secret  []byte
+	handler     *CourseHandler
+	authService *authUC.Service
 }
 
-func NewCourseModule(handler *CourseHandler, secret []byte) *CourseModule {
+func NewCourseModule(handler *CourseHandler, authService *authUC.Service) *CourseModule {
 	return &CourseModule{
-		handler: handler,
-		secret:  secret,
+		handler:     handler,
+		authService: authService,
 	}
 }
 
 func (m *CourseModule) Register(r *gin.Engine) {
 	api := r.Group("/api/v1")
 	courses := api.Group("/courses")
+	courses.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
 		courses.POST("", m.handler.Create)
 		courses.GET("", m.handler.List)

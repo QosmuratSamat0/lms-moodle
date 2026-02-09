@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/delivery/http"
+	"github.com/ap1-final-mini-moodle/internal/domain/categorymanager"
 	adminRepo "github.com/ap1-final-mini-moodle/internal/repository/admin"
 	announcementRepo "github.com/ap1-final-mini-moodle/internal/repository/announcement"
 	appealRepo "github.com/ap1-final-mini-moodle/internal/repository/appeal"
@@ -81,6 +82,9 @@ type Deps struct {
 	AuthSvc            *authUC.Service
 	CategoryManagerSvc *categorymanagerUC.Service
 	CourseCategorySvc  *coursecategoryUC.Service
+
+	// Repository for middleware access
+	CategoryManagerRepo categorymanager.Repository
 }
 
 func BuildDeps(db *pgxpool.Pool, cfg *config.Config) *Deps {
@@ -139,38 +143,37 @@ func BuildDeps(db *pgxpool.Pool, cfg *config.Config) *Deps {
 		Issuer:               "mini-moodle",
 		Audience:             "mini-moodle-api",
 	}
-	authService := authUC.NewService(authRepository, jwtConfig)
+	authService := authUC.NewService(authRepository, userRepository, jwtConfig)
 
 	return &Deps{
-		DB:                 db,
-		UserSvc:            userService,
-		CourseSvc:          courseService,
-		EnrollmentSvc:      enrollmentService,
-		AssignmentSvc:      assignmentService,
-		SubmissionSvc:      submissionService,
-		GradeSvc:           gradeService,
-		AttendanceSvc:      attendanceService,
-		NotificationSvc:    notificationService,
-		ChatSvc:            chatService,
-		UploadSvc:          uploadService,
-		GroupSvc:           groupService,
-		AnnouncementSvc:    announcementService,
-		QuizSvc:            quizService,
-		AppealSvc:          appealService,
-		DashboardSvc:       dashboardService,
-		StudentSvc:         studentService,
-		TeacherSvc:         teacherService,
-		AdminSvc:           adminService,
-		ManagerSvc:         managerService,
-		AuthSvc:            authService,
-		CategoryManagerSvc: categorymanagerService,
-		CourseCategorySvc:  coursecategoryService,
+		DB:                  db,
+		UserSvc:             userService,
+		CourseSvc:           courseService,
+		EnrollmentSvc:       enrollmentService,
+		AssignmentSvc:       assignmentService,
+		SubmissionSvc:       submissionService,
+		GradeSvc:            gradeService,
+		AttendanceSvc:       attendanceService,
+		NotificationSvc:     notificationService,
+		ChatSvc:             chatService,
+		UploadSvc:           uploadService,
+		GroupSvc:            groupService,
+		AnnouncementSvc:     announcementService,
+		QuizSvc:             quizService,
+		AppealSvc:           appealService,
+		DashboardSvc:        dashboardService,
+		StudentSvc:          studentService,
+		TeacherSvc:          teacherService,
+		AdminSvc:            adminService,
+		ManagerSvc:          managerService,
+		AuthSvc:             authService,
+		CategoryManagerSvc:  categorymanagerService,
+		CourseCategorySvc:   coursecategoryService,
+		CategoryManagerRepo: categorymanagerRepository,
 	}
 }
 
 func BuildHTTPModules(d *Deps, jwtSecret string) []http.RoutesRegistrar {
-	secret := []byte(jwtSecret)
-
 	// Handlers
 	userHandler := http.NewUserHandler(d.UserSvc)
 	courseHandler := http.NewCourseHandler(d.CourseSvc)
@@ -195,29 +198,29 @@ func BuildHTTPModules(d *Deps, jwtSecret string) []http.RoutesRegistrar {
 	coursecategoryHandler := http.NewCourseCategoryHandler(d.CourseCategorySvc)
 	authHandler := http.NewAuthHandler(d.UserSvc, d.AuthSvc)
 
-	// Modules
+	// Modules (all protected by JWT via authService)
 	return []http.RoutesRegistrar{
-		http.NewAuthModule(authHandler, d.AuthSvc, secret),
-		http.NewUserModule(userHandler, secret),
-		http.NewCourseModule(courseHandler, secret),
-		http.NewAssignmentModule(assignmentHandler, secret),
-		http.NewEnrollmentModule(enrollmentHandler, secret),
-		http.NewSubmissionModule(submissionHandler, secret),
-		http.NewGradeModule(gradeHandler, secret),
-		http.NewAttendanceModule(attendanceHandler, secret),
-		http.NewNotificationModule(notificationHandler, secret),
-		http.NewChatModule(chatHandler, secret),
-		http.NewUploadModule(uploadHandler, secret),
-		http.NewGroupModule(groupHandler, secret),
-		http.NewAnnouncementModule(announcementHandler, secret),
-		http.NewQuizModule(quizHandler, secret),
-		http.NewAppealModule(appealHandler, secret),
-		http.NewDashboardModule(dashboardHandler, secret),
-		http.NewStudentModule(studentHandler, secret),
-		http.NewTeacherModule(teacherHandler, secret),
-		http.NewAdminModule(adminHandler, secret),
-		http.NewManagerModule(managerHandler, secret),
-		http.NewCategoryManagerModule(categorymanagerHandler, secret),
-		http.NewCourseCategoryModule(coursecategoryHandler, secret),
+		http.NewAuthModule(authHandler, d.AuthSvc),
+		http.NewUserModule(userHandler, d.AuthSvc),
+		http.NewCourseModule(courseHandler, d.AuthSvc),
+		http.NewAssignmentModule(assignmentHandler, d.AuthSvc),
+		http.NewEnrollmentModule(enrollmentHandler, d.AuthSvc),
+		http.NewSubmissionModule(submissionHandler, d.AuthSvc),
+		http.NewGradeModule(gradeHandler, d.AuthSvc),
+		http.NewAttendanceModule(attendanceHandler, d.AuthSvc),
+		http.NewNotificationModule(notificationHandler, d.AuthSvc),
+		http.NewChatModule(chatHandler, d.AuthSvc),
+		http.NewUploadModule(uploadHandler, d.AuthSvc),
+		http.NewGroupModule(groupHandler, d.AuthSvc),
+		http.NewAnnouncementModule(announcementHandler, d.AuthSvc),
+		http.NewQuizModule(quizHandler, d.AuthSvc),
+		http.NewAppealModule(appealHandler, d.AuthSvc),
+		http.NewDashboardModule(dashboardHandler, d.AuthSvc),
+		http.NewStudentModule(studentHandler, d.AuthSvc),
+		http.NewTeacherModule(teacherHandler, d.AuthSvc),
+		http.NewAdminModule(adminHandler, d.AuthSvc),
+		http.NewManagerModule(managerHandler, d.AuthSvc),
+		http.NewCategoryManagerModule(categorymanagerHandler, d.AuthSvc, d.CategoryManagerRepo),
+		http.NewCourseCategoryModule(coursecategoryHandler, d.AuthSvc),
 	}
 }

@@ -1,23 +1,26 @@
 package http
 
 import (
+	"github.com/ap1-final-mini-moodle/internal/delivery/http/middleware"
+	authUC "github.com/ap1-final-mini-moodle/internal/usecase/auth"
 	"github.com/gin-gonic/gin"
 )
 
 type AnnouncementModule struct {
-	handler *AnnouncementHandler
-	secret  []byte
+	handler     *AnnouncementHandler
+	authService *authUC.Service
 }
 
-func NewAnnouncementModule(handler *AnnouncementHandler, secret []byte) *AnnouncementModule {
+func NewAnnouncementModule(handler *AnnouncementHandler, authService *authUC.Service) *AnnouncementModule {
 	return &AnnouncementModule{
-		handler: handler,
-		secret:  secret,
+		handler:     handler,
+		authService: authService,
 	}
 }
 
 func (m *AnnouncementModule) Register(r *gin.Engine) {
 	api := r.Group("/api/v1")
+	api.Use(middleware.AuthTokenMiddleware(m.authService))
 
 	announcements := api.Group("/announcements")
 	{
@@ -27,6 +30,5 @@ func (m *AnnouncementModule) Register(r *gin.Engine) {
 		announcements.DELETE("/:id", m.handler.Delete)
 	}
 
-	// Course-specific announcement routes
 	api.GET("/courses/:courseID/announcements", m.handler.ListByCourse)
 }

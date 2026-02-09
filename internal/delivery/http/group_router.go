@@ -1,23 +1,26 @@
 package http
 
 import (
+	"github.com/ap1-final-mini-moodle/internal/delivery/http/middleware"
+	authUC "github.com/ap1-final-mini-moodle/internal/usecase/auth"
 	"github.com/gin-gonic/gin"
 )
 
 type GroupModule struct {
-	handler *GroupHandler
-	secret  []byte
+	handler     *GroupHandler
+	authService *authUC.Service
 }
 
-func NewGroupModule(handler *GroupHandler, secret []byte) *GroupModule {
+func NewGroupModule(handler *GroupHandler, authService *authUC.Service) *GroupModule {
 	return &GroupModule{
-		handler: handler,
-		secret:  secret,
+		handler:     handler,
+		authService: authService,
 	}
 }
 
 func (m *GroupModule) Register(r *gin.Engine) {
 	api := r.Group("/api/v1")
+	api.Use(middleware.AuthTokenMiddleware(m.authService))
 
 	groups := api.Group("/groups")
 	{
@@ -30,9 +33,6 @@ func (m *GroupModule) Register(r *gin.Engine) {
 		groups.GET("/:id/members", m.handler.GetMembers)
 	}
 
-	// Course-specific group routes
 	api.GET("/courses/:courseID/groups", m.handler.ListByCourse)
-
-	// Student-specific group routes
 	api.GET("/students/:studentID/groups", m.handler.GetStudentGroups)
 }

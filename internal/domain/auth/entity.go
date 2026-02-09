@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-// Token представляет JWT токен с метаданными
 type Token struct {
 	AccessToken  string    `json:"access_token"`
 	RefreshToken string    `json:"refresh_token"`
@@ -14,7 +13,6 @@ type Token struct {
 	IssuedAt     time.Time `json:"-"`
 }
 
-// TokenClaims содержит данные, кодируемые в JWT
 type TokenClaims struct {
 	UserID       string `json:"user_id"`
 	Email        string `json:"email"`
@@ -26,7 +24,6 @@ type TokenClaims struct {
 	RefreshToken string `json:"refresh_token,omitempty"`
 }
 
-// RefreshSession хранит информацию о сессии с refresh токеном
 type RefreshSession struct {
 	ID           string    `db:"id"`
 	UserID       string    `db:"user_id"`
@@ -41,7 +38,6 @@ type RefreshSession struct {
 	IPAddress string `db:"ip_address"`
 }
 
-// CreateSessionInput для создания новой успешной сессии
 type CreateSessionInput struct {
 	UserID       string
 	RefreshToken string
@@ -49,29 +45,13 @@ type CreateSessionInput struct {
 	IPAddress    string
 }
 
-// Repository интерфейс для работы с refresh токенами
 type Repository interface {
-	// CreateSession создаёт новую сессию с refresh токеном
 	CreateSession(ctx context.Context, session *RefreshSession) error
-
-	// GetSessionByRefreshToken получает сессию по refresh токену
 	GetSessionByRefreshToken(ctx context.Context, token string) (*RefreshSession, error)
-
-	// GetSessionByID получает сессию по ID
 	GetSessionByID(ctx context.Context, id string) (*RefreshSession, error)
-
-	// GetActiveSessionsByUserID получает все активные сессии пользователя
 	GetActiveSessionsByUserID(ctx context.Context, userID string) ([]*RefreshSession, error)
-
-	// UpdateSessionActivity обновляет время последней активности
 	UpdateSessionActivity(ctx context.Context, id string) error
-
-	// RevokeSession деактивирует сессию (logout)
 	RevokeSession(ctx context.Context, id string) error
-
-	// RevokeAllUserSessions деактивирует все сессии пользователя (logout from everywhere)
 	RevokeAllUserSessions(ctx context.Context, userID string) error
-
-	// DeleteExpiredSessions удаляет истёкшие сессии (для очистки БД)
 	DeleteExpiredSessions(ctx context.Context) (int64, error)
 }

@@ -9,14 +9,12 @@ import (
 type AuthModule struct {
 	handler     *AuthHandler
 	authService *authUC.Service
-	secret      []byte
 }
 
-func NewAuthModule(handler *AuthHandler, authService *authUC.Service, secret []byte) *AuthModule {
+func NewAuthModule(handler *AuthHandler, authService *authUC.Service) *AuthModule {
 	return &AuthModule{
 		handler:     handler,
 		authService: authService,
-		secret:      secret,
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/auth"
+	"github.com/ap1-final-mini-moodle/internal/domain/user"
 	authShared "github.com/ap1-final-mini-moodle/internal/shared/auth"
 	"github.com/google/uuid"
 )
@@ -13,12 +14,14 @@ import (
 // Service для работы с JWT и refresh токенами
 type Service struct {
 	repo      auth.Repository
+	userRepo  user.Repository
 	jwtConfig *authShared.JWTConfig
 }
 
-func NewService(repo auth.Repository, jwtConfig *authShared.JWTConfig) *Service {
+func NewService(repo auth.Repository, userRepo user.Repository, jwtConfig *authShared.JWTConfig) *Service {
 	return &Service{
 		repo:      repo,
+		userRepo:  userRepo,
 		jwtConfig: jwtConfig,
 	}
 }
@@ -63,9 +66,11 @@ func (s *Service) RefreshAccessToken(ctx context.Context, refreshToken string) (
 		return nil, fmt.Errorf("refresh token expired")
 	}
 
-	// Здесь должны быть данные пользователя, получаем из БД по userID
-	// В реальной системе здесь нужно получить данные пользователя
-	// Для этого потребуется инъекция user repository или сохранение данных в refresh_sessions
+	// Получаем данные пользователя из БД
+	usr, err := s.userRepo.GetByID(session.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch user: %w", err)
+	}
 
 	// Обновляем время последней активности
 	if err := s.repo.UpdateSessionActivity(ctx, session.ID); err != nil {
@@ -74,11 +79,11 @@ func (s *Service) RefreshAccessToken(ctx context.Context, refreshToken string) (
 
 	// Генерируем новый access token (refresh token остаётся тем же)
 	userData := &authShared.UserData{
-		ID:        session.UserID,
-		Email:     "", // Нужно получить из БД
-		FirstName: "",
-		LastName:  "",
-		Role:      "", // Нужно получить из БД
+		ID:        usr.ID,
+		Email:     usr.Email,
+		FirstName: usr.FirstName,
+		LastName:  usr.LastName,
+		Role:      string(usr.Role),
 	}
 
 	accessToken, err := authShared.GenerateAccessToken(userData, refreshToken, s.jwtConfig)
