@@ -9,6 +9,38 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type questionReq struct {
+	Type          quiz.QuestionType `json:"type" binding:"required"`
+	Text          string            `json:"text" binding:"required"`
+	Options       []string          `json:"options"`
+	CorrectAnswer string            `json:"correct_answer" binding:"required"`
+	Points        int               `json:"points" binding:"required,min=1"`
+}
+
+type CreateQuizRequest struct {
+	CourseID    string        `json:"course_id" binding:"required"`
+	Title       string        `json:"title" binding:"required"`
+	Description string        `json:"description"`
+	TimeLimit   int           `json:"time_limit_minutes"`
+	MaxAttempts int           `json:"max_attempts"`
+	StartDate   *time.Time    `json:"start_date"`
+	EndDate     *time.Time    `json:"end_date"`
+	Questions   []questionReq `json:"questions" binding:"required,min=1"`
+}
+
+type UpdateQuizRequest struct {
+	Published *bool `json:"published"`
+}
+
+type answerReq struct {
+	QuestionID string `json:"question_id" binding:"required"`
+	Answer     string `json:"answer" binding:"required"`
+}
+
+type SubmitQuizRequest struct {
+	Answers []answerReq `json:"answers" binding:"required"`
+}
+
 type QuizHandler struct {
 	service *quizUC.Service
 }
@@ -24,7 +56,7 @@ func NewQuizHandler(service *quizUC.Service) *QuizHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; Title string `json:"title" binding:"required"`; Description string `json:"description"`; TimeLimit int `json:"time_limit_minutes"`; MaxAttempts int `json:"max_attempts"`; StartDate *string `json:"start_date"`; EndDate *string `json:"end_date"`; Questions []questionReq `json:"questions" binding:"required,min=1"`} true "Create Quiz Request"
+// @Param request body CreateQuizRequest true "Create Quiz Request"
 // @Success 201 {object} quiz.Quiz "Created quiz"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
@@ -38,16 +70,7 @@ func (h *QuizHandler) Create(c *gin.Context) {
 		createdBy = userID.(string)
 	}
 
-	var req struct {
-		CourseID    string        `json:"course_id" binding:"required"`
-		Title       string        `json:"title" binding:"required"`
-		Description string        `json:"description"`
-		TimeLimit   int           `json:"time_limit_minutes"`
-		MaxAttempts int           `json:"max_attempts"`
-		StartDate   *time.Time    `json:"start_date"`
-		EndDate     *time.Time    `json:"end_date"`
-		Questions   []questionReq `json:"questions" binding:"required,min=1"`
-	}
+	var req CreateQuizRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -80,14 +103,6 @@ func (h *QuizHandler) Create(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, qz)
-}
-
-type questionReq struct {
-	Text          string            `json:"text" binding:"required"`
-	Type          quiz.QuestionType `json:"type" binding:"required"`
-	Options       []string          `json:"options"`
-	CorrectAnswer string            `json:"correct_answer" binding:"required"`
-	Points        int               `json:"points" binding:"required,min=1"`
 }
 
 // GetByID returns a quiz by ID
@@ -156,7 +171,7 @@ func (h *QuizHandler) ListByCourse(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Quiz ID"
-// @Param request body struct{Published *bool `json:"published"`} true "Update Request"
+// @Param request body UpdateQuizRequest true "Update Request"
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 403 {object} map[string]string "Forbidden"
@@ -164,9 +179,7 @@ func (h *QuizHandler) ListByCourse(c *gin.Context) {
 // @Router /api/v1/quizzes/{id} [put]
 func (h *QuizHandler) Update(c *gin.Context) {
 	id := c.Param("id")
-	var req struct {
-		Published *bool `json:"published"`
-	}
+	var req UpdateQuizRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -241,7 +254,7 @@ func (h *QuizHandler) StartAttempt(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param attemptID path string true "Attempt ID"
-// @Param request body struct{Answers []answerReq `json:"answers" binding:"required"`} true "Submit Request"
+// @Param request body SubmitQuizRequest true "Submit Request"
 // @Success 200 {object} quiz.QuizAttempt "Submission result"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 404 {object} map[string]string "Attempt not found"
@@ -249,9 +262,7 @@ func (h *QuizHandler) StartAttempt(c *gin.Context) {
 func (h *QuizHandler) SubmitAttempt(c *gin.Context) {
 	attemptID := c.Param("attemptID")
 
-	var req struct {
-		Answers []answerReq `json:"answers" binding:"required"`
-	}
+	var req SubmitQuizRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -274,11 +285,6 @@ func (h *QuizHandler) SubmitAttempt(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, result)
-}
-
-type answerReq struct {
-	QuestionID string `json:"question_id" binding:"required"`
-	Answer     string `json:"answer" binding:"required"`
 }
 
 // GetAttemptResult returns the result of a quiz attempt

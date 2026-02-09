@@ -12,6 +12,12 @@ type ChatHandler struct {
 	service *chatUC.Service
 }
 
+type CreateMessageRequest struct {
+	SenderID string `json:"sender_id" binding:"required"`
+	CourseID string `json:"course_id" binding:"required"`
+	Content  string `json:"content" binding:"required"`
+}
+
 func NewChatHandler(service *chatUC.Service) *ChatHandler {
 	return &ChatHandler{service: service}
 }
@@ -23,18 +29,14 @@ func NewChatHandler(service *chatUC.Service) *ChatHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{SenderID string `json:"sender_id" binding:"required"`; CourseID string `json:"course_id" binding:"required"`; Content string `json:"content" binding:"required"`} true "Message Request"
+// @Param request body CreateMessageRequest true "Message Request"
 // @Success 201 {object} chat.Message "Created message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
 // @Router /api/v1/chat [post]
 func (h *ChatHandler) SendMessage(c *gin.Context) {
-	var req struct {
-		SenderID string `json:"sender_id" binding:"required"`
-		CourseID string `json:"course_id" binding:"required"`
-		Content  string `json:"content" binding:"required"`
-	}
+	var req CreateMessageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

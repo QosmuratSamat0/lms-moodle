@@ -13,6 +13,13 @@ type AttendanceHandler struct {
 	service *attendanceUC.Service
 }
 
+type CreateAttendanceRequest struct {
+	CourseID  string    `json:"course_id" binding:"required"`
+	StudentID string    `json:"student_id" binding:"required"`
+	Date      time.Time `json:"date" binding:"required"`
+	Present   bool      `json:"present"`
+}
+
 func NewAttendanceHandler(service *attendanceUC.Service) *AttendanceHandler {
 	return &AttendanceHandler{service: service}
 }
@@ -24,7 +31,7 @@ func NewAttendanceHandler(service *attendanceUC.Service) *AttendanceHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; StudentID string `json:"student_id" binding:"required"`; Date time.Time `json:"date" binding:"required"`; Present bool `json:"present"`} true "Attendance Request"
+// @Param request body CreateAttendanceRequest true "Attendance Request"
 // @Success 201 {object} attendance.Attendance "Created attendance"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
@@ -32,12 +39,7 @@ func NewAttendanceHandler(service *attendanceUC.Service) *AttendanceHandler {
 // @Failure 500 {object} map[string]string "Internal error"
 // @Router /api/v1/attendance [post]
 func (h *AttendanceHandler) Record(c *gin.Context) {
-	var req struct {
-		CourseID  string    `json:"course_id" binding:"required"`
-		StudentID string    `json:"student_id" binding:"required"`
-		Date      time.Time `json:"date" binding:"required"`
-		Present   bool      `json:"present"`
-	}
+	var req CreateAttendanceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -23,7 +23,7 @@ func NewAnnouncementHandler(service *announcementUC.Service) *AnnouncementHandle
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; Title string `json:"title" binding:"required"`; Content string `json:"content" binding:"required"`; Pinned bool `json:"pinned"`} true "Create Announcement Request"
+// @Param request body announcement.CreateAnnouncementInput true "Create Announcement Request"
 // @Success 201 {object} announcement.Announcement "Created announcement"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
@@ -128,7 +128,7 @@ func (h *AnnouncementHandler) ListByCourse(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Announcement ID"
-// @Param request body struct{Title *string `json:"title"`; Content *string `json:"content"`; Pinned *bool `json:"pinned"`} true "Update Request"
+// @Param request body announcement.UpdateAnnouncementInput true "Update Request"
 // @Success 200 {object} announcement.Announcement "Updated announcement"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"

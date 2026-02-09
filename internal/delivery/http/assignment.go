@@ -9,6 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type CreateAssignmentRequest struct {
+	CourseID    string    `json:"course_id" binding:"required"`
+	Title       string    `json:"title" binding:"required"`
+	Description string    `json:"description"`
+	MaxPoints   int       `json:"max_points" binding:"required"`
+	DueDate     time.Time `json:"due_date" binding:"required"`
+}
+
 type AssignmentHandler struct {
 	service *assignmentUC.Service
 }
@@ -24,7 +32,7 @@ func NewAssignmentHandler(service *assignmentUC.Service) *AssignmentHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; Title string `json:"title" binding:"required"`; Description string `json:"description"`; MaxPoints int `json:"max_points" binding:"required"`; DueDate time.Time `json:"due_date" binding:"required"`} true "Create Assignment Request"
+// @Param request body CreateAssignmentRequest true "Create Assignment Request"
 // @Success 201 {object} assignment.Assignment "Created assignment"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
@@ -32,13 +40,7 @@ func NewAssignmentHandler(service *assignmentUC.Service) *AssignmentHandler {
 // @Failure 500 {object} map[string]string "Internal error"
 // @Router /api/v1/assignments [post]
 func (h *AssignmentHandler) Create(c *gin.Context) {
-	var req struct {
-		CourseID    string    `json:"course_id" binding:"required"`
-		Title       string    `json:"title" binding:"required"`
-		Description string    `json:"description"`
-		MaxPoints   int       `json:"max_points" binding:"required"`
-		DueDate     time.Time `json:"due_date" binding:"required"`
-	}
+	var req CreateAssignmentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

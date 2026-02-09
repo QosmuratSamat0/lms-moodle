@@ -13,6 +13,21 @@ type StudentHandler struct {
 	service *studentUC.Service
 }
 
+type CreateStudentRequest struct {
+	UserID      string    `json:"user_id" binding:"required"`
+	StudentCode string    `json:"student_code" binding:"required"`
+	Major       string    `json:"major" binding:"required"`
+	Year        int       `json:"year" binding:"required,min=1,max=6"`
+	AdmittedAt  time.Time `json:"admitted_at"`
+}
+
+type UpdateStudentRequest struct {
+	Major  *string  `json:"major"`
+	Year   *int     `json:"year"`
+	GPA    *float64 `json:"gpa"`
+	Status *string  `json:"status"`
+}
+
 func NewStudentHandler(service *studentUC.Service) *StudentHandler {
 	return &StudentHandler{service: service}
 }
@@ -24,19 +39,13 @@ func NewStudentHandler(service *studentUC.Service) *StudentHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{UserID string `json:"user_id" binding:"required"`; StudentCode string `json:"student_code" binding:"required"`; Major string `json:"major" binding:"required"`; Year int `json:"year" binding:"required,min=1,max=6"`; AdmittedAt time.Time `json:"admitted_at"`} true "Create Student Request"
+// @Param request body CreateStudentRequest true "Create Student Request"
 // @Success 201 {object} student.Student "Created student"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 403 {object} map[string]string "Forbidden"
 // @Router /api/v1/students [post]
 func (h *StudentHandler) Create(c *gin.Context) {
-	var req struct {
-		UserID      string    `json:"user_id" binding:"required"`
-		StudentCode string    `json:"student_code" binding:"required"`
-		Major       string    `json:"major" binding:"required"`
-		Year        int       `json:"year" binding:"required,min=1,max=6"`
-		AdmittedAt  time.Time `json:"admitted_at"`
-	}
+	var req CreateStudentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -190,18 +199,13 @@ func (h *StudentHandler) List(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Student ID"
-// @Param request body struct{Major *string `json:"major"`; Year *int `json:"year"`; GPA *float64 `json:"gpa"`; Status *string `json:"status"`} true "Update Request"
+// @Param request body UpdateStudentRequest true "Update Request"
 // @Success 200 {object} student.Student "Updated student"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Router /api/v1/students/{id} [put]
 func (h *StudentHandler) Update(c *gin.Context) {
 	id := c.Param("id")
-	var req struct {
-		Major  *string  `json:"major"`
-		Year   *int     `json:"year"`
-		GPA    *float64 `json:"gpa"`
-		Status *string  `json:"status"`
-	}
+	var req UpdateStudentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -13,6 +13,23 @@ type GroupHandler struct {
 	service *groupUC.Service
 }
 
+type CreateGroupRequest struct {
+	CourseID    string `json:"course_id" binding:"required"`
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+	MaxStudents int    `json:"max_students"`
+}
+
+type UpdateGroupRequest struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	MaxStudents *int    `json:"max_students"`
+}
+
+type AddGroupMemberRequest struct {
+	StudentID string `json:"student_id" binding:"required"`
+}
+
 func NewGroupHandler(service *groupUC.Service) *GroupHandler {
 	return &GroupHandler{service: service}
 }
@@ -24,19 +41,14 @@ func NewGroupHandler(service *groupUC.Service) *GroupHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; Name string `json:"name" binding:"required"`; Description string `json:"description"`; MaxStudents int `json:"max_students"`} true "Create Group Request"
+// @Param request body CreateGroupRequest true "Create Group Request"
 // @Success 201 {object} group.Group "Created group"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 403 {object} map[string]string "Forbidden"
 // @Router /api/v1/groups [post]
 func (h *GroupHandler) Create(c *gin.Context) {
-	var req struct {
-		CourseID    string `json:"course_id" binding:"required"`
-		Name        string `json:"name" binding:"required"`
-		Description string `json:"description"`
-		MaxStudents int    `json:"max_students"`
-	}
+	var req CreateGroupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -104,16 +116,12 @@ func (h *GroupHandler) ListByCourse(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Group ID"
-// @Param request body struct{Name *string `json:"name"`; Description *string `json:"description"`; MaxStudents *int `json:"max_students"`} true "Update Request"
+// @Param request body UpdateGroupRequest true "Update Request"
 // @Success 200 {object} group.Group "Updated group"
 // @Router /api/v1/groups/{id} [put]
 func (h *GroupHandler) Update(c *gin.Context) {
 	id := c.Param("id")
-	var req struct {
-		Name        *string `json:"name"`
-		Description *string `json:"description"`
-		MaxStudents *int    `json:"max_students"`
-	}
+	var req UpdateGroupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -159,14 +167,12 @@ func (h *GroupHandler) Delete(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Group ID"
-// @Param request body struct{StudentID string `json:"student_id" binding:"required"`} true "Add Member Request"
+// @Param request body AddGroupMemberRequest true "Add Member Request"
 // @Success 201 {object} group.GroupMember "Added member"
 // @Router /api/v1/groups/{id}/members [post]
 func (h *GroupHandler) AddMember(c *gin.Context) {
 	groupID := c.Param("id")
-	var req struct {
-		StudentID string `json:"student_id" binding:"required"`
-	}
+	var req AddGroupMemberRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

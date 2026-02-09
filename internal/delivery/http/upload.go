@@ -12,6 +12,14 @@ type UploadHandler struct {
 	service *uploadUC.Service
 }
 
+type CreateUploadRequest struct {
+	UserID   string `json:"user_id" binding:"required"`
+	FileName string `json:"file_name" binding:"required"`
+	FileURL  string `json:"file_url" binding:"required"`
+	FileSize int64  `json:"file_size" binding:"required"`
+	MimeType string `json:"mime_type" binding:"required"`
+}
+
 func NewUploadHandler(service *uploadUC.Service) *UploadHandler {
 	return &UploadHandler{service: service}
 }
@@ -23,18 +31,12 @@ func NewUploadHandler(service *uploadUC.Service) *UploadHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{UserID string `json:"user_id" binding:"required"`; FileName string `json:"file_name" binding:"required"`; FileURL string `json:"file_url" binding:"required"`; FileSize int64 `json:"file_size" binding:"required"`; MimeType string `json:"mime_type" binding:"required"`} true "Upload Request"
+// @Param request body CreateUploadRequest true "Upload Request"
 // @Success 201 {object} upload.Upload "Recorded upload"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Router /api/v1/uploads [post]
 func (h *UploadHandler) Upload(c *gin.Context) {
-	var req struct {
-		UserID   string `json:"user_id" binding:"required"`
-		FileName string `json:"file_name" binding:"required"`
-		FileURL  string `json:"file_url" binding:"required"`
-		FileSize int64  `json:"file_size" binding:"required"`
-		MimeType string `json:"mime_type" binding:"required"`
-	}
+	var req CreateUploadRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

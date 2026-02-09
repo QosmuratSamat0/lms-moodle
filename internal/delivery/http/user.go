@@ -12,6 +12,19 @@ type UserHandler struct {
 	service *userUC.Service
 }
 
+type RegisterRequest struct {
+	Email     string `json:"email" binding:"required,email"`
+	Password  string `json:"password" binding:"required,min=6"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
+	Role      string `json:"role" binding:"required"`
+}
+
+type UserLoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
 func NewUserHandler(service *userUC.Service) *UserHandler {
 	return &UserHandler{service: service}
 }
@@ -22,7 +35,7 @@ func NewUserHandler(service *userUC.Service) *UserHandler {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body struct{Email string `json:"email" binding:"required,email"`; Password string `json:"password" binding:"required,min=6"`; FirstName string `json:"first_name" binding:"required"`; LastName string `json:"last_name" binding:"required"`; Role string `json:"role" binding:"required"`} true "Registration Request"
+// @Param request body RegisterRequest true "Registration Request"
 // @Success 201 {object} user.User "Created user"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal error"
@@ -148,7 +161,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body struct{Email string `json:"email" binding:"required,email"`; Password string `json:"password" binding:"required"`} true "Login Request"
+// @Param request body UserLoginRequest true "Login Request"
 // @Success 200 {object} map[string]string "Token"
 // @Failure 401 {object} map[string]string "Invalid credentials"
 // @Router /api/v1/users/login [post]

@@ -12,6 +12,13 @@ type SubmissionHandler struct {
 	service *submissionUC.Service
 }
 
+type CreateSubmissionRequest struct {
+	AssignmentID string  `json:"assignment_id" binding:"required"`
+	StudentID    string  `json:"student_id" binding:"required"`
+	Content      string  `json:"content" binding:"required"`
+	FileURL      *string `json:"file_url"`
+}
+
 func NewSubmissionHandler(service *submissionUC.Service) *SubmissionHandler {
 	return &SubmissionHandler{service: service}
 }
@@ -23,19 +30,14 @@ func NewSubmissionHandler(service *submissionUC.Service) *SubmissionHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{AssignmentID string `json:"assignment_id" binding:"required"`; StudentID string `json:"student_id" binding:"required"`; Content string `json:"content" binding:"required"`; FileURL *string `json:"file_url"`} true "Submission Request"
+// @Param request body CreateSubmissionRequest true "Submission Request"
 // @Success 201 {object} submission.Submission "Created submission"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
 // @Router /api/v1/submissions [post]
 func (h *SubmissionHandler) Submit(c *gin.Context) {
-	var req struct {
-		AssignmentID string  `json:"assignment_id" binding:"required"`
-		StudentID    string  `json:"student_id" binding:"required"`
-		Content      string  `json:"content" binding:"required"`
-		FileURL      *string `json:"file_url"`
-	}
+	var req CreateSubmissionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

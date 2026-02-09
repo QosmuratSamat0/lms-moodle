@@ -12,6 +12,18 @@ type AppealHandler struct {
 	service *appealUC.Service
 }
 
+type CreateAppealRequest struct {
+	GradeID  string `json:"grade_id" binding:"required"`
+	Reason   string `json:"reason" binding:"required,min=10"`
+	Evidence string `json:"evidence"`
+}
+
+type ResolveAppealRequest struct {
+	Status   appeal.AppealStatus `json:"status" binding:"required"`
+	Response string              `json:"response" binding:"required"`
+	NewScore *float64            `json:"new_score"`
+}
+
 func NewAppealHandler(service *appealUC.Service) *AppealHandler {
 	return &AppealHandler{service: service}
 }
@@ -23,8 +35,8 @@ func NewAppealHandler(service *appealUC.Service) *AppealHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{GradeID string `json:"grade_id" binding:"required"`; Reason string `json:"reason" binding:"required,min=10"`; Evidence string `json:"evidence"`} true "Create Appeal Request"
-// @Success 201 {object} appeal.Appeal "Created appeal"
+// @Param request body CreateAppealRequest true "Create Appeal Request"
+// @Success 201 {object} appeal.GradeAppeal "Created appeal"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 403 {object} map[string]string "Forbidden"
@@ -34,11 +46,7 @@ func (h *AppealHandler) Create(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	studentID := userID.(string)
 
-	var req struct {
-		GradeID  string `json:"grade_id" binding:"required"`
-		Reason   string `json:"reason" binding:"required,min=10"`
-		Evidence string `json:"evidence"`
-	}
+	var req CreateAppealRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -64,7 +72,7 @@ func (h *AppealHandler) Create(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Param id path string true "Appeal ID"
-// @Success 200 {object} appeal.Appeal "Appeal details"
+// @Success 200 {object} appeal.GradeAppeal "Appeal details"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 404 {object} map[string]string "Appeal not found"
 // @Router /api/v1/appeals/{id} [get]
@@ -177,8 +185,8 @@ func (h *AppealHandler) GetTeacherAppeals(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Appeal ID"
-// @Param request body struct{Status string `json:"status" binding:"required"`; Response string `json:"response" binding:"required"`; NewScore *float64 `json:"new_score"`} true "Resolve Request"
-// @Success 200 {object} appeal.Appeal "Resolved appeal"
+// @Param request body ResolveAppealRequest true "Resolve Request"
+// @Success 200 {object} appeal.GradeAppeal "Resolved appeal"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 403 {object} map[string]string "Forbidden"
 // @Failure 404 {object} map[string]string "Appeal not found"
@@ -188,11 +196,7 @@ func (h *AppealHandler) Resolve(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	teacherID := userID.(string)
 
-	var req struct {
-		Status   appeal.AppealStatus `json:"status" binding:"required"`
-		Response string              `json:"response" binding:"required"`
-		NewScore *float64            `json:"new_score"`
-	}
+	var req ResolveAppealRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

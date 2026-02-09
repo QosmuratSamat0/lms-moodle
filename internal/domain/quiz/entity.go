@@ -29,14 +29,14 @@ type Quiz struct {
 }
 
 type Question struct {
-	ID            string          `json:"id"`
-	QuizID        string          `json:"quiz_id"`
-	Type          QuestionType    `json:"type"`
-	Text          string          `json:"text"`
-	Options       json.RawMessage `json:"options,omitempty"` // JSON array for multiple choice
-	CorrectAnswer string          `json:"correct_answer"`
-	Points        int             `json:"points"`
-	OrderIndex    int             `json:"order_index"`
+	ID            string       `json:"id"`
+	QuizID        string       `json:"quiz_id"`
+	Type          QuestionType `json:"type"`
+	Text          string       `json:"text"`
+	Options       []string     `json:"options,omitempty"` // Options for multiple choice
+	CorrectAnswer string       `json:"correct_answer"`
+	Points        int          `json:"points"`
+	OrderIndex    int          `json:"order_index"`
 }
 
 type QuizAttempt struct {

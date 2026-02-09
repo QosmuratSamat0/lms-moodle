@@ -13,6 +13,14 @@ type ManagerHandler struct {
 	service *managerUC.Service
 }
 
+type AddManagedCategoryRequest struct {
+	CategoryID string `json:"category_id" binding:"required"`
+}
+
+type AddManagedTeacherRequest struct {
+	TeacherID string `json:"teacher_id" binding:"required"`
+}
+
 func NewManagerHandler(service *managerUC.Service) *ManagerHandler {
 	return &ManagerHandler{service: service}
 }
@@ -234,14 +242,12 @@ func (h *ManagerHandler) GetWithDetails(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Manager ID"
-// @Param request body struct{CategoryID string `json:"category_id" binding:"required"`} true "Add Category Request"
+// @Param request body AddManagedCategoryRequest true "Add Category Request"
 // @Success 204 "No Content"
 // @Router /api/v1/managers/{id}/categories [post]
 func (h *ManagerHandler) AddManagedCategory(c *gin.Context) {
 	managerID := c.Param("id")
-	var req struct {
-		CategoryID string `json:"category_id" binding:"required"`
-	}
+	var req AddManagedCategoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -285,14 +291,12 @@ func (h *ManagerHandler) RemoveManagedCategory(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Manager ID"
-// @Param request body struct{TeacherID string `json:"teacher_id" binding:"required"`} true "Add Teacher Request"
+// @Param request body AddManagedTeacherRequest true "Add Teacher Request"
 // @Success 204 "No Content"
 // @Router /api/v1/managers/{id}/teachers [post]
 func (h *ManagerHandler) AddManagedTeacher(c *gin.Context) {
 	managerID := c.Param("id")
-	var req struct {
-		TeacherID string `json:"teacher_id" binding:"required"`
-	}
+	var req AddManagedTeacherRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

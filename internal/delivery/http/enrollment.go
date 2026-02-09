@@ -12,6 +12,11 @@ type EnrollmentHandler struct {
 	service *enrollmentUC.Service
 }
 
+type CreateEnrollmentRequest struct {
+	CourseID  string `json:"course_id" binding:"required"`
+	StudentID string `json:"student_id" binding:"required"`
+}
+
 func NewEnrollmentHandler(service *enrollmentUC.Service) *EnrollmentHandler {
 	return &EnrollmentHandler{service: service}
 }
@@ -23,17 +28,14 @@ func NewEnrollmentHandler(service *enrollmentUC.Service) *EnrollmentHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; StudentID string `json:"student_id" binding:"required"`} true "Enrollment Request"
+// @Param request body CreateEnrollmentRequest true "Enrollment Request"
 // @Success 201 {object} enrollment.Enrollment "Created enrollment"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal error"
 // @Router /api/v1/enrollments [post]
 func (h *EnrollmentHandler) Enroll(c *gin.Context) {
-	var req struct {
-		CourseID  string `json:"course_id" binding:"required"`
-		StudentID string `json:"student_id" binding:"required"`
-	}
+	var req CreateEnrollmentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -12,6 +12,13 @@ type GradeHandler struct {
 	service *gradeUC.Service
 }
 
+type CreateGradeRequest struct {
+	SubmissionID string `json:"submission_id" binding:"required"`
+	Score        int    `json:"score" binding:"required,min=0"`
+	Feedback     string `json:"feedback"`
+	GradedBy     string `json:"graded_by" binding:"required"`
+}
+
 func NewGradeHandler(service *gradeUC.Service) *GradeHandler {
 	return &GradeHandler{service: service}
 }
@@ -23,7 +30,7 @@ func NewGradeHandler(service *gradeUC.Service) *GradeHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{SubmissionID string `json:"submission_id" binding:"required"`; Score int `json:"score" binding:"required,min=0"`; Feedback string `json:"feedback"`; GradedBy string `json:"graded_by" binding:"required"`} true "Grade Request"
+// @Param request body CreateGradeRequest true "Grade Request"
 // @Success 201 {object} grade.Grade "Created grade"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
@@ -31,12 +38,7 @@ func NewGradeHandler(service *gradeUC.Service) *GradeHandler {
 // @Failure 500 {object} map[string]string "Internal error"
 // @Router /api/v1/grades [post]
 func (h *GradeHandler) Grade(c *gin.Context) {
-	var req struct {
-		SubmissionID string `json:"submission_id" binding:"required"`
-		Score        int    `json:"score" binding:"required,min=0"`
-		Feedback     string `json:"feedback"`
-		GradedBy     string `json:"graded_by" binding:"required"`
-	}
+	var req CreateGradeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -140,16 +140,9 @@ func (h *CategoryManagerHandler) GetByCategoryID(c *gin.Context) {
 // @Param limit query int false "Limit" default(20)
 // @Param offset query int false "Offset" default(0)
 // @Success 200 {object} map[string]interface{} "Returns data (array of CategoryManager), limit, and offset"
-// @Router /api/v1/category-managers [get]// @Summary List all assignments
-// @Description Gets a paginated list of all category manager assignments
-// @Tags category-managers
-// @Security BearerAuth
-// @Produce json
-// @Param limit query int false "Limit" default(20)
-// @Param offset query int false "Offset" default(0)
-// @Success 200 {object} map[string]interface{} "Returns data (array of CategoryManager), limit, and offset"
-// @Router /api/v1/category-managers [get]func (h *CategoryManagerHandler) List(c *gin.Context) {
- Sands	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+// @Router /api/v1/category-managers [get]
+func (h *CategoryManagerHandler) List(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 
 	managers, err := h.service.List(c.Request.Context(), limit, offset)

@@ -12,6 +12,21 @@ type CourseHandler struct {
 	service *courseUC.Service
 }
 
+type CreateCourseRequest struct {
+	Code        string `json:"code" binding:"required"`
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description"`
+	TeacherID   string `json:"teacher_id" binding:"required"`
+	MaxPoints   int    `json:"max_points" binding:"required"`
+}
+
+type UpdateCourseRequest struct {
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+	MaxPoints   *int    `json:"max_points"`
+	Active      *bool   `json:"active"`
+}
+
 func NewCourseHandler(service *courseUC.Service) *CourseHandler {
 	return &CourseHandler{service: service}
 }
@@ -23,7 +38,7 @@ func NewCourseHandler(service *courseUC.Service) *CourseHandler {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{Code string `json:"code" binding:"required"`; Title string `json:"title" binding:"required"`; Description string `json:"description"`; TeacherID string `json:"teacher_id" binding:"required"`; MaxPoints int `json:"max_points" binding:"required"`} true "Create Course Request"
+// @Param request body CreateCourseRequest true "Create Course Request"
 // @Success 201 {object} course.Course "Created course"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
@@ -31,13 +46,7 @@ func NewCourseHandler(service *courseUC.Service) *CourseHandler {
 // @Failure 500 {object} map[string]string "Internal error"
 // @Router /api/v1/courses [post]
 func (h *CourseHandler) Create(c *gin.Context) {
-	var req struct {
-		Code        string `json:"code" binding:"required"`
-		Title       string `json:"title" binding:"required"`
-		Description string `json:"description"`
-		TeacherID   string `json:"teacher_id" binding:"required"`
-		MaxPoints   int    `json:"max_points" binding:"required"`
-	}
+	var req CreateCourseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -115,7 +124,7 @@ func (h *CourseHandler) List(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Course ID"
-// @Param request body struct{Title *string `json:"title"`; Description *string `json:"description"`; MaxPoints *int `json:"max_points"`; Active *bool `json:"active"`} true "Update Request"
+// @Param request body UpdateCourseRequest true "Update Request"
 // @Success 200 {object} course.Course "Updated course"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
@@ -124,12 +133,7 @@ func (h *CourseHandler) List(c *gin.Context) {
 // @Router /api/v1/courses/{id} [put]
 func (h *CourseHandler) Update(c *gin.Context) {
 	id := c.Param("id")
-	var req struct {
-		Title       *string `json:"title"`
-		Description *string `json:"description"`
-		MaxPoints   *int    `json:"max_points"`
-		Active      *bool   `json:"active"`
-	}
+	var req UpdateCourseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

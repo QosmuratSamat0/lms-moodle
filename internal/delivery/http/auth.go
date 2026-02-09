@@ -15,6 +15,19 @@ type AuthHandler struct {
 	authService *authUC.Service
 }
 
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+type LogoutRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
 func NewAuthHandler(userService *userUC.Service, authService *authUC.Service) *AuthHandler {
 	return &AuthHandler{
 		userService: userService,
@@ -28,7 +41,7 @@ func NewAuthHandler(userService *userUC.Service, authService *authUC.Service) *A
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body struct{Email string `json:"email" binding:"required,email"`; Password string `json:"password" binding:"required"`} true "Login Request"
+// @Param request body LoginRequest true "Login Request"
 // @Success 200 {object} map[string]interface{} "Tokens and user info"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Invalid credentials"
@@ -92,7 +105,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body struct{RefreshToken string `json:"refresh_token" binding:"required"`} true "Refresh Token Request"
+// @Param request body RefreshTokenRequest true "Refresh Token Request"
 // @Success 200 {object} auth.Token "New tokens"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Invalid refresh token"
@@ -129,7 +142,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body struct{RefreshToken string `json:"refresh_token"`} true "Logout Request"
+// @Param request body LogoutRequest true "Logout Request"
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal error"
