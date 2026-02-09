@@ -92,8 +92,17 @@ func (s *Service) List(ctx context.Context, limit, offset int) ([]*teacher.Teach
 	if limit > 100 {
 		limit = 100
 	}
+	if offset < 0 {
+		offset = 0
+	}
 
-	return s.repo.List(ctx, offset, limit)
+	filter := &teacher.TeacherFilter{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	teachers, _, err := s.repo.List(ctx, filter)
+	return teachers, err
 }
 
 func (s *Service) UpdateTeacher(ctx context.Context, id string, input *teacher.UpdateTeacherInput) (*teacher.Teacher, error) {
@@ -153,7 +162,7 @@ func (s *Service) GetTeacherCourses(ctx context.Context, teacherID string) ([]te
 		return nil, appErrors.ErrInvalidID
 	}
 
-	return s.repo.GetTeacherGourses(ctx, teacherID)
+	return s.repo.GetTeacherCourses(ctx, teacherID)
 }
 
 func (s *Service) GetTeacherGroups(ctx context.Context, teacherID string) ([]*teacher.TeacherGroup, error) {

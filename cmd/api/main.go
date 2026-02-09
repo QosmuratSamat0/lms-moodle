@@ -14,7 +14,7 @@ func main() {
 	db := appDeps.InitDatabaseWithConfig(cfg)
 	defer db.Close()
 
-	deps := appDeps.BuildDeps(db)
+	deps := appDeps.BuildDeps(db, cfg)
 
 	modules := appDeps.BuildHTTPModules(deps, cfg.JWTSecret)
 

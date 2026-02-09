@@ -94,3 +94,25 @@ func (s *Service) Login(email, password string) (string, error) {
 	token := email + ":" + string(rune(time.Now().Unix()))
 	return token, nil
 }
+
+// GetByEmailAndPassword валидирует пользователя по email и паролю
+func (s *Service) GetByEmailAndPassword(email, password string) (*user.User, error) {
+	u, err := s.repo.GetByEmail(email)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	// Хешируем пароль для сравнения
+	hash := sha256.Sum256([]byte(password))
+	hashedPassword := hex.EncodeToString(hash[:])
+
+	if hashedPassword != u.Password {
+		return nil, errors.New("invalid password")
+	}
+
+	if !u.Active {
+		return nil, errors.New("user is inactive")
+	}
+
+	return u, nil
+}

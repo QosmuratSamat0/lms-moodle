@@ -12,7 +12,7 @@ type Teacher struct {
 	Specialization string    `json:"specialization" db:"specialization"`
 	Qualifications string    `json:"qualifications" db:"qualifications"`
 	Bio            string    `json:"bio" db:"bio"`
-	OfficeHours    string    `json:"office_hours" db:"office_hours"` // JSON string
+	OfficeHours    string    `json:"office_hours" db:"office_hours"`
 	Phone          string    `json:"phone" db:"phone"`
 	IsActive       bool      `json:"is_active" db:"is_active"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
