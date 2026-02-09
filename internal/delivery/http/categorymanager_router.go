@@ -1,6 +1,7 @@
 package http
 
 import (
+
 	"github.com/ap1-final-mini-moodle/internal/delivery/http/middleware"
 	"github.com/ap1-final-mini-moodle/internal/domain/categorymanager"
 	authUC "github.com/ap1-final-mini-moodle/internal/usecase/auth"
@@ -27,49 +28,32 @@ func (m *CategoryManagerModule) Register(r *gin.Engine) {
 	catMgrs := api.Group("/category-managers")
 	catMgrs.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		// VIEW — read-only access
-		catMgrs.GET("",
-			middleware.RequireCategoryManagerPermission(m.repo, "view"),
-			m.handler.List,
-		)
+		// VIEW — все авторизованные могут видеть списки и детали
+		catMgrs.GET("", m.handler.List)
 
-		catMgrs.GET("/:id",
-			middleware.RequireCategoryManagerPermission(m.repo, "view"),
-			m.handler.GetByID,
-		)
+		catMgrs.GET("/:id", m.handler.GetByID)
 
-		catMgrs.GET("/:id/details",
-			middleware.RequireCategoryManagerPermission(m.repo, "view"),
-			m.handler.GetWithDetails,
-		)
+		catMgrs.GET("/:id/details", m.handler.GetWithDetails)
 
-		catMgrs.GET("/user-category",
-			middleware.RequireCategoryManagerPermission(m.repo, "view"),
-			m.handler.GetByUserAndCategory,
-		)
+		catMgrs.GET("/user-category", m.handler.GetByUserAndCategory)
 
-		catMgrs.GET("/by-user/:userID",
-			middleware.RequireCategoryManagerPermission(m.repo, "view"),
-			m.handler.GetByUserID,
-		)
+		catMgrs.GET("/by-user/:userID", m.handler.GetByUserID)
 
-		catMgrs.GET("/by-category/:categoryID",
-			middleware.RequireCategoryManagerPermission(m.repo, "view"),
-			m.handler.GetByCategoryID,
-		)
+		catMgrs.GET("/by-category/:categoryID", m.handler.GetByCategoryID)
 
-		// EDIT — update access
+		// UPDATE — требует edit permission
 		catMgrs.PUT("/:id",
 			middleware.RequireCategoryManagerPermission(m.repo, "edit"),
 			m.handler.Update,
 		)
 
-		// ADMIN — full access
+		// CREATE — требует admin permission
 		catMgrs.POST("",
 			middleware.RequireCategoryManagerPermission(m.repo, "admin"),
 			m.handler.Create,
 		)
 
+		// DELETE — требует admin permission
 		catMgrs.DELETE("/:id",
 			middleware.RequireCategoryManagerPermission(m.repo, "admin"),
 			m.handler.Delete,

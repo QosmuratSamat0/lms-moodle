@@ -17,6 +17,16 @@ func NewManagerHandler(service *managerUC.Service) *ManagerHandler {
 	return &ManagerHandler{service: service}
 }
 
+// Create creates a new manager
+// @Summary Create manager
+// @Description Creates a new manager profile (Admin only)
+// @Tags managers
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body manager.CreateManagerInput true "Create Manager Request"
+// @Success 201 {object} manager.Manager
+// @Router /api/v1/managers [post]
 func (h *ManagerHandler) Create(c *gin.Context) {
 	var req manager.CreateManagerInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -33,6 +43,15 @@ func (h *ManagerHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, m)
 }
 
+// GetByID returns a manager by ID
+// @Summary Get manager by ID
+// @Description Gets a specific manager profile
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Manager ID"
+// @Success 200 {object} manager.Manager
+// @Router /api/v1/managers/{id} [get]
 func (h *ManagerHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	m, err := h.service.GetByID(c.Request.Context(), id)
@@ -44,6 +63,15 @@ func (h *ManagerHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, m)
 }
 
+// GetByUserID returns a manager by user ID
+// @Summary Get manager by user ID
+// @Description Gets a manager profile associated with a user
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Param userID path string true "User ID"
+// @Success 200 {object} manager.Manager
+// @Router /api/v1/managers/user/{userID} [get]
 func (h *ManagerHandler) GetByUserID(c *gin.Context) {
 	userID := c.Param("userID")
 	m, err := h.service.GetByUserID(c.Request.Context(), userID)
@@ -55,6 +83,14 @@ func (h *ManagerHandler) GetByUserID(c *gin.Context) {
 	c.JSON(http.StatusOK, m)
 }
 
+// GetMyProfile returns the profile of the authenticated manager
+// @Summary Get my profile
+// @Description Gets the current manager's profile
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} manager.Manager
+// @Router /api/v1/managers/me [get]
 func (h *ManagerHandler) GetMyProfile(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -71,6 +107,15 @@ func (h *ManagerHandler) GetMyProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, m)
 }
 
+// GetByDepartment returns managers by department
+// @Summary List managers by department
+// @Description Gets all managers in a specific department
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Param department query string true "Department Name"
+// @Success 200 {array} manager.Manager
+// @Router /api/v1/managers/department [get]
 func (h *ManagerHandler) GetByDepartment(c *gin.Context) {
 	department := c.Query("department")
 	if department == "" {
@@ -87,6 +132,16 @@ func (h *ManagerHandler) GetByDepartment(c *gin.Context) {
 	c.JSON(http.StatusOK, managers)
 }
 
+// List returns all managers with pagination
+// @Summary List all managers
+// @Description Gets a paginated list of all manager profiles
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Param limit query int false "Limit" default(20)
+// @Param offset query int false "Offset" default(0)
+// @Success 200 {object} map[string]interface{} "Returns data (array of Manager), limit, and offset"
+// @Router /api/v1/managers [get]
 func (h *ManagerHandler) List(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
@@ -104,6 +159,17 @@ func (h *ManagerHandler) List(c *gin.Context) {
 	})
 }
 
+// Update updates a manager profile
+// @Summary Update manager
+// @Description Updates an existing manager profile (Admin only)
+// @Tags managers
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Manager ID"
+// @Param request body manager.UpdateManagerInput true "Update Manager Request"
+// @Success 200 {object} manager.Manager
+// @Router /api/v1/managers/{id} [put]
 func (h *ManagerHandler) Update(c *gin.Context) {
 	id := c.Param("id")
 	var req manager.UpdateManagerInput
@@ -121,6 +187,15 @@ func (h *ManagerHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, m)
 }
 
+// Delete removes a manager profile
+// @Summary Delete manager
+// @Description Removes a manager profile (Admin only)
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Manager ID"
+// @Success 204 "No Content"
+// @Router /api/v1/managers/{id} [delete]
 func (h *ManagerHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.service.DeleteManager(c.Request.Context(), id); err != nil {
@@ -131,6 +206,15 @@ func (h *ManagerHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// GetWithDetails returns a manager with related entities
+// @Summary Get manager with details
+// @Description Gets a specific manager profile including managed categories and teachers
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Manager ID"
+// @Success 200 {object} manager.Manager
+// @Router /api/v1/managers/{id}/details [get]
 func (h *ManagerHandler) GetWithDetails(c *gin.Context) {
 	id := c.Param("id")
 	m, err := h.service.GetWithDetails(c.Request.Context(), id)
@@ -142,6 +226,17 @@ func (h *ManagerHandler) GetWithDetails(c *gin.Context) {
 	c.JSON(http.StatusOK, m)
 }
 
+// AddManagedCategory assigns a category to a manager
+// @Summary Add managed category
+// @Description Assigns a course category to be managed by this manager (Admin only)
+// @Tags managers
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Manager ID"
+// @Param request body struct{CategoryID string `json:"category_id" binding:"required"`} true "Add Category Request"
+// @Success 204 "No Content"
+// @Router /api/v1/managers/{id}/categories [post]
 func (h *ManagerHandler) AddManagedCategory(c *gin.Context) {
 	managerID := c.Param("id")
 	var req struct {
@@ -160,6 +255,16 @@ func (h *ManagerHandler) AddManagedCategory(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// RemoveManagedCategory unassigns a category from a manager
+// @Summary Remove managed category
+// @Description Removes a course category from this manager's responsibilities (Admin only)
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Manager ID"
+// @Param categoryID path string true "Category ID"
+// @Success 204 "No Content"
+// @Router /api/v1/managers/{id}/categories/{categoryID} [delete]
 func (h *ManagerHandler) RemoveManagedCategory(c *gin.Context) {
 	managerID := c.Param("id")
 	categoryID := c.Param("categoryID")
@@ -172,6 +277,17 @@ func (h *ManagerHandler) RemoveManagedCategory(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// AddManagedTeacher assigns a teacher to a manager
+// @Summary Add managed teacher
+// @Description Assigns a teacher to be managed by this manager (Admin only)
+// @Tags managers
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Manager ID"
+// @Param request body struct{TeacherID string `json:"teacher_id" binding:"required"`} true "Add Teacher Request"
+// @Success 204 "No Content"
+// @Router /api/v1/managers/{id}/teachers [post]
 func (h *ManagerHandler) AddManagedTeacher(c *gin.Context) {
 	managerID := c.Param("id")
 	var req struct {
@@ -190,6 +306,16 @@ func (h *ManagerHandler) AddManagedTeacher(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// RemoveManagedTeacher unassigns a teacher from a manager
+// @Summary Remove managed teacher
+// @Description Removes a teacher from this manager's responsibilities (Admin only)
+// @Tags managers
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Manager ID"
+// @Param teacherID path string true "Teacher ID"
+// @Success 204 "No Content"
+// @Router /api/v1/managers/{id}/teachers/{teacherID} [delete]
 func (h *ManagerHandler) RemoveManagedTeacher(c *gin.Context) {
 	managerID := c.Param("id")
 	teacherID := c.Param("teacherID")

@@ -23,8 +23,19 @@ func (m *AttendanceModule) Register(r *gin.Engine) {
 	attendance := api.Group("/attendance")
 	attendance.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		attendance.POST("", m.handler.Record)
+		// VIEW — teacher видит свои, admin видит все
 		attendance.GET("/course/:courseID", m.handler.ListByCourse)
-		attendance.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — только teacher/admin
+		attendance.POST("",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Record,
+		)
+
+		// DELETE — только admin
+		attendance.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

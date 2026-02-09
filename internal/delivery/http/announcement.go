@@ -16,6 +16,20 @@ func NewAnnouncementHandler(service *announcementUC.Service) *AnnouncementHandle
 	return &AnnouncementHandler{service: service}
 }
 
+// Create creates a new announcement
+// @Summary Create announcement
+// @Description Create a new course announcement (Teacher/Admin only)
+// @Tags announcements
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; Title string `json:"title" binding:"required"`; Content string `json:"content" binding:"required"`; Pinned bool `json:"pinned"`} true "Create Announcement Request"
+// @Success 201 {object} announcement.Announcement "Created announcement"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/announcements [post]
 func (h *AnnouncementHandler) Create(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	authorID := ""
@@ -48,6 +62,17 @@ func (h *AnnouncementHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, a)
 }
 
+// GetByID returns an announcement by ID
+// @Summary Get announcement by ID
+// @Description Returns announcement details by ID
+// @Tags announcements
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Announcement ID"
+// @Success 200 {object} announcement.Announcement "Announcement details"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 404 {object} map[string]string "Announcement not found"
+// @Router /api/v1/announcements/{id} [get]
 func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	a, err := h.service.GetByID(c.Request.Context(), id)
@@ -59,6 +84,19 @@ func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, a)
 }
 
+// ListByCourse returns announcements for a specific course
+// @Summary List course announcements
+// @Description Returns a paginated list of announcements for a course
+// @Tags announcements
+// @Security BearerAuth
+// @Produce json
+// @Param courseID path string true "Course ID"
+// @Param limit query int false "Limit" default(20)
+// @Param offset query int false "Offset" default(0)
+// @Success 200 {object} map[string]interface{} "Announcements list"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/courses/{courseID}/announcements [get]
 func (h *AnnouncementHandler) ListByCourse(c *gin.Context) {
 	courseID := c.Param("courseID")
 	var req struct {
@@ -82,6 +120,22 @@ func (h *AnnouncementHandler) ListByCourse(c *gin.Context) {
 	})
 }
 
+// Update updates announcement details
+// @Summary Update announcement
+// @Description Update announcement details (Author/Admin only)
+// @Tags announcements
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Announcement ID"
+// @Param request body struct{Title *string `json:"title"`; Content *string `json:"content"`; Pinned *bool `json:"pinned"`} true "Update Request"
+// @Success 200 {object} announcement.Announcement "Updated announcement"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 404 {object} map[string]string "Announcement not found"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/announcements/{id} [put]
 func (h *AnnouncementHandler) Update(c *gin.Context) {
 	id := c.Param("id")
 	userID, _ := c.Get("userID")
@@ -113,6 +167,19 @@ func (h *AnnouncementHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, a)
 }
 
+// Delete deletes an announcement
+// @Summary Delete announcement
+// @Description Deletes an announcement by ID (Author/Admin only)
+// @Tags announcements
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Announcement ID"
+// @Success 204 "No content"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 404 {object} map[string]string "Announcement not found"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/announcements/{id} [delete]
 func (h *AnnouncementHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	userID, _ := c.Get("userID")

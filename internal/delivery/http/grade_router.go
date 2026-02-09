@@ -23,8 +23,19 @@ func (m *GradeModule) Register(r *gin.Engine) {
 	grades := api.Group("/grades")
 	grades.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		grades.POST("", m.handler.Grade)
+		// VIEW — student видит свои, teacher видит свои, admin видит все
 		grades.GET("/:id", m.handler.GetByID)
-		grades.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — только teacher/admin
+		grades.POST("",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Grade,
+		)
+
+		// DELETE — только admin
+		grades.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

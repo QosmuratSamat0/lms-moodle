@@ -16,6 +16,17 @@ func NewUploadHandler(service *uploadUC.Service) *UploadHandler {
 	return &UploadHandler{service: service}
 }
 
+// Upload records a file upload
+// @Summary Record upload
+// @Description Records file upload metadata
+// @Tags uploads
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body struct{UserID string `json:"user_id" binding:"required"`; FileName string `json:"file_name" binding:"required"`; FileURL string `json:"file_url" binding:"required"`; FileSize int64 `json:"file_size" binding:"required"`; MimeType string `json:"mime_type" binding:"required"`} true "Upload Request"
+// @Success 201 {object} upload.Upload "Recorded upload"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Router /api/v1/uploads [post]
 func (h *UploadHandler) Upload(c *gin.Context) {
 	var req struct {
 		UserID   string `json:"user_id" binding:"required"`
@@ -42,6 +53,15 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 	c.JSON(http.StatusCreated, u)
 }
 
+// GetByID returns an upload record by ID
+// @Summary Get upload by ID
+// @Description Returns upload metadata by ID
+// @Tags uploads
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Upload ID"
+// @Success 200 {object} upload.Upload "Upload details"
+// @Router /api/v1/uploads/{id} [get]
 func (h *UploadHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	u, err := h.service.GetByID(id)
@@ -52,6 +72,17 @@ func (h *UploadHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, u)
 }
 
+// ListByUser returns upload records for a specific user
+// @Summary List user uploads
+// @Description Returns a paginated list of uploads for a user
+// @Tags uploads
+// @Security BearerAuth
+// @Produce json
+// @Param userID path string true "User ID"
+// @Param skip query int false "Skip" default(0)
+// @Param take query int false "Take" default(10)
+// @Success 200 {array} upload.Upload "Uploads list"
+// @Router /api/v1/uploads/user/{userID} [get]
 func (h *UploadHandler) ListByUser(c *gin.Context) {
 	userID := c.Param("userID")
 	var req struct {
@@ -70,6 +101,15 @@ func (h *UploadHandler) ListByUser(c *gin.Context) {
 	c.JSON(http.StatusOK, uploads)
 }
 
+// Delete deletes an upload record
+// @Summary Delete upload
+// @Description Deletes an upload record by ID (Admin only)
+// @Tags uploads
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Upload ID"
+// @Success 204 "No content"
+// @Router /api/v1/uploads/{id} [delete]
 func (h *UploadHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.service.Delete(id); err != nil {

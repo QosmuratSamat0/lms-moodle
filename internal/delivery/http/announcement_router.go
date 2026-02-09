@@ -24,10 +24,26 @@ func (m *AnnouncementModule) Register(r *gin.Engine) {
 
 	announcements := api.Group("/announcements")
 	{
-		announcements.POST("", m.handler.Create)
+		// VIEW — все могут видеть
 		announcements.GET("/:id", m.handler.GetByID)
-		announcements.PUT("/:id", m.handler.Update)
-		announcements.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — только teacher/admin
+		announcements.POST("",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Create,
+		)
+
+		// UPDATE — owner (teacher) или admin
+		announcements.PUT("/:id",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Update,
+		)
+
+		// DELETE — owner или admin
+		announcements.DELETE("/:id",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 
 	api.GET("/courses/:courseID/announcements", m.handler.ListByCourse)

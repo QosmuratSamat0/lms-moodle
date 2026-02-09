@@ -24,11 +24,29 @@ func (m *QuizModule) Register(r *gin.Engine) {
 
 	quizzes := api.Group("/quizzes")
 	{
-		quizzes.POST("", m.handler.Create)
-		quizzes.PUT("/:id", m.handler.Update)
-		quizzes.DELETE("/:id", m.handler.Delete)
+		// VIEW — все могут видеть квизы
 		quizzes.GET("/:id", m.handler.GetByID)
 		quizzes.GET("/:id/questions", m.handler.GetQuizQuestions)
+
+		// CREATE — только teacher/admin
+		quizzes.POST("",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Create,
+		)
+
+		// UPDATE — teacher (owner) или admin
+		quizzes.PUT("/:id",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Update,
+		)
+
+		// DELETE — только admin
+		quizzes.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
+
+		// ATTEMPTS — student может создавать и видеть свои
 		quizzes.POST("/:id/attempts", m.handler.StartAttempt)
 		quizzes.GET("/:id/attempts", m.handler.GetStudentAttempts)
 	}

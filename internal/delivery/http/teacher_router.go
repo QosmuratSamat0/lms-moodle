@@ -24,14 +24,31 @@ func (m *TeacherModule) Register(r *gin.Engine) {
 	teachers := api.Group("/teachers")
 	teachers.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
+		// GET own profile
 		teachers.GET("/me", m.handler.GetMyProfile)
-		teachers.POST("", m.handler.Create)
+
+		// VIEW — все могут видеть список и профили учителей
 		teachers.GET("", m.handler.List)
 		teachers.GET("/:id", m.handler.GetByID)
-		teachers.PUT("/:id", m.handler.Update)
-		teachers.DELETE("/:id", m.handler.Delete)
 		teachers.GET("/:id/courses", m.handler.GetCourses)
 		teachers.GET("/:id/groups", m.handler.GetGroups)
 		teachers.GET("/user/:userID", m.handler.GetByUserID)
+
+		// CREATE — только admin
+		teachers.POST("",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Create,
+		)
+
+		// UPDATE — teacher (own) или admin
+		teachers.PUT("/:id",
+			m.handler.Update,
+		)
+
+		// DELETE — только admin
+		teachers.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

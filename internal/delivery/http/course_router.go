@@ -23,10 +23,26 @@ func (m *CourseModule) Register(r *gin.Engine) {
 	courses := api.Group("/courses")
 	courses.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		courses.POST("", m.handler.Create)
+		// VIEW — все авторизованные
 		courses.GET("", m.handler.List)
 		courses.GET("/:id", m.handler.GetByID)
-		courses.PUT("/:id", m.handler.Update)
-		courses.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — только admin/super_admin
+		courses.POST("",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Create,
+		)
+
+		// UPDATE — teacher (owner) или admin
+		courses.PUT("/:id",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Update,
+		)
+
+		// DELETE — только admin/super_admin
+		courses.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

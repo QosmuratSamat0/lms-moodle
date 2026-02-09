@@ -23,9 +23,19 @@ func (m *UploadModule) Register(r *gin.Engine) {
 	uploads := api.Group("/uploads")
 	uploads.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		uploads.POST("", m.handler.Upload)
+		// VIEW — owner или admin
 		uploads.GET("/:id", m.handler.GetByID)
 		uploads.GET("/user/:userID", m.handler.ListByUser)
-		uploads.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — все могут загружать
+		uploads.POST("",
+			m.handler.Upload,
+		)
+
+		// DELETE — owner или admin
+		uploads.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

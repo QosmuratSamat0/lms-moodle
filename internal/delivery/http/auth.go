@@ -23,6 +23,16 @@ func NewAuthHandler(userService *userUC.Service, authService *authUC.Service) *A
 }
 
 // Login аутентифицирует пользователя и выдаёт JWT + refresh token
+// @Summary Login user
+// @Description Authenticate user and return tokens
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body struct{Email string `json:"email" binding:"required,email"`; Password string `json:"password" binding:"required"`} true "Login Request"
+// @Success 200 {object} map[string]interface{} "Tokens and user info"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Invalid credentials"
+// @Router /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req struct {
 		Email    string `json:"email" binding:"required,email"`
@@ -77,6 +87,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 // RefreshToken обновляет access token, используя refresh token
+// @Summary Refresh access token
+// @Description Get new access token using refresh token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body struct{RefreshToken string `json:"refresh_token" binding:"required"`} true "Refresh Token Request"
+// @Success 200 {object} auth.Token "New tokens"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Invalid refresh token"
+// @Router /api/v1/auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req struct {
 		RefreshToken string `json:"refresh_token" binding:"required"`
@@ -103,6 +123,17 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 }
 
 // Logout деактивирует текущую сессию
+// @Summary Logout user
+// @Description Deactivate current session
+// @Tags auth
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body struct{RefreshToken string `json:"refresh_token"`} true "Logout Request"
+// @Success 200 {object} map[string]string "Success message"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	var req struct {
 		RefreshToken string `json:"refresh_token"`
@@ -127,6 +158,15 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 }
 
 // LogoutEverywhere деактивирует все сессии пользователя
+// @Summary Logout from all devices
+// @Description Deactivate all user sessions
+// @Tags auth
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]string "Success message"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/auth/logout-everywhere [post]
 func (h *AuthHandler) LogoutEverywhere(c *gin.Context) {
 	userID, err := middleware.GetUserIDFromContext(c)
 	if err != nil {
@@ -143,6 +183,15 @@ func (h *AuthHandler) LogoutEverywhere(c *gin.Context) {
 }
 
 // GetActiveSessions получает список активных сессий пользователя
+// @Summary Get active sessions
+// @Description Returns list of all active sessions for current user
+// @Tags auth
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Sessions list"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/auth/sessions [get]
 func (h *AuthHandler) GetActiveSessions(c *gin.Context) {
 	userID, err := middleware.GetUserIDFromContext(c)
 	if err != nil {
@@ -176,6 +225,18 @@ func (h *AuthHandler) GetActiveSessions(c *gin.Context) {
 }
 
 // RevokeSessionByID деактивирует конкретную сессию по ID
+// @Summary Revoke specific session
+// @Description Deactivate a specific session by its ID
+// @Tags auth
+// @Security BearerAuth
+// @Produce json
+// @Param session_id path string true "Session ID"
+// @Success 200 {object} map[string]string "Success message"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/auth/sessions/{session_id} [delete]
 func (h *AuthHandler) RevokeSessionByID(c *gin.Context) {
 	sessionID := c.Param("session_id")
 	if sessionID == "" {
@@ -215,6 +276,14 @@ func (h *AuthHandler) RevokeSessionByID(c *gin.Context) {
 }
 
 // Verify проверяет валидность текущего токена
+// @Summary Verify token
+// @Description Validate current JWT token and return user claims
+// @Tags auth
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Token claims"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Router /api/v1/auth/verify [post]
 func (h *AuthHandler) Verify(c *gin.Context) {
 	claims, err := GetTokenClaimsFromContext(c)
 	if err != nil {

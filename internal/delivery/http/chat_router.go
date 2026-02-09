@@ -23,8 +23,16 @@ func (m *ChatModule) Register(r *gin.Engine) {
 	chat := api.Group("/chat")
 	chat.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		chat.POST("", m.handler.SendMessage)
+		// VIEW — все в группе могут видеть
 		chat.GET("/course/:courseID", m.handler.ListByCourse)
-		chat.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — все может отправить сообщение
+		chat.POST("", m.handler.SendMessage)
+
+		// DELETE — owner или admin
+		chat.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

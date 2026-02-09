@@ -24,10 +24,26 @@ func (m *CourseCategoryModule) Register(r *gin.Engine) {
 	categories := api.Group("/categories")
 	categories.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		categories.POST("", m.handler.Create)
+		// VIEW — все могут видеть категории
 		categories.GET("", m.handler.List)
 		categories.GET("/:id", m.handler.GetByID)
-		categories.PUT("/:id", m.handler.Update)
-		categories.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — только admin
+		categories.POST("",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Create,
+		)
+
+		// UPDATE — only admin
+		categories.PUT("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Update,
+		)
+
+		// DELETE — только admin
+		categories.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

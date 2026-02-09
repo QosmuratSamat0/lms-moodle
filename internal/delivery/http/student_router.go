@@ -24,15 +24,32 @@ func (m *StudentModule) Register(r *gin.Engine) {
 	students := api.Group("/students")
 	students.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
+		// GET own profile
 		students.GET("/me", m.handler.GetMyProfile)
-		students.POST("", m.handler.Create)
+
+		// VIEW — все могут видеть список и профили студентов
 		students.GET("", m.handler.List)
 		students.GET("/:id", m.handler.GetByID)
 		students.GET("/:id/details", m.handler.GetWithDetails)
-		students.PUT("/:id", m.handler.Update)
-		students.DELETE("/:id", m.handler.Delete)
 		students.GET("/:id/enrollments", m.handler.GetEnrollments)
 		students.GET("/:id/groups", m.handler.GetGroups)
 		students.GET("/user/:userID", m.handler.GetByUserID)
+
+		// CREATE — только admin (создание профиля студента)
+		students.POST("",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Create,
+		)
+
+		// UPDATE — student (own) или admin
+		students.PUT("/:id",
+			m.handler.Update,
+		)
+
+		// DELETE — только admin
+		students.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

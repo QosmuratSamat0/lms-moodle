@@ -17,6 +17,20 @@ func NewAttendanceHandler(service *attendanceUC.Service) *AttendanceHandler {
 	return &AttendanceHandler{service: service}
 }
 
+// Record records attendance for a student
+// @Summary Record attendance
+// @Description Records attendance for a student in a course (Teacher/Admin only)
+// @Tags attendance
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; StudentID string `json:"student_id" binding:"required"`; Date time.Time `json:"date" binding:"required"`; Present bool `json:"present"`} true "Attendance Request"
+// @Success 201 {object} attendance.Attendance "Created attendance"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/attendance [post]
 func (h *AttendanceHandler) Record(c *gin.Context) {
 	var req struct {
 		CourseID  string    `json:"course_id" binding:"required"`
@@ -41,6 +55,19 @@ func (h *AttendanceHandler) Record(c *gin.Context) {
 	c.JSON(http.StatusCreated, a)
 }
 
+// ListByCourse returns attendance records for a specific course
+// @Summary List course attendance
+// @Description Returns a paginated list of attendance records for a course
+// @Tags attendance
+// @Security BearerAuth
+// @Produce json
+// @Param courseID path string true "Course ID"
+// @Param skip query int false "Skip" default(0)
+// @Param take query int false "Take" default(10)
+// @Success 200 {array} attendance.Attendance "Attendance list"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/attendance/course/{courseID} [get]
 func (h *AttendanceHandler) ListByCourse(c *gin.Context) {
 	courseID := c.Param("courseID")
 	var req struct {
@@ -59,6 +86,18 @@ func (h *AttendanceHandler) ListByCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, attendances)
 }
 
+// Delete deletes an attendance record
+// @Summary Delete attendance
+// @Description Deletes an attendance record by ID (Admin only)
+// @Tags attendance
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Attendance ID"
+// @Success 204 "No content"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 404 {object} map[string]string "Attendance not found"
+// @Router /api/v1/attendance/{id} [delete]
 func (h *AttendanceHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.service.Delete(id); err != nil {

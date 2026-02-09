@@ -10,8 +10,20 @@ import (
 
 // RequireCategoryManagerPermission checks if user has required permission level for a category
 // Permission levels: "view" (read), "edit" (read+update), "admin" (full access)
+// Admin/super_admin bypass this check
 func RequireCategoryManagerPermission(repo categorymanager.Repository, requiredLevel string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Admin/super_admin bypass permission checks
+		role, exists := c.Get("userRole")
+		if exists {
+			if roleStr, ok := role.(string); ok {
+				if roleStr == "admin" || roleStr == "super_admin" {
+					c.Next()
+					return
+				}
+			}
+		}
+
 		userID := c.GetString("userID")
 		if userID == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "user id required"})

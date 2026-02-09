@@ -30,10 +30,23 @@ func (m *UserModule) Register(r *gin.Engine) {
 		protected := users.Group("")
 		protected.Use(middleware.AuthTokenMiddleware(m.authService))
 		{
-			protected.GET("", m.handler.List)
+			// LIST — только admin/super_admin
+			protected.GET("",
+				middleware.RequireRole("admin", "super_admin"),
+				m.handler.List,
+			)
+
+			// GET — own or admin
 			protected.GET("/:id", m.handler.GetByID)
+
+			// UPDATE — own or admin
 			protected.PATCH("/:id", m.handler.Update)
-			protected.DELETE("/:id", m.handler.Delete)
+
+			// DELETE — только admin/super_admin
+			protected.DELETE("/:id",
+				middleware.RequireRole("admin", "super_admin"),
+				m.handler.Delete,
+			)
 		}
 	}
 }

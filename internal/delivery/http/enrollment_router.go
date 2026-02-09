@@ -23,9 +23,20 @@ func (m *EnrollmentModule) Register(r *gin.Engine) {
 	enrollments := api.Group("/enrollments")
 	enrollments.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		enrollments.POST("", m.handler.Enroll)
+		// VIEW — teacher видит в своём курсе, admin видит все
 		enrollments.GET("/course/:courseID", m.handler.ListByCourse)
 		enrollments.GET("/student/:studentID", m.handler.ListByStudent)
-		enrollments.DELETE("/:id", m.handler.Remove)
+
+		// CREATE — студент, учитель или админ
+		enrollments.POST("",
+			middleware.RequireRole("student", "teacher", "admin", "super_admin"),
+			m.handler.Enroll,
+		)
+
+		// DELETE — только teacher (курса) или admin
+		enrollments.DELETE("/:id",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Remove,
+		)
 	}
 }

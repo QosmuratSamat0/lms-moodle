@@ -24,12 +24,31 @@ func (m *AppealModule) Register(r *gin.Engine) {
 
 	appeals := api.Group("/appeals")
 	{
-		appeals.POST("", m.handler.Create)
+		// VIEW — student видит свои, admin видит все
 		appeals.GET("", m.handler.GetStudentAppeals)
 		appeals.GET("/:id", m.handler.GetByID)
-		appeals.DELETE("/:id", m.handler.Delete)
-		appeals.PUT("/:id/resolve", m.handler.Resolve)
+
+		// CREATE — только student
+		appeals.POST("",
+			middleware.RequireRole("student"),
+			m.handler.Create,
+		)
+
+		// DELETE — только student (owner) или admin
+		appeals.DELETE("/:id",
+			middleware.RequireRole("student", "admin", "super_admin"),
+			m.handler.Delete,
+		)
+
+		// RESOLVE — только teacher/admin
+		appeals.PUT("/:id/resolve",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Resolve,
+		)
 	}
 
-	api.GET("/teacher/appeals", m.handler.GetTeacherAppeals)
+	api.GET("/teacher/appeals",
+		middleware.RequireRole("teacher", "admin", "super_admin"),
+		m.handler.GetTeacherAppeals,
+	)
 }

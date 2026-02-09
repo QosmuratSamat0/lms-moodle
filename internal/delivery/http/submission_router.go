@@ -23,10 +23,21 @@ func (m *SubmissionModule) Register(r *gin.Engine) {
 	submissions := api.Group("/submissions")
 	submissions.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		submissions.POST("", m.handler.Submit)
+		// VIEW — студент видит свои, учитель видит все в своём курсе, админ видит все
 		submissions.GET("/:id", m.handler.GetByID)
 		submissions.GET("/assignment/:assignmentID", m.handler.ListByAssignment)
 		submissions.GET("/student/:studentID", m.handler.ListByStudent)
-		submissions.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — только student/teacher/admin
+		submissions.POST("",
+			middleware.RequireRole("student", "teacher", "admin", "super_admin"),
+			m.handler.Submit,
+		)
+
+		// DELETE — только admin или owner
+		submissions.DELETE("/:id",
+			middleware.RequireRole("admin", "super_admin", "teacher"),
+			m.handler.Delete,
+		)
 	}
 }

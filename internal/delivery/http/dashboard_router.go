@@ -24,8 +24,20 @@ func (m *DashboardModule) Register(r *gin.Engine) {
 	dashboard := api.Group("/dashboard")
 	dashboard.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		dashboard.GET("/student", m.handler.GetStudentDashboard)
-		dashboard.GET("/student/courses/:courseID", m.handler.GetStudentCourseStats)
-		dashboard.GET("/teacher", m.handler.GetTeacherDashboard)
+		// Student dashboard — только для студентов
+		dashboard.GET("/student",
+			middleware.RequireRole("student"),
+			m.handler.GetStudentDashboard,
+		)
+		dashboard.GET("/student/courses/:courseID",
+			middleware.RequireRole("student"),
+			m.handler.GetStudentCourseStats,
+		)
+
+		// Teacher dashboard — только для учителей/админов
+		dashboard.GET("/teacher",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.GetTeacherDashboard,
+		)
 	}
 }

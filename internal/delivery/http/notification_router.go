@@ -23,8 +23,15 @@ func (m *NotificationModule) Register(r *gin.Engine) {
 	notifications := api.Group("/notifications")
 	notifications.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
+		// VIEW — only own notifications
 		notifications.GET("", m.handler.ListByUser)
+
+		// UPDATE — только owner
 		notifications.PATCH("/:id/read", m.handler.MarkAsRead)
-		notifications.DELETE("/:id", m.handler.Delete)
+
+		// DELETE — только owner или admin
+		notifications.DELETE("/:id",
+			m.handler.Delete,
+		)
 	}
 }

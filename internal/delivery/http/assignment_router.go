@@ -23,9 +23,20 @@ func (m *AssignmentModule) Register(r *gin.Engine) {
 	assignments := api.Group("/assignments")
 	assignments.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		assignments.POST("", m.handler.Create)
+		// VIEW — студенты видят свои, учителя свои, админы все
 		assignments.GET("/:id", m.handler.GetByID)
 		assignments.GET("/course/:courseID", m.handler.ListByCourse)
-		assignments.DELETE("/:id", m.handler.Delete)
+
+		// CREATE — только teacher/admin
+		assignments.POST("",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Create,
+		)
+
+		// DELETE — только teacher (owner) или admin
+		assignments.DELETE("/:id",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Delete,
+		)
 	}
 }

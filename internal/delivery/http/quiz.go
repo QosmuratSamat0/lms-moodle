@@ -17,6 +17,20 @@ func NewQuizHandler(service *quizUC.Service) *QuizHandler {
 	return &QuizHandler{service: service}
 }
 
+// Create creates a new quiz
+// @Summary Create quiz
+// @Description Create a new quiz with questions (Teacher/Admin only)
+// @Tags quizzes
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body struct{CourseID string `json:"course_id" binding:"required"`; Title string `json:"title" binding:"required"`; Description string `json:"description"`; TimeLimit int `json:"time_limit_minutes"`; MaxAttempts int `json:"max_attempts"`; StartDate *string `json:"start_date"`; EndDate *string `json:"end_date"`; Questions []questionReq `json:"questions" binding:"required,min=1"`} true "Create Quiz Request"
+// @Success 201 {object} quiz.Quiz "Created quiz"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/quizzes [post]
 func (h *QuizHandler) Create(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	createdBy := ""
@@ -76,6 +90,17 @@ type questionReq struct {
 	Points        int               `json:"points" binding:"required,min=1"`
 }
 
+// GetByID returns a quiz by ID
+// @Summary Get quiz by ID
+// @Description Returns quiz details by ID
+// @Tags quizzes
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Quiz ID"
+// @Success 200 {object} quiz.Quiz "Quiz details"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 404 {object} map[string]string "Quiz not found"
+// @Router /api/v1/quizzes/{id} [get]
 func (h *QuizHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	qz, err := h.service.GetQuizByID(c.Request.Context(), id)
@@ -87,6 +112,19 @@ func (h *QuizHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, qz)
 }
 
+// ListByCourse returns quizzes for a specific course
+// @Summary List course quizzes
+// @Description Returns a paginated list of quizzes for a course
+// @Tags quizzes
+// @Security BearerAuth
+// @Produce json
+// @Param courseID path string true "Course ID"
+// @Param limit query int false "Limit" default(20)
+// @Param offset query int false "Offset" default(0)
+// @Success 200 {object} map[string]interface{} "Quizzes list"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/courses/{courseID}/quizzes [get]
 func (h *QuizHandler) ListByCourse(c *gin.Context) {
 	courseID := c.Param("courseID")
 	var req struct {
@@ -110,6 +148,20 @@ func (h *QuizHandler) ListByCourse(c *gin.Context) {
 	})
 }
 
+// Update updates quiz details (publishing)
+// @Summary Update quiz
+// @Description Update quiz details (e.g., publish status) (Teacher/Admin only)
+// @Tags quizzes
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Quiz ID"
+// @Param request body struct{Published *bool `json:"published"`} true "Update Request"
+// @Success 200 {object} map[string]string "Success message"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 404 {object} map[string]string "Quiz not found"
+// @Router /api/v1/quizzes/{id} [put]
 func (h *QuizHandler) Update(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -130,6 +182,18 @@ func (h *QuizHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "updated"})
 }
 
+// Delete deletes a quiz
+// @Summary Delete quiz
+// @Description Deletes a quiz by ID (Admin only)
+// @Tags quizzes
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Quiz ID"
+// @Success 204 "No content"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 404 {object} map[string]string "Quiz not found"
+// @Router /api/v1/quizzes/{id} [delete]
 func (h *QuizHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.service.DeleteQuiz(c.Request.Context(), id); err != nil {
@@ -140,6 +204,18 @@ func (h *QuizHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// StartAttempt starts a new quiz attempt for a student
+// @Summary Start quiz attempt
+// @Description Creates a new quiz attempt for the current student
+// @Tags quizzes
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Quiz ID"
+// @Success 201 {object} quiz.QuizAttempt "Created attempt"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 404 {object} map[string]string "Quiz not found"
+// @Router /api/v1/quizzes/{id}/attempts [post]
 func (h *QuizHandler) StartAttempt(c *gin.Context) {
 	quizID := c.Param("id")
 	userID, _ := c.Get("userID")
@@ -157,6 +233,19 @@ func (h *QuizHandler) StartAttempt(c *gin.Context) {
 	c.JSON(http.StatusCreated, attempt)
 }
 
+// SubmitAttempt submits answers for a quiz attempt
+// @Summary Submit quiz attempt
+// @Description Submits answers and calculates the result for a quiz attempt
+// @Tags quizzes
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param attemptID path string true "Attempt ID"
+// @Param request body struct{Answers []answerReq `json:"answers" binding:"required"`} true "Submit Request"
+// @Success 200 {object} quiz.QuizAttempt "Submission result"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 404 {object} map[string]string "Attempt not found"
+// @Router /api/v1/quiz-attempts/{attemptID}/submit [post]
 func (h *QuizHandler) SubmitAttempt(c *gin.Context) {
 	attemptID := c.Param("attemptID")
 
@@ -192,6 +281,16 @@ type answerReq struct {
 	Answer     string `json:"answer" binding:"required"`
 }
 
+// GetAttemptResult returns the result of a quiz attempt
+// @Summary Get attempt result
+// @Description Returns the result and score of a specific quiz attempt
+// @Tags quizzes
+// @Security BearerAuth
+// @Produce json
+// @Param attemptID path string true "Attempt ID"
+// @Success 200 {object} quiz.QuizAttempt "Attempt details"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Router /api/v1/quiz-attempts/{attemptID}/result [get]
 func (h *QuizHandler) GetAttemptResult(c *gin.Context) {
 	attemptID := c.Param("attemptID")
 
@@ -204,6 +303,16 @@ func (h *QuizHandler) GetAttemptResult(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// GetStudentAttempts returns all attempts of the current student for a quiz
+// @Summary Get student attempts
+// @Description Returns a list of all attempts by the current student for a specific quiz
+// @Tags quizzes
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Quiz ID"
+// @Success 200 {array} quiz.QuizAttempt "Attempts list"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Router /api/v1/quizzes/{id}/attempts [get]
 func (h *QuizHandler) GetStudentAttempts(c *gin.Context) {
 	quizID := c.Param("id")
 	userID, _ := c.Get("userID")
@@ -221,6 +330,16 @@ func (h *QuizHandler) GetStudentAttempts(c *gin.Context) {
 	c.JSON(http.StatusOK, attempts)
 }
 
+// GetQuizQuestions returns questions for a specific quiz
+// @Summary Get quiz questions
+// @Description Returns a list of questions for a quiz (Student sees questions without correct answers)
+// @Tags quizzes
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Quiz ID"
+// @Success 200 {array} quiz.Question "Questions list"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Router /api/v1/quizzes/{id}/questions [get]
 func (h *QuizHandler) GetQuizQuestions(c *gin.Context) {
 	quizID := c.Param("id")
 	questions, err := h.service.GetQuestionsForQuiz(c.Request.Context(), quizID, false)
