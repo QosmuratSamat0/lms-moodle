@@ -2,6 +2,7 @@ package appeal
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/appeal"
@@ -82,7 +83,7 @@ func (r *PostgresRepository) GetByStudentID(ctx context.Context, studentID strin
 		r.db.QueryRow(ctx, countQuery, studentID).Scan(&total)
 	}
 
-	listQuery += ` ORDER BY ga.created_at DESC LIMIT $` + string(rune('0'+argIdx)) + ` OFFSET $` + string(rune('0'+argIdx+1))
+	listQuery += ` ORDER BY ga.created_at DESC LIMIT $` + strconv.Itoa(argIdx) + ` OFFSET $` + strconv.Itoa(argIdx+1)
 	args = append(args, limit, offset)
 
 	rows, err := r.db.Query(ctx, listQuery, args...)

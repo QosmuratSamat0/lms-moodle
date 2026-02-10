@@ -36,8 +36,9 @@ type Config struct {
 	Port string
 	Env  string
 
-	JWTSecret string
-	JWTExpiry time.Duration
+	JWTSecret            string
+	AccessTokenDuration  time.Duration
+	RefreshTokenDuration time.Duration
 
 	RedisURL string
 
@@ -57,8 +58,9 @@ func Load() *Config {
 		Port: getEnv("PORT", "8080"),
 		Env:  getEnv("ENV", "development"),
 
-		JWTSecret: getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
-		JWTExpiry: parseDuration(getEnv("JWT_EXPIRY", "24h")),
+		JWTSecret:            getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
+		AccessTokenDuration:  parseDuration(getEnv("ACCESS_TOKEN_DURATION", "15m")),
+		RefreshTokenDuration: parseDuration(getEnv("REFRESH_TOKEN_DURATION", "168h")),
 
 		RedisURL: getEnv("REDIS_URL", "redis://localhost:6379"),
 

@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/user"
@@ -26,7 +27,7 @@ func (s *Service) Register(input *user.CreateUserInput) (*user.User, error) {
 		Password:  hex.EncodeToString(hash[:]),
 		FirstName: input.FirstName,
 		LastName:  input.LastName,
-		Role:      input.Role,
+		Role:      user.RoleStudent, 
 		Active:    true,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -91,7 +92,7 @@ func (s *Service) Login(email, password string) (string, error) {
 		return "", errors.New("user is inactive")
 	}
 
-	token := email + ":" + string(rune(time.Now().Unix()))
+	token := email + ":" + strconv.FormatInt(time.Now().Unix(), 10)
 	return token, nil
 }
 

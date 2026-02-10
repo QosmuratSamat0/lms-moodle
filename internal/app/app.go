@@ -64,57 +64,57 @@ func New(db *pgxpool.Pool) *App {
 		backgroundDone: make(chan struct{}),
 	}
 
-	app.startBackgroundWorkers()
+	//app.startBackgroundWorkers()
 
 	return app
 }
 
-func (a *App) startBackgroundWorkers() {
-	a.wg.Add(1)
-	go a.notificationWorker()
+//func (a *App) startBackgroundWorkers() {
+//	a.wg.Add(1)
+//	go a.notificationWorker()
+//
+//	//a.wg.Add(1)
+//	//go a.healthCheckWorker()
+//}
 
-	a.wg.Add(1)
-	go a.healthCheckWorker()
-}
+//func (a *App) notificationWorker() {
+//	defer a.wg.Done()
+//
+//	ticker := time.NewTicker(1 * time.Second)
+//	defer ticker.Stop()
+//
+//	for {
+//		select {
+//		case <-a.ctx.Done():
+//			log.Println("Notification worker shutting down...")
+//			return
+//
+//		case notification := <-a.notificationCh:
+//			a.processNotification(notification)
+//
+//		case <-ticker.C:
+//			a.processPendingNotifications()
+//		}
+//	}
+//}
 
-func (a *App) notificationWorker() {
-	defer a.wg.Done()
-
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-a.ctx.Done():
-			log.Println("Notification worker shutting down...")
-			return
-
-		case notification := <-a.notificationCh:
-			a.processNotification(notification)
-
-		case <-ticker.C:
-			a.processPendingNotifications()
-		}
-	}
-}
-
-func (a *App) healthCheckWorker() {
-	defer a.wg.Done()
-
-	ticker := time.NewTicker(30 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-a.ctx.Done():
-			log.Println("Health check worker shutting down...")
-			return
-
-		case <-ticker.C:
-			a.checkDatabaseHealth()
-		}
-	}
-}
+//func (a *App) healthCheckWorker() {
+//	defer a.wg.Done()
+//
+//	ticker := time.NewTicker(30 * time.Second)
+//	defer ticker.Stop()
+//
+//	for {
+//		select {
+//		case <-a.ctx.Done():
+//			log.Println("Health check worker shutting down...")
+//			return
+//
+//		case <-ticker.C:
+//			a.checkDatabaseHealth()
+//		}
+//	}
+//}
 
 func (a *App) processNotification(n Notification) {
 	log.Printf("[NOTIFICATION] User: %s, Type: %s, Message: %s", n.UserID, n.Type, n.Message)
@@ -124,17 +124,17 @@ func (a *App) processPendingNotifications() {
 	log.Println("[BACKGROUND] Processing pending notifications...")
 }
 
-func (a *App) checkDatabaseHealth() {
-	ctx, cancel := context.WithTimeout(a.ctx, 5*time.Second)
-	defer cancel()
-
-	err := a.db.Ping(ctx)
-	if err != nil {
-		log.Printf("[ERROR] Database health check failed: %v", err)
-	} else {
-		log.Println("[HEALTH] Database connection OK")
-	}
-}
+//func (a *App) checkDatabaseHealth() {
+//	ctx, cancel := context.WithTimeout(a.ctx, 5*time.Second)
+//	defer cancel()
+//
+//	err := a.db.Ping(ctx)
+//	if err != nil {
+//		log.Printf("[ERROR] Database health check failed: %v", err)
+//	} else {
+//		log.Println("[HEALTH] Database connection OK")
+//	}
+//}
 
 func (a *App) SendNotification(userID, message, notificationType string) {
 	notification := Notification{

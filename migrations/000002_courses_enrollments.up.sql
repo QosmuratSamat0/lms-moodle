@@ -1,4 +1,3 @@
--- ====== COURSES ======
 CREATE TABLE courses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     code TEXT NOT NULL UNIQUE,
@@ -15,7 +14,6 @@ CREATE INDEX idx_courses_code ON courses(code);
 CREATE INDEX idx_courses_owner ON courses(owner_teacher_id);
 CREATE INDEX idx_courses_active ON courses(is_active);
 
--- ====== ENROLLMENTS ======
 CREATE TABLE enrollments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,

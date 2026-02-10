@@ -9,7 +9,7 @@ type Token struct {
 	AccessToken  string    `json:"access_token"`
 	RefreshToken string    `json:"refresh_token"`
 	TokenType    string    `json:"token_type"`
-	ExpiresIn    int64     `json:"expires_in"` // в секундах
+	ExpiresIn    int64     `json:"expires_in"` 
 	IssuedAt     time.Time `json:"-"`
 }
 
@@ -33,7 +33,6 @@ type RefreshSession struct {
 	IsActive     bool      `db:"is_active"`
 	CreatedAt    time.Time `db:"created_at"`
 	UpdatedAt    time.Time `db:"updated_at"`
-	// Для отслеживания устройств
 	UserAgent string `db:"user_agent"`
 	IPAddress string `db:"ip_address"`
 }

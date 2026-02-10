@@ -4,15 +4,17 @@ import (
 	"context"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/manager"
+	"github.com/ap1-final-mini-moodle/internal/domain/user"
 	appErrors "github.com/ap1-final-mini-moodle/internal/shared/errors"
 )
 
 type Service struct {
-	repo manager.Repository
+	repo     manager.Repository
+	userRepo user.Repository
 }
 
-func NewService(repo manager.Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo manager.Repository, userRepo user.Repository) *Service {
+	return &Service{repo: repo, userRepo: userRepo}
 }
 
 func (s *Service) CreateManager(ctx context.Context, input *manager.CreateManagerInput) (*manager.Manager, error) {
@@ -24,6 +26,15 @@ func (s *Service) CreateManager(ctx context.Context, input *manager.CreateManage
 	}
 	if input.Department == "" {
 		return nil, appErrors.ErrMissingRequired
+	}
+
+	// Verify user exists and has the correct role
+	u, err := s.userRepo.GetByID(input.UserID)
+	if err != nil {
+		return nil, appErrors.ErrUserNotFound
+	}
+	if u.Role != user.RoleManager {
+		return nil, appErrors.ErrRoleMismatch
 	}
 
 	// Check if employee ID already exists

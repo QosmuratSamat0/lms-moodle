@@ -3,6 +3,7 @@ package teacher
 import (
 	"context"
 	"database/sql"
+	"strconv"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/teacher"
@@ -110,24 +111,24 @@ func (r *PostgresRepository) List(ctx context.Context, filter *teacher.TeacherFi
 	argCount := 1
 
 	if filter.Department != "" {
-		query += ` AND t.department = $` + string(rune(argCount))
+		query += ` AND t.department = $` + strconv.Itoa(argCount)
 		args = append(args, filter.Department)
 		argCount++
 	}
 
 	if filter.Specialization != "" {
-		query += ` AND t.specialization = $` + string(rune(argCount))
+		query += ` AND t.specialization = $` + strconv.Itoa(argCount)
 		args = append(args, filter.Specialization)
 		argCount++
 	}
 
 	if filter.IsActive != nil {
-		query += ` AND t.is_active = $` + string(rune(argCount))
+		query += ` AND t.is_active = $` + strconv.Itoa(argCount)
 		args = append(args, *filter.IsActive)
 		argCount++
 	}
 
-	query += ` ORDER BY t.created_at DESC LIMIT $` + string(rune(argCount)) + ` OFFSET $` + string(rune(argCount+1))
+	query += ` ORDER BY t.created_at DESC LIMIT $` + strconv.Itoa(argCount) + ` OFFSET $` + strconv.Itoa(argCount+1)
 	args = append(args, filter.Limit, filter.Offset)
 
 	rows, err := r.db.Query(ctx, query, args...)
@@ -155,19 +156,19 @@ func (r *PostgresRepository) List(ctx context.Context, filter *teacher.TeacherFi
 	countArgCount := 1
 
 	if filter.Department != "" {
-		countQuery += ` AND t.department = $` + string(rune(countArgCount))
+		countQuery += ` AND t.department = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, filter.Department)
 		countArgCount++
 	}
 
 	if filter.Specialization != "" {
-		countQuery += ` AND t.specialization = $` + string(rune(countArgCount))
+		countQuery += ` AND t.specialization = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, filter.Specialization)
 		countArgCount++
 	}
 
 	if filter.IsActive != nil {
-		countQuery += ` AND t.is_active = $` + string(rune(countArgCount))
+		countQuery += ` AND t.is_active = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, *filter.IsActive)
 		countArgCount++
 	}

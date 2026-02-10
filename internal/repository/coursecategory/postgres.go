@@ -3,6 +3,7 @@ package coursecategory
 import (
 	"context"
 	"database/sql"
+	"strconv"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/coursecategory"
@@ -72,12 +73,12 @@ func (r *PostgresRepository) List(ctx context.Context, filter *coursecategory.Co
 	argCount := 1
 
 	if filter.IsActive != nil {
-		query += ` AND cc.is_active = $` + string(rune(argCount))
+		query += ` AND cc.is_active = $` + strconv.Itoa(argCount)
 		args = append(args, *filter.IsActive)
 		argCount++
 	}
 
-	query += ` GROUP BY cc.id ORDER BY cc."order" ASC, cc.created_at DESC LIMIT $` + string(rune(argCount)) + ` OFFSET $` + string(rune(argCount+1))
+	query += ` GROUP BY cc.id ORDER BY cc."order" ASC, cc.created_at DESC LIMIT $` + strconv.Itoa(argCount) + ` OFFSET $` + strconv.Itoa(argCount+1)
 	args = append(args, filter.Limit, filter.Offset)
 
 	rows, err := r.db.Query(ctx, query, args...)
@@ -107,7 +108,7 @@ func (r *PostgresRepository) List(ctx context.Context, filter *coursecategory.Co
 	countArgCount := 1
 
 	if filter.IsActive != nil {
-		countQuery += ` AND is_active = $` + string(rune(countArgCount))
+		countQuery += ` AND is_active = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, *filter.IsActive)
 		countArgCount++
 	}

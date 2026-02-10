@@ -4,15 +4,17 @@ import (
 	"context"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/teacher"
+	"github.com/ap1-final-mini-moodle/internal/domain/user"
 	appErrors "github.com/ap1-final-mini-moodle/internal/shared/errors"
 )
 
 type Service struct {
-	repo teacher.Repository
+	repo     teacher.Repository
+	userRepo user.Repository
 }
 
-func NewService(repo teacher.Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo teacher.Repository, userRepo user.Repository) *Service {
+	return &Service{repo: repo, userRepo: userRepo}
 }
 
 func (s *Service) CreateTeacher(ctx context.Context, input *teacher.CreateTeacherInput) (*teacher.Teacher, error) {
@@ -24,6 +26,15 @@ func (s *Service) CreateTeacher(ctx context.Context, input *teacher.CreateTeache
 	}
 	if input.FirstName == "" || input.LastName == "" {
 		return nil, appErrors.ErrMissingRequired
+	}
+
+	// Verify user exists and has the correct role
+	u, err := s.userRepo.GetByID(input.UserID)
+	if err != nil {
+		return nil, appErrors.ErrUserNotFound
+	}
+	if u.Role != user.RoleTeacher {
+		return nil, appErrors.ErrRoleMismatch
 	}
 
 	// Check if employee ID already exists

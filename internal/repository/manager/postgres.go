@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/manager"
@@ -205,18 +206,18 @@ func (r *PostgresRepository) List(ctx context.Context, filter *manager.ManagerFi
 	argCount := 1
 
 	if filter.Department != "" {
-		query += ` AND m.department = $` + string(rune(argCount))
+		query += ` AND m.department = $` + strconv.Itoa(argCount)
 		args = append(args, filter.Department)
 		argCount++
 	}
 
 	if filter.IsActive != nil {
-		query += ` AND m.is_active = $` + string(rune(argCount))
+		query += ` AND m.is_active = $` + strconv.Itoa(argCount)
 		args = append(args, *filter.IsActive)
 		argCount++
 	}
 
-	query += ` ORDER BY m.created_at DESC LIMIT $` + string(rune(argCount)) + ` OFFSET $` + string(rune(argCount+1))
+	query += ` ORDER BY m.created_at DESC LIMIT $` + strconv.Itoa(argCount) + ` OFFSET $` + strconv.Itoa(argCount+1)
 	args = append(args, filter.Limit, filter.Offset)
 
 	rows, err := r.db.Query(ctx, query, args...)
@@ -257,13 +258,13 @@ func (r *PostgresRepository) List(ctx context.Context, filter *manager.ManagerFi
 	countArgCount := 1
 
 	if filter.Department != "" {
-		countQuery += ` AND m.department = $` + string(rune(countArgCount))
+		countQuery += ` AND m.department = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, filter.Department)
 		countArgCount++
 	}
 
 	if filter.IsActive != nil {
-		countQuery += ` AND m.is_active = $` + string(rune(countArgCount))
+		countQuery += ` AND m.is_active = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, *filter.IsActive)
 		countArgCount++
 	}

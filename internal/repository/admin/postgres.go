@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/admin"
@@ -72,19 +73,16 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*admin.Adm
 
 func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*admin.Admin, error) {
 	query := `
-		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at,
-		       u.email, COALESCE(u.first_name, ''), COALESCE(u.last_name, '')
+		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, u.email
 		FROM admins a
 		LEFT JOIN users u ON a.user_id = u.id
 		WHERE a.user_id = $1`
 
 	var a admin.Admin
 	var permissionsJSON []byte
-	var firstName, lastName string
 
 	err := r.db.QueryRow(ctx, query, userID).Scan(
-		&a.ID, &a.UserID, &a.EmployeeID, &a.Department, &a.AccessLevel, &permissionsJSON, &a.IsActive, &a.CreatedAt, &a.UpdatedAt,
-		&a.Email, &firstName, &lastName,
+		&a.ID, &a.UserID, &a.EmployeeID, &a.Department, &a.AccessLevel, &permissionsJSON, &a.IsActive, &a.CreatedAt, &a.UpdatedAt, &a.Email,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -96,27 +94,22 @@ func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*a
 	if len(permissionsJSON) > 0 {
 		json.Unmarshal(permissionsJSON, &a.Permissions)
 	}
-	a.FirstName = firstName
-	a.LastName = lastName
 
 	return &a, nil
 }
 
 func (r *PostgresRepository) GetByEmployeeID(ctx context.Context, employeeID string) (*admin.Admin, error) {
 	query := `
-		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at,
-		       u.email, COALESCE(u.first_name, ''), COALESCE(u.last_name, '')
+		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, u.email
 		FROM admins a
 		LEFT JOIN users u ON a.user_id = u.id
 		WHERE a.employee_id = $1`
 
 	var a admin.Admin
 	var permissionsJSON []byte
-	var firstName, lastName string
 
 	err := r.db.QueryRow(ctx, query, employeeID).Scan(
-		&a.ID, &a.UserID, &a.EmployeeID, &a.Department, &a.AccessLevel, &permissionsJSON, &a.IsActive, &a.CreatedAt, &a.UpdatedAt,
-		&a.Email, &firstName, &lastName,
+		&a.ID, &a.UserID, &a.EmployeeID, &a.Department, &a.AccessLevel, &permissionsJSON, &a.IsActive, &a.CreatedAt, &a.UpdatedAt, &a.Email,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -128,16 +121,13 @@ func (r *PostgresRepository) GetByEmployeeID(ctx context.Context, employeeID str
 	if len(permissionsJSON) > 0 {
 		json.Unmarshal(permissionsJSON, &a.Permissions)
 	}
-	a.FirstName = firstName
-	a.LastName = lastName
 
 	return &a, nil
 }
 
 func (r *PostgresRepository) List(ctx context.Context, filter *admin.AdminFilter) ([]*admin.Admin, int64, error) {
 	query := `
-		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at,
-		       u.email, COALESCE(u.first_name, ''), COALESCE(u.last_name, '')
+		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, u.email
 		FROM admins a
 		LEFT JOIN users u ON a.user_id = u.id
 		WHERE 1=1`
@@ -146,24 +136,24 @@ func (r *PostgresRepository) List(ctx context.Context, filter *admin.AdminFilter
 	argCount := 1
 
 	if filter.Department != "" {
-		query += ` AND a.department = $` + string(rune(argCount))
+		query += ` AND a.department = $` + strconv.Itoa(argCount)
 		args = append(args, filter.Department)
 		argCount++
 	}
 
 	if filter.AccessLevel != "" {
-		query += ` AND a.access_level = $` + string(rune(argCount))
+		query += ` AND a.access_level = $` + strconv.Itoa(argCount)
 		args = append(args, filter.AccessLevel)
 		argCount++
 	}
 
 	if filter.IsActive != nil {
-		query += ` AND a.is_active = $` + string(rune(argCount))
+		query += ` AND a.is_active = $` + strconv.Itoa(argCount)
 		args = append(args, *filter.IsActive)
 		argCount++
 	}
 
-	query += ` ORDER BY a.created_at DESC LIMIT $` + string(rune(argCount)) + ` OFFSET $` + string(rune(argCount+1))
+	query += ` ORDER BY a.created_at DESC LIMIT $` + strconv.Itoa(argCount) + ` OFFSET $` + strconv.Itoa(argCount+1)
 	args = append(args, filter.Limit, filter.Offset)
 
 	rows, err := r.db.Query(ctx, query, args...)
@@ -176,11 +166,9 @@ func (r *PostgresRepository) List(ctx context.Context, filter *admin.AdminFilter
 	for rows.Next() {
 		var a admin.Admin
 		var permissionsJSON []byte
-		var firstName, lastName string
 
 		err := rows.Scan(
-			&a.ID, &a.UserID, &a.EmployeeID, &a.Department, &a.AccessLevel, &permissionsJSON, &a.IsActive, &a.CreatedAt, &a.UpdatedAt,
-			&a.Email, &firstName, &lastName,
+			&a.ID, &a.UserID, &a.EmployeeID, &a.Department, &a.AccessLevel, &permissionsJSON, &a.IsActive, &a.CreatedAt, &a.UpdatedAt, &a.Email,
 		)
 		if err != nil {
 			return nil, 0, err
@@ -189,8 +177,6 @@ func (r *PostgresRepository) List(ctx context.Context, filter *admin.AdminFilter
 		if len(permissionsJSON) > 0 {
 			json.Unmarshal(permissionsJSON, &a.Permissions)
 		}
-		a.FirstName = firstName
-		a.LastName = lastName
 
 		admins = append(admins, &a)
 	}
@@ -201,19 +187,19 @@ func (r *PostgresRepository) List(ctx context.Context, filter *admin.AdminFilter
 	countArgCount := 1
 
 	if filter.Department != "" {
-		countQuery += ` AND a.department = $` + string(rune(countArgCount))
+		countQuery += ` AND a.department = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, filter.Department)
 		countArgCount++
 	}
 
 	if filter.AccessLevel != "" {
-		countQuery += ` AND a.access_level = $` + string(rune(countArgCount))
+		countQuery += ` AND a.access_level = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, filter.AccessLevel)
 		countArgCount++
 	}
 
 	if filter.IsActive != nil {
-		countQuery += ` AND a.is_active = $` + string(rune(countArgCount))
+		countQuery += ` AND a.is_active = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, *filter.IsActive)
 		countArgCount++
 	}

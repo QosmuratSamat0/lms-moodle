@@ -4,15 +4,17 @@ import (
 	"context"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/admin"
+	"github.com/ap1-final-mini-moodle/internal/domain/user"
 	appErrors "github.com/ap1-final-mini-moodle/internal/shared/errors"
 )
 
 type Service struct {
-	repo admin.Repository
+	repo     admin.Repository
+	userRepo user.Repository
 }
 
-func NewService(repo admin.Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo admin.Repository, userRepo user.Repository) *Service {
+	return &Service{repo: repo, userRepo: userRepo}
 }
 
 func (s *Service) CreateAdmin(ctx context.Context, input *admin.CreateAdminInput) (*admin.Admin, error) {
@@ -29,6 +31,15 @@ func (s *Service) CreateAdmin(ctx context.Context, input *admin.CreateAdminInput
 	// Validate access level
 	if !isValidAccessLevel(input.AccessLevel) {
 		return nil, appErrors.ErrInvalidInput
+	}
+
+	// Verify user exists and has the correct role
+	u, err := s.userRepo.GetByID(input.UserID)
+	if err != nil {
+		return nil, appErrors.ErrUserNotFound
+	}
+	if u.Role != user.RoleAdmin {
+		return nil, appErrors.ErrRoleMismatch
 	}
 
 	// Check if employee ID already exists

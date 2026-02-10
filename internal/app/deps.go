@@ -1,8 +1,6 @@
 package app
 
 import (
-	"time"
-
 	"github.com/ap1-final-mini-moodle/internal/delivery/http"
 	"github.com/ap1-final-mini-moodle/internal/domain/categorymanager"
 	adminRepo "github.com/ap1-final-mini-moodle/internal/repository/admin"
@@ -128,18 +126,17 @@ func BuildDeps(db *pgxpool.Pool, cfg *config.Config) *Deps {
 	quizService := quizUC.NewService(quizRepository)
 	appealService := appealUC.NewService(appealRepository)
 	dashboardService := dashboardUC.NewService(dashboardRepository)
-	studentService := studentUC.NewService(studentRepository)
-	teacherService := teacherUC.NewService(teacherRepository)
-	adminService := adminUC.NewService(adminRepository)
-	managerService := managerUC.NewService(managerRepository)
-	categorymanagerService := categorymanagerUC.NewService(categorymanagerRepository)
+	studentService := studentUC.NewService(studentRepository, userRepository)
+	teacherService := teacherUC.NewService(teacherRepository, userRepository)
+	adminService := adminUC.NewService(adminRepository, userRepository)
+	managerService := managerUC.NewService(managerRepository, userRepository)
+	categorymanagerService := categorymanagerUC.NewService(categorymanagerRepository, userRepository)
 	coursecategoryService := coursecategoryUC.NewService(coursecategoryRepository)
 
-	// JWT Config
 	jwtConfig := &authShared.JWTConfig{
 		SecretKey:            []byte(cfg.JWTSecret),
-		AccessTokenDuration:  15 * time.Minute,
-		RefreshTokenDuration: 7 * 24 * time.Hour,
+		AccessTokenDuration:  cfg.AccessTokenDuration,
+		RefreshTokenDuration: cfg.RefreshTokenDuration,
 		Issuer:               "mini-moodle",
 		Audience:             "mini-moodle-api",
 	}

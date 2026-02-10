@@ -68,7 +68,6 @@ SELECT user_id, COALESCE(first_name, ''), COALESCE(last_name, ''), department, t
 FROM teachers_old
 ON CONFLICT (user_id) DO NOTHING;
 
--- Drop old table
 DROP TABLE IF EXISTS teachers_old;
 
 -- ====== ADMINS ======

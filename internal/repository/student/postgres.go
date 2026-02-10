@@ -2,6 +2,7 @@ package student
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/student"
@@ -36,9 +37,8 @@ func (r *PostgresRepository) Create(ctx context.Context, s *student.Student) err
 
 func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*student.Student, error) {
 	query := `
-		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status, 
-		       s.admitted_at, s.created_at, s.updated_at,
-		       s.first_name, s.last_name, u.email
+		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
+		       s.admitted_at, s.created_at, s.updated_at, u.email
 		FROM students s
 		JOIN users u ON s.user_id = u.id
 		WHERE s.id = $1`
@@ -46,8 +46,7 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*student.S
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt,
-		&s.FirstName, &s.LastName, &s.Email,
+		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email,
 	)
 	if err != nil {
 		return nil, err
@@ -58,8 +57,7 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*student.S
 func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*student.Student, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       s.admitted_at, s.created_at, s.updated_at,
-		       s.first_name, s.last_name, u.email
+		       s.admitted_at, s.created_at, s.updated_at, u.email
 		FROM students s
 		JOIN users u ON s.user_id = u.id
 		WHERE s.user_id = $1`
@@ -67,8 +65,7 @@ func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*s
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, userID).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt,
-		&s.FirstName, &s.LastName, &s.Email,
+		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email,
 	)
 	if err != nil {
 		return nil, err
@@ -79,8 +76,7 @@ func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*s
 func (r *PostgresRepository) GetByStudentCode(ctx context.Context, code string) (*student.Student, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       s.admitted_at, s.created_at, s.updated_at,
-		       s.first_name, s.last_name, u.email
+		       s.admitted_at, s.created_at, s.updated_at, u.email
 		FROM students s
 		JOIN users u ON s.user_id = u.id
 		WHERE s.student_code = $1`
@@ -88,8 +84,7 @@ func (r *PostgresRepository) GetByStudentCode(ctx context.Context, code string) 
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, code).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt,
-		&s.FirstName, &s.LastName, &s.Email,
+		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email,
 	)
 	if err != nil {
 		return nil, err
@@ -121,8 +116,7 @@ func (r *PostgresRepository) GetWithDetails(ctx context.Context, id string) (*st
 func (r *PostgresRepository) List(ctx context.Context, filter *student.StudentFilter) ([]*student.Student, int64, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       s.admitted_at, s.created_at, s.updated_at,
-		       s.first_name, s.last_name, u.email
+		       s.admitted_at, s.created_at, s.updated_at, u.email
 		FROM students s
 		JOIN users u ON s.user_id = u.id
 		WHERE 1=1`
@@ -133,20 +127,20 @@ func (r *PostgresRepository) List(ctx context.Context, filter *student.StudentFi
 
 	if filter.Major != "" {
 		argCount++
-		query += ` AND s.major = $` + string(rune('0'+argCount))
-		countQuery += ` AND s.major = $` + string(rune('0'+argCount))
+		query += ` AND s.major = $` + strconv.Itoa(argCount)
+		countQuery += ` AND s.major = $` + strconv.Itoa(argCount)
 		args = append(args, filter.Major)
 	}
 	if filter.Year > 0 {
 		argCount++
-		query += ` AND s.year = $` + string(rune('0'+argCount))
-		countQuery += ` AND s.year = $` + string(rune('0'+argCount))
+		query += ` AND s.year = $` + strconv.Itoa(argCount)
+		countQuery += ` AND s.year = $` + strconv.Itoa(argCount)
 		args = append(args, filter.Year)
 	}
 	if filter.Status != "" {
 		argCount++
-		query += ` AND s.enrollment_status = $` + string(rune('0'+argCount))
-		countQuery += ` AND s.enrollment_status = $` + string(rune('0'+argCount))
+		query += ` AND s.enrollment_status = $` + strconv.Itoa(argCount)
+		countQuery += ` AND s.enrollment_status = $` + strconv.Itoa(argCount)
 		args = append(args, filter.Status)
 	}
 
@@ -155,10 +149,10 @@ func (r *PostgresRepository) List(ctx context.Context, filter *student.StudentFi
 
 	query += ` ORDER BY s.created_at DESC`
 	argCount++
-	query += ` LIMIT $` + string(rune('0'+argCount))
+	query += ` LIMIT $` + strconv.Itoa(argCount)
 	args = append(args, filter.Limit)
 	argCount++
-	query += ` OFFSET $` + string(rune('0'+argCount))
+	query += ` OFFSET $` + strconv.Itoa(argCount)
 	args = append(args, filter.Offset)
 
 	rows, err := r.db.Query(ctx, query, args...)
@@ -172,8 +166,7 @@ func (r *PostgresRepository) List(ctx context.Context, filter *student.StudentFi
 		var s student.Student
 		err := rows.Scan(
 			&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-			&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt,
-			&s.FirstName, &s.LastName, &s.Email,
+			&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email,
 		)
 		if err != nil {
 			return nil, 0, err

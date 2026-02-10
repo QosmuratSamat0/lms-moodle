@@ -19,7 +19,6 @@ func NewPostgresRepository(db *pgxpool.Pool) *PostgresRepository {
 	return &PostgresRepository{db: db}
 }
 
-// CreateSession создаёт новую сессию с refresh токеном
 func (r *PostgresRepository) CreateSession(ctx context.Context, session *auth.RefreshSession) error {
 	query := `
 		INSERT INTO refresh_sessions 
@@ -52,7 +51,6 @@ func (r *PostgresRepository) CreateSession(ctx context.Context, session *auth.Re
 	return nil
 }
 
-// GetSessionByRefreshToken получает сессию по refresh токену
 func (r *PostgresRepository) GetSessionByRefreshToken(ctx context.Context, token string) (*auth.RefreshSession, error) {
 	query := `
 		SELECT id, user_id, refresh_token, expires_at, issued_at, is_active, user_agent, ip_address, created_at, updated_at
@@ -81,7 +79,6 @@ func (r *PostgresRepository) GetSessionByRefreshToken(ctx context.Context, token
 		return nil, fmt.Errorf("failed to get session: %w", err)
 	}
 
-	// Проверяем, не истёк ли токен
 	if time.Now().After(session.ExpiresAt) {
 		return nil, fmt.Errorf("refresh token expired")
 	}
@@ -89,7 +86,6 @@ func (r *PostgresRepository) GetSessionByRefreshToken(ctx context.Context, token
 	return &session, nil
 }
 
-// GetSessionByID получает сессию по ID
 func (r *PostgresRepository) GetSessionByID(ctx context.Context, id string) (*auth.RefreshSession, error) {
 	query := `
 		SELECT id, user_id, refresh_token, expires_at, issued_at, is_active, user_agent, ip_address, created_at, updated_at
@@ -121,7 +117,6 @@ func (r *PostgresRepository) GetSessionByID(ctx context.Context, id string) (*au
 	return &session, nil
 }
 
-// GetActiveSessionsByUserID получает все активные сессии пользователя
 func (r *PostgresRepository) GetActiveSessionsByUserID(ctx context.Context, userID string) ([]*auth.RefreshSession, error) {
 	query := `
 		SELECT id, user_id, refresh_token, expires_at, issued_at, is_active, user_agent, ip_address, created_at, updated_at
@@ -164,7 +159,6 @@ func (r *PostgresRepository) GetActiveSessionsByUserID(ctx context.Context, user
 	return sessions, nil
 }
 
-// UpdateSessionActivity обновляет время последней активности
 func (r *PostgresRepository) UpdateSessionActivity(ctx context.Context, id string) error {
 	query := `UPDATE refresh_sessions SET updated_at = NOW() WHERE id = $1`
 	cmd, err := r.db.Exec(ctx, query, id)
@@ -177,7 +171,6 @@ func (r *PostgresRepository) UpdateSessionActivity(ctx context.Context, id strin
 	return nil
 }
 
-// RevokeSession деактивирует сессию (logout)
 func (r *PostgresRepository) RevokeSession(ctx context.Context, id string) error {
 	query := `UPDATE refresh_sessions SET is_active = false, updated_at = NOW() WHERE id = $1`
 	cmd, err := r.db.Exec(ctx, query, id)
@@ -190,7 +183,6 @@ func (r *PostgresRepository) RevokeSession(ctx context.Context, id string) error
 	return nil
 }
 
-// RevokeAllUserSessions деактивирует все сессии пользователя
 func (r *PostgresRepository) RevokeAllUserSessions(ctx context.Context, userID string) error {
 	query := `UPDATE refresh_sessions SET is_active = false, updated_at = NOW() WHERE user_id = $1`
 	_, err := r.db.Exec(ctx, query, userID)
@@ -200,7 +192,6 @@ func (r *PostgresRepository) RevokeAllUserSessions(ctx context.Context, userID s
 	return nil
 }
 
-// DeleteExpiredSessions удаляет истёкшие сессии
 func (r *PostgresRepository) DeleteExpiredSessions(ctx context.Context) (int64, error) {
 	query := `DELETE FROM refresh_sessions WHERE expires_at < NOW()`
 	cmd, err := r.db.Exec(ctx, query)

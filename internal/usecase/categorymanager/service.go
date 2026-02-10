@@ -4,15 +4,17 @@ import (
 	"context"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/categorymanager"
+	"github.com/ap1-final-mini-moodle/internal/domain/user"
 	appErrors "github.com/ap1-final-mini-moodle/internal/shared/errors"
 )
 
 type Service struct {
-	repo categorymanager.Repository
+	repo     categorymanager.Repository
+	userRepo user.Repository
 }
 
-func NewService(repo categorymanager.Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo categorymanager.Repository, userRepo user.Repository) *Service {
+	return &Service{repo: repo, userRepo: userRepo}
 }
 
 func (s *Service) Create(ctx context.Context, input *categorymanager.CreateCategoryManagerInput) (*categorymanager.CategoryManager, error) {
@@ -26,15 +28,13 @@ func (s *Service) Create(ctx context.Context, input *categorymanager.CreateCateg
 		return nil, appErrors.ErrMissingRequired
 	}
 
-	// Validate permission level
-	if input.PermissionLevel != "view" && input.PermissionLevel != "edit" && input.PermissionLevel != "admin" {
-		return nil, appErrors.ErrInvalidInput
+	// Validate user role is manager
+	u, err := s.userRepo.GetByID(input.UserID)
+	if err != nil {
+		return nil, appErrors.ErrUserNotFound
 	}
-
-	// Check if user already manages this category
-	existing, _ := s.repo.GetByUserAndCategory(ctx, input.UserID, input.CategoryID)
-	if existing != nil {
-		return nil, appErrors.ErrAlreadyExists
+	if u.Role != user.RoleManager {
+		return nil, appErrors.ErrRoleMismatch
 	}
 
 	cm := &categorymanager.CategoryManager{

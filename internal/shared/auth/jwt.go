@@ -10,7 +10,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// JWTConfig конфигурация JWT
 type JWTConfig struct {
 	SecretKey            []byte
 	AccessTokenDuration  time.Duration
@@ -19,15 +18,12 @@ type JWTConfig struct {
 	Audience             string
 }
 
-// GenerateTokens генерирует access и refresh токены
 func GenerateTokens(user *UserData, config *JWTConfig) (*auth.Token, error) {
-	// Генерируем refresh token
 	refreshToken, err := generateRandomToken()
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 
-	// Создаём access token с JWT
 	accessToken, err := GenerateAccessToken(user, refreshToken, config)
 	if err != nil {
 		return nil, err
@@ -43,7 +39,6 @@ func GenerateTokens(user *UserData, config *JWTConfig) (*auth.Token, error) {
 	}, nil
 }
 
-// GenerateAccessToken генерирует только access token
 func GenerateAccessToken(user *UserData, refreshToken string, config *JWTConfig) (string, error) {
 	now := time.Now()
 	expiresAt := now.Add(config.AccessTokenDuration)
@@ -75,10 +70,8 @@ func GenerateAccessToken(user *UserData, refreshToken string, config *JWTConfig)
 	return token.SignedString(config.SecretKey)
 }
 
-// VerifyAccessToken проверяет и парсит access token
 func VerifyAccessToken(tokenString string, config *JWTConfig) (*auth.TokenClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Проверяем метод подписи
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -98,7 +91,6 @@ func VerifyAccessToken(tokenString string, config *JWTConfig) (*auth.TokenClaims
 		return nil, fmt.Errorf("invalid token claims")
 	}
 
-	// Проверяем exp вручную
 	if exp, ok := claims["exp"].(float64); ok {
 		if time.Now().Unix() > int64(exp) {
 			return nil, fmt.Errorf("token expired")
@@ -117,18 +109,14 @@ func VerifyAccessToken(tokenString string, config *JWTConfig) (*auth.TokenClaims
 	}, nil
 }
 
-// generateRandomToken генерирует криптографически стойкий случайный токен
 func generateRandomToken() (string, error) {
-	// 32 байта = 256 бит энтропии
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}
-	// Кодируем в base64 для удобства использования в API
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-// UserData данные пользователя для создания токена
 type UserData struct {
 	ID        string
 	Email     string

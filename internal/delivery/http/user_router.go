@@ -24,7 +24,6 @@ func (m *UserModule) Register(r *gin.Engine) {
 	{
 		// Public
 		users.POST("/register", m.handler.Register)
-		users.POST("/login", m.handler.Login)
 
 		// Protected
 		protected := users.Group("")

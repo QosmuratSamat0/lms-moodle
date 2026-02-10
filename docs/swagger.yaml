@@ -183,7 +183,6 @@ definitions:
       access_token:
         type: string
       expires_in:
-        description: в секундах
         type: integer
       refresh_token:
         type: string
@@ -2052,13 +2051,13 @@ paths:
       summary: Get assignment by ID
       tags:
       - assignments
-  /api/v1/assignments/course/{courseID}:
+  /api/v1/assignments/course/{courseId}:
     get:
       description: Returns a paginated list of assignments for a course
       parameters:
       - description: Course ID
         in: path
-        name: courseID
+        name: courseId
         required: true
         type: string
       - default: 0
@@ -2188,13 +2187,13 @@ paths:
       summary: Delete attendance
       tags:
       - attendance
-  /api/v1/attendance/course/{courseID}:
+  /api/v1/attendance/course/{courseId}:
     get:
       description: Returns a paginated list of attendance records for a course
       parameters:
       - description: Course ID
         in: path
-        name: courseID
+        name: courseId
         required: true
         type: string
       - default: 0
@@ -2722,13 +2721,13 @@ paths:
       summary: Get assignment with details
       tags:
       - category-managers
-  /api/v1/category-managers/by-category/{categoryID}:
+  /api/v1/category-managers/by-category/{categoryId}:
     get:
       description: Gets all managers for a specific category
       parameters:
       - description: Category ID
         in: path
-        name: categoryID
+        name: categoryId
         required: true
         type: string
       produces:
@@ -2880,13 +2879,13 @@ paths:
       summary: Delete message
       tags:
       - chat
-  /api/v1/chat/course/{courseID}:
+  /api/v1/chat/course/{courseId}:
     get:
       description: Returns a paginated list of chat messages for a course
       parameters:
       - description: Course ID
         in: path
-        name: courseID
+        name: courseId
         required: true
         type: string
       - default: 0
@@ -3068,29 +3067,6 @@ paths:
       summary: List course announcements
       tags:
       - announcements
-  /api/v1/courses/{courseID}/groups:
-    get:
-      description: Returns a list of all groups in a course
-      parameters:
-      - description: Course ID
-        in: path
-        name: courseID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Groups list
-          schema:
-            items:
-              $ref: '#/definitions/group.Group'
-            type: array
-      security:
-      - BearerAuth: []
-      summary: List course groups
-      tags:
-      - groups
   /api/v1/courses/{courseID}/quizzes:
     get:
       description: Returns a paginated list of quizzes for a course
@@ -3135,6 +3111,29 @@ paths:
       summary: List course quizzes
       tags:
       - quizzes
+  /api/v1/courses/{courseId}/groups:
+    get:
+      description: Returns a list of all groups in a course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Groups list
+          schema:
+            items:
+              $ref: '#/definitions/group.Group'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List course groups
+      tags:
+      - groups
   /api/v1/courses/{id}:
     delete:
       description: Deletes a course by ID (Admin only)
@@ -3277,14 +3276,14 @@ paths:
       summary: Get student dashboard
       tags:
       - dashboard
-  /api/v1/dashboard/student/courses/{courseID}:
+  /api/v1/dashboard/student/courses/{courseId}:
     get:
       description: Gets detailed statistics like attendance and grades for a specific
         course
       parameters:
       - description: Course ID
         in: path
-        name: courseID
+        name: courseId
         required: true
         type: string
       produces:
@@ -3394,13 +3393,13 @@ paths:
       summary: Remove enrollment
       tags:
       - enrollments
-  /api/v1/enrollments/course/{courseID}:
+  /api/v1/enrollments/course/{courseId}:
     get:
       description: Returns a paginated list of student enrollments for a course
       parameters:
       - description: Course ID
         in: path
-        name: courseID
+        name: courseId
         required: true
         type: string
       - default: 0
@@ -3445,13 +3444,13 @@ paths:
       summary: List course enrollments
       tags:
       - enrollments
-  /api/v1/enrollments/student/{studentID}:
+  /api/v1/enrollments/student/{studentId}:
     get:
       description: Returns a paginated list of course enrollments for a student
       parameters:
       - description: Student ID
         in: path
-        name: studentID
+        name: studentId
         required: true
         type: string
       - default: 0
@@ -3779,7 +3778,7 @@ paths:
       summary: Add group member
       tags:
       - groups
-  /api/v1/groups/{id}/members/{studentID}:
+  /api/v1/groups/{id}/members/{memberId}:
     delete:
       description: Removes a student from a specific group (Teacher/Admin only)
       parameters:
@@ -3788,9 +3787,9 @@ paths:
         name: id
         required: true
         type: string
-      - description: Student ID
+      - description: Member ID
         in: path
-        name: studentID
+        name: memberId
         required: true
         type: string
       produces:
@@ -3948,7 +3947,7 @@ paths:
       summary: Add managed category
       tags:
       - managers
-  /api/v1/managers/{id}/categories/{categoryID}:
+  /api/v1/managers/{id}/categories/{categoryId}:
     delete:
       description: Removes a course category from this manager's responsibilities
         (Admin only)
@@ -3960,7 +3959,7 @@ paths:
         type: string
       - description: Category ID
         in: path
-        name: categoryID
+        name: categoryId
         required: true
         type: string
       produces:
@@ -4022,7 +4021,7 @@ paths:
       summary: Add managed teacher
       tags:
       - managers
-  /api/v1/managers/{id}/teachers/{teacherID}:
+  /api/v1/managers/{id}/teachers/{teacherId}:
     delete:
       description: Removes a teacher from this manager's responsibilities (Admin only)
       parameters:
@@ -4033,7 +4032,7 @@ paths:
         type: string
       - description: Teacher ID
         in: path
-        name: teacherID
+        name: teacherId
         required: true
         type: string
       produces:
@@ -5000,13 +4999,13 @@ paths:
       summary: Get submission by ID
       tags:
       - submissions
-  /api/v1/submissions/assignment/{assignmentID}:
+  /api/v1/submissions/assignment/{assignmentId}:
     get:
       description: Returns a paginated list of submissions for an assignment
       parameters:
       - description: Assignment ID
         in: path
-        name: assignmentID
+        name: assignmentId
         required: true
         type: string
       - default: 0
@@ -5051,13 +5050,13 @@ paths:
       summary: List assignment submissions
       tags:
       - submissions
-  /api/v1/submissions/student/{studentID}:
+  /api/v1/submissions/student/{studentId}:
     get:
       description: Returns a paginated list of submissions from a student
       parameters:
       - description: Student ID
         in: path
-        name: studentID
+        name: studentId
         required: true
         type: string
       - default: 0
@@ -5693,6 +5692,7 @@ paths:
       - users
 securityDefinitions:
   BearerAuth:
+    description: 'JWT token with Bearer prefix. Example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
     in: header
     name: Authorization
     type: apiKey

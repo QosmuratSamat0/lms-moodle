@@ -4,15 +4,17 @@ import (
 	"context"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/student"
+	"github.com/ap1-final-mini-moodle/internal/domain/user"
 	appErrors "github.com/ap1-final-mini-moodle/internal/shared/errors"
 )
 
 type Service struct {
-	repo student.Repository
+	repo     student.Repository
+	userRepo user.Repository
 }
 
-func NewService(repo student.Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo student.Repository, userRepo user.Repository) *Service {
+	return &Service{repo: repo, userRepo: userRepo}
 }
 
 func (s *Service) CreateStudent(ctx context.Context, input *student.CreateStudentInput) (*student.Student, error) {
@@ -27,6 +29,15 @@ func (s *Service) CreateStudent(ctx context.Context, input *student.CreateStuden
 	}
 	if input.Year < 1 || input.Year > 6 {
 		return nil, appErrors.ErrInvalidInput
+	}
+
+	// Verify user exists and has the correct role
+	u, err := s.userRepo.GetByID(input.UserID)
+	if err != nil {
+		return nil, appErrors.ErrUserNotFound
+	}
+	if u.Role != user.RoleStudent {
+		return nil, appErrors.ErrRoleMismatch
 	}
 
 	// Check if student code already exists

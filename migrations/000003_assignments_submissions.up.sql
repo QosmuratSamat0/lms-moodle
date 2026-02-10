@@ -1,4 +1,3 @@
--- ====== ASSIGNMENTS ======
 CREATE TABLE assignments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
@@ -15,7 +14,6 @@ CREATE INDEX idx_assignments_course ON assignments(course_id);
 CREATE INDEX idx_assignments_due ON assignments(due_at);
 CREATE INDEX idx_assignments_teacher ON assignments(created_by_teacher_id);
 
--- ====== SUBMISSIONS ======
 CREATE TABLE submissions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     assignment_id UUID NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,

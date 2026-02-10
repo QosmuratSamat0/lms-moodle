@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -10,35 +11,45 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AuthTokenMiddleware извлекает и проверяет JWT токен из заголовка Authorization
 func AuthTokenMiddleware(authService *authUC.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
+			log.Println("[AUTH] Missing authorization header")
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authorization header"})
 			c.Abort()
 			return
 		}
 
-		// Ожидаем формат "Bearer <token>"
+		log.Printf("[AUTH] Authorization header received: %s (length: %d)", authHeader[:min(len(authHeader), 50)], len(authHeader))
+
 		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
+		if len(parts) != 2 {
+			log.Printf("[AUTH] Invalid format: got %d parts instead of 2", len(parts))
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization header format"})
+			c.Abort()
+			return
+		}
+
+		if parts[0] != "Bearer" {
+			log.Printf("[AUTH] Invalid scheme: got '%s' instead of 'Bearer'", parts[0])
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization header format"})
 			c.Abort()
 			return
 		}
 
 		accessToken := parts[1]
+		log.Printf("[AUTH] Token extracted (length: %d)", len(accessToken))
 
-		// Проверяем токен
 		claims, err := authService.VerifyAccessToken(accessToken)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+			log.Printf("[AUTH] Token verification failed: %v", err)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token", "details": err.Error()})
 			c.Abort()
 			return
 		}
 
-		// Сохраняем данные в контекст
+		log.Printf("[AUTH] Token verified for user: %s (role: %s)", claims.UserID, claims.Role)
 		c.Set("userID", claims.UserID)
 		c.Set("userEmail", claims.Email)
 		c.Set("userRole", claims.Role)
@@ -51,34 +62,28 @@ func AuthTokenMiddleware(authService *authUC.Service) gin.HandlerFunc {
 	}
 }
 
-// OptionalAuthTokenMiddleware опциональная аутентификация (не требует токена, но использует его если есть)
 func OptionalAuthTokenMiddleware(authService *authUC.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			// Токена нет, но это нормально
 			c.Next()
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			// Неправильный формат, но не критично
 			c.Next()
 			return
 		}
 
 		accessToken := parts[1]
 
-		// Проверяем токен
 		claims, err := authService.VerifyAccessToken(accessToken)
 		if err != nil {
-			// Токен невалиден, но это не критично для опциональной аутентификации
 			c.Next()
 			return
 		}
 
-		// Сохраняем данные в контекст
 		c.Set("userID", claims.UserID)
 		c.Set("userEmail", claims.Email)
 		c.Set("userRole", claims.Role)
@@ -91,7 +96,6 @@ func OptionalAuthTokenMiddleware(authService *authUC.Service) gin.HandlerFunc {
 	}
 }
 
-// GetUserIDFromContext безопасно получает userID из контекста
 func GetUserIDFromContext(c *gin.Context) (string, error) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -110,7 +114,6 @@ func GetUserIDFromContext(c *gin.Context) (string, error) {
 	return id, nil
 }
 
-// GetTokenClaimsFromContext получает полные claims из контекста
 func GetTokenClaimsFromContext(c *gin.Context) (*auth.TokenClaims, error) {
 	claims, exists := c.Get("tokenClaims")
 	if !exists {
@@ -123,4 +126,11 @@ func GetTokenClaimsFromContext(c *gin.Context) (*auth.TokenClaims, error) {
 	}
 
 	return tokenClaims, nil
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

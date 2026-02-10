@@ -3,6 +3,7 @@ package categorymanager
 import (
 	"context"
 	"database/sql"
+	"strconv"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/categorymanager"
@@ -183,8 +184,7 @@ func (r *PostgresRepository) GetByCategoryID(ctx context.Context, categoryID str
 
 func (r *PostgresRepository) List(ctx context.Context, filter *categorymanager.CategoryManagerFilter) ([]*categorymanager.CategoryManager, int64, error) {
 	query := `
-		SELECT cm.id, cm.user_id, cm.category_id, cm.permission_level, cm.is_active, cm.created_at, cm.updated_at,
-		       u.email, COALESCE(u.first_name, ''), COALESCE(u.last_name, ''), COALESCE(cc.name, '')
+		SELECT cm.id, cm.user_id, cm.category_id, cm.permission_level, cm.is_active, cm.created_at, cm.updated_at, u.email, COALESCE(cc.name, '')
 		FROM category_managers cm
 		LEFT JOIN users u ON cm.user_id = u.id
 		LEFT JOIN course_categories cc ON cm.category_id = cc.id
@@ -194,24 +194,24 @@ func (r *PostgresRepository) List(ctx context.Context, filter *categorymanager.C
 	argCount := 1
 
 	if filter.CategoryID != "" {
-		query += ` AND cm.category_id = $` + string(rune(argCount))
+		query += ` AND cm.category_id = $` + strconv.Itoa(argCount)
 		args = append(args, filter.CategoryID)
 		argCount++
 	}
 
 	if filter.PermissionLevel != "" {
-		query += ` AND cm.permission_level = $` + string(rune(argCount))
+		query += ` AND cm.permission_level = $` + strconv.Itoa(argCount)
 		args = append(args, filter.PermissionLevel)
 		argCount++
 	}
 
 	if filter.IsActive != nil {
-		query += ` AND cm.is_active = $` + string(rune(argCount))
+		query += ` AND cm.is_active = $` + strconv.Itoa(argCount)
 		args = append(args, *filter.IsActive)
 		argCount++
 	}
 
-	query += ` ORDER BY cm.created_at DESC LIMIT $` + string(rune(argCount)) + ` OFFSET $` + string(rune(argCount+1))
+	query += ` ORDER BY cm.created_at DESC LIMIT $` + strconv.Itoa(argCount) + ` OFFSET $` + strconv.Itoa(argCount+1)
 	args = append(args, filter.Limit, filter.Offset)
 
 	rows, err := r.db.Query(ctx, query, args...)
@@ -223,18 +223,16 @@ func (r *PostgresRepository) List(ctx context.Context, filter *categorymanager.C
 	var managers []*categorymanager.CategoryManager
 	for rows.Next() {
 		var cm categorymanager.CategoryManager
-		var firstName, lastName, categoryName string
+		var categoryName string
 
 		err := rows.Scan(
 			&cm.ID, &cm.UserID, &cm.CategoryID, &cm.PermissionLevel, &cm.IsActive, &cm.CreatedAt, &cm.UpdatedAt,
-			&cm.Email, &firstName, &lastName, &categoryName,
+			&cm.Email, &categoryName,
 		)
 		if err != nil {
 			return nil, 0, err
 		}
 
-		cm.FirstName = firstName
-		cm.LastName = lastName
 		cm.CategoryName = categoryName
 
 		managers = append(managers, &cm)
@@ -246,19 +244,19 @@ func (r *PostgresRepository) List(ctx context.Context, filter *categorymanager.C
 	countArgCount := 1
 
 	if filter.CategoryID != "" {
-		countQuery += ` AND cm.category_id = $` + string(rune(countArgCount))
+		countQuery += ` AND cm.category_id = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, filter.CategoryID)
 		countArgCount++
 	}
 
 	if filter.PermissionLevel != "" {
-		countQuery += ` AND cm.permission_level = $` + string(rune(countArgCount))
+		countQuery += ` AND cm.permission_level = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, filter.PermissionLevel)
 		countArgCount++
 	}
 
 	if filter.IsActive != nil {
-		countQuery += ` AND cm.is_active = $` + string(rune(countArgCount))
+		countQuery += ` AND cm.is_active = $` + strconv.Itoa(countArgCount)
 		countArgs = append(countArgs, *filter.IsActive)
 		countArgCount++
 	}

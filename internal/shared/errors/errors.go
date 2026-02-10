@@ -106,6 +106,7 @@ var (
 	ErrMissingRequired  = errors.New("missing required field")
 	ErrInvalidID        = errors.New("invalid ID format")
 	ErrInvalidDateRange = errors.New("invalid date range")
+	ErrRoleMismatch     = errors.New("user role does not match the required role for this profile")
 )
 
 // IsNotFoundError checks if the error is a "not found" type error
@@ -168,5 +169,6 @@ func IsValidationError(err error) bool {
 		errors.Is(err, ErrInvalidScore) ||
 		errors.Is(err, ErrInvalidQuestionType) ||
 		errors.Is(err, ErrInvalidFileType) ||
-		errors.Is(err, ErrFileTooLarge)
+		errors.Is(err, ErrFileTooLarge) ||
+		errors.Is(err, ErrRoleMismatch)
 }

@@ -1125,7 +1125,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/assignments/course/{courseID}": {
+        "/api/v1/assignments/course/{courseId}": {
             "get": {
                 "security": [
                     {
@@ -1144,7 +1144,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Course ID",
-                        "name": "courseID",
+                        "name": "courseId",
                         "in": "path",
                         "required": true
                     },
@@ -1395,7 +1395,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/attendance/course/{courseID}": {
+        "/api/v1/attendance/course/{courseId}": {
             "get": {
                 "security": [
                     {
@@ -1414,7 +1414,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Course ID",
-                        "name": "courseID",
+                        "name": "courseId",
                         "in": "path",
                         "required": true
                     },
@@ -2150,7 +2150,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/category-managers/by-category/{categoryID}": {
+        "/api/v1/category-managers/by-category/{categoryId}": {
             "get": {
                 "security": [
                     {
@@ -2169,7 +2169,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Category ID",
-                        "name": "categoryID",
+                        "name": "categoryId",
                         "in": "path",
                         "required": true
                     }
@@ -2472,7 +2472,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/chat/course/{courseID}": {
+        "/api/v1/chat/course/{courseId}": {
             "get": {
                 "security": [
                     {
@@ -2491,7 +2491,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Course ID",
-                        "name": "courseID",
+                        "name": "courseId",
                         "in": "path",
                         "required": true
                     },
@@ -2828,43 +2828,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/courses/{courseID}/groups": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a list of all groups in a course",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "groups"
-                ],
-                "summary": "List course groups",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Course ID",
-                        "name": "courseID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Groups list",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/group.Group"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/courses/{courseID}/quizzes": {
             "get": {
                 "security": [
@@ -2926,6 +2889,43 @@ const docTemplate = `{
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/courses/{courseId}/groups": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of all groups in a course",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "List course groups",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Course ID",
+                        "name": "courseId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Groups list",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/group.Group"
                             }
                         }
                     }
@@ -3154,7 +3154,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/dashboard/student/courses/{courseID}": {
+        "/api/v1/dashboard/student/courses/{courseId}": {
             "get": {
                 "security": [
                     {
@@ -3173,7 +3173,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Course ID",
-                        "name": "courseID",
+                        "name": "courseId",
                         "in": "path",
                         "required": true
                     }
@@ -3279,7 +3279,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/enrollments/course/{courseID}": {
+        "/api/v1/enrollments/course/{courseId}": {
             "get": {
                 "security": [
                     {
@@ -3298,7 +3298,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Course ID",
-                        "name": "courseID",
+                        "name": "courseId",
                         "in": "path",
                         "required": true
                     },
@@ -3357,7 +3357,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/enrollments/student/{studentID}": {
+        "/api/v1/enrollments/student/{studentId}": {
             "get": {
                 "security": [
                     {
@@ -3376,7 +3376,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Student ID",
-                        "name": "studentID",
+                        "name": "studentId",
                         "in": "path",
                         "required": true
                     },
@@ -3939,7 +3939,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/groups/{id}/members/{studentID}": {
+        "/api/v1/groups/{id}/members/{memberId}": {
             "delete": {
                 "security": [
                     {
@@ -3964,8 +3964,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Student ID",
-                        "name": "studentID",
+                        "description": "Member ID",
+                        "name": "memberId",
                         "in": "path",
                         "required": true
                     }
@@ -4302,7 +4302,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/managers/{id}/categories/{categoryID}": {
+        "/api/v1/managers/{id}/categories/{categoryId}": {
             "delete": {
                 "security": [
                     {
@@ -4328,7 +4328,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Category ID",
-                        "name": "categoryID",
+                        "name": "categoryId",
                         "in": "path",
                         "required": true
                     }
@@ -4417,7 +4417,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/managers/{id}/teachers/{teacherID}": {
+        "/api/v1/managers/{id}/teachers/{teacherId}": {
             "delete": {
                 "security": [
                     {
@@ -4443,7 +4443,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Teacher ID",
-                        "name": "teacherID",
+                        "name": "teacherId",
                         "in": "path",
                         "required": true
                     }
@@ -5738,7 +5738,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/submissions/assignment/{assignmentID}": {
+        "/api/v1/submissions/assignment/{assignmentId}": {
             "get": {
                 "security": [
                     {
@@ -5757,7 +5757,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Assignment ID",
-                        "name": "assignmentID",
+                        "name": "assignmentId",
                         "in": "path",
                         "required": true
                     },
@@ -5816,7 +5816,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/submissions/student/{studentID}": {
+        "/api/v1/submissions/student/{studentId}": {
             "get": {
                 "security": [
                     {
@@ -5835,7 +5835,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Student ID",
-                        "name": "studentID",
+                        "name": "studentId",
                         "in": "path",
                         "required": true
                     },
@@ -7210,7 +7210,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "expires_in": {
-                    "description": "в секундах",
                     "type": "integer"
                 },
                 "refresh_token": {
@@ -8813,6 +8812,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
+            "description": "JWT token with Bearer prefix. Example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
