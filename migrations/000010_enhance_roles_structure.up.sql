@@ -17,10 +17,23 @@ CREATE INDEX idx_course_categories_active ON course_categories(is_active);
 CREATE INDEX idx_course_categories_order ON course_categories("order");
 
 -- ====== ENHANCED TEACHERS ======
+-- First, drop dependent foreign keys from other tables
+ALTER TABLE IF EXISTS courses DROP CONSTRAINT IF EXISTS courses_owner_teacher_id_fkey;
+ALTER TABLE IF EXISTS assignments DROP CONSTRAINT IF EXISTS assignments_created_by_teacher_id_fkey;
+ALTER TABLE IF EXISTS grades DROP CONSTRAINT IF EXISTS grades_graded_by_teacher_id_fkey;
+ALTER TABLE IF EXISTS attendance_sessions DROP CONSTRAINT IF EXISTS attendance_sessions_created_by_teacher_id_fkey;
+
 -- Drop old teachers table constraints if needed
-ALTER TABLE teachers 
+ALTER TABLE IF EXISTS teachers 
     DROP CONSTRAINT IF EXISTS teachers_pkey,
     DROP CONSTRAINT IF EXISTS teachers_user_id_fkey;
+
+-- Drop old indexes on teachers table (they will be dropped with rename)
+DROP INDEX IF EXISTS idx_teachers_user_id;
+DROP INDEX IF EXISTS idx_teachers_employee_id;
+DROP INDEX IF EXISTS idx_teachers_name;
+DROP INDEX IF EXISTS idx_teachers_department;
+DROP INDEX IF EXISTS idx_teachers_active;
 
 -- Rename old teachers table
 ALTER TABLE IF EXISTS teachers RENAME TO teachers_old;
@@ -77,21 +90,11 @@ CREATE INDEX idx_admins_access_level ON admins(access_level);
 CREATE INDEX idx_admins_active ON admins(is_active);
 
 -- ====== MANAGERS ======
--- Enhance existing managers table
-ALTER TABLE managers 
-    ADD COLUMN IF NOT EXISTS id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    ADD COLUMN IF NOT EXISTS employee_id VARCHAR(50) UNIQUE,
-    ADD COLUMN IF NOT EXISTS department VARCHAR(255),
-    ADD COLUMN IF NOT EXISTS manages_categories JSONB DEFAULT '[]'::jsonb,
-    ADD COLUMN IF NOT EXISTS manages_teachers JSONB DEFAULT '[]'::jsonb,
-    ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT true,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
-
-ALTER TABLE managers
-    DROP CONSTRAINT IF EXISTS managers_pkey CASCADE;
+-- Drop old managers table and recreate with proper structure
+DROP TABLE IF EXISTS managers CASCADE;
 
 -- Recreate managers table properly
-CREATE TABLE IF NOT EXISTS managers_new (
+CREATE TABLE managers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     employee_id VARCHAR(50) UNIQUE,
@@ -105,20 +108,10 @@ CREATE TABLE IF NOT EXISTS managers_new (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_managers_user_id ON managers_new(user_id);
-CREATE INDEX idx_managers_employee_id ON managers_new(employee_id);
-CREATE INDEX idx_managers_department ON managers_new(department);
-CREATE INDEX idx_managers_active ON managers_new(is_active);
-
--- Migrate data if old managers table exists
-INSERT INTO managers_new (user_id, first_name, last_name, created_at)
-SELECT user_id, COALESCE(first_name, ''), COALESCE(last_name, ''), created_at
-FROM managers WHERE user_id IS NOT NULL
-ON CONFLICT (user_id) DO NOTHING;
-
--- Drop old and rename new
-DROP TABLE IF EXISTS managers CASCADE;
-ALTER TABLE managers_new RENAME TO managers;
+CREATE INDEX idx_managers_user_id ON managers(user_id);
+CREATE INDEX idx_managers_employee_id ON managers(employee_id);
+CREATE INDEX idx_managers_department ON managers(department);
+CREATE INDEX idx_managers_active ON managers(is_active);
 
 -- ====== CATEGORY MANAGERS ======
 CREATE TABLE IF NOT EXISTS category_managers (
@@ -157,3 +150,17 @@ UPDATE users SET role = 'admin' WHERE role = 'admin';
 UPDATE users SET role = 'manager' WHERE role = 'manager';
 ALTER TABLE users 
     ADD CONSTRAINT check_role CHECK (role IN ('student', 'teacher', 'admin', 'manager', 'category_manager'));
+
+-- ====== RE-ESTABLISH FOREIGN KEY CONSTRAINTS ======
+-- Re-add foreign key constraints from dependent tables
+ALTER TABLE courses
+    ADD CONSTRAINT courses_owner_teacher_id_fkey FOREIGN KEY (owner_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL;
+
+ALTER TABLE assignments
+    ADD CONSTRAINT assignments_created_by_teacher_id_fkey FOREIGN KEY (created_by_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL;
+
+ALTER TABLE grades
+    ADD CONSTRAINT grades_graded_by_teacher_id_fkey FOREIGN KEY (graded_by_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL;
+
+ALTER TABLE attendance_sessions
+    ADD CONSTRAINT attendance_sessions_created_by_teacher_id_fkey FOREIGN KEY (created_by_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL;

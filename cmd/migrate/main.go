@@ -17,9 +17,21 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	cmd := flag.String("cmd", "up", "migration command: up | down | force")
-	version := flag.Int("version", 0, "version to force (only used with -cmd force)")
 	flag.Parse()
+	args := flag.Args()
+
+	cmd := "up"
+	version := 0
+
+	// Accept command as first positional argument
+	if len(args) > 0 {
+		cmd = args[0]
+	}
+
+	// Accept version as second positional argument
+	if len(args) > 1 {
+		fmt.Sscanf(args[1], "%d", &version)
+	}
 
 	dbHost := os.Getenv("DB_HOST")
 	if dbHost == "" {
@@ -76,8 +88,15 @@ func main() {
 		log.Fatalf("migrate init error: %v", err)
 	}
 
-	// execute command
-	switch *cmd {
+	switch cmd {
+	case "version":
+		v, dirty, err := m.Version()
+		if err != nil && err != migrate.ErrNilVersion {
+			log.Fatalf("failed to get version: %v", err)
+		}
+		log.Printf("current version: %d (dirty: %v)", v, dirty)
+		os.Exit(0)
+
 	case "up":
 		log.Println("running migrations UP")
 		err = m.Up()
@@ -87,11 +106,11 @@ func main() {
 		err = m.Down()
 
 	case "force":
-		log.Printf("forcing version %d", *version)
-		err = m.Force(*version)
+		log.Printf("forcing version %d", version)
+		err = m.Force(version)
 
 	default:
-		log.Fatalf("unknown command: %s (use up, down, or force)", *cmd)
+		log.Fatalf("unknown command: %s (use up, down, force, or version)", cmd)
 	}
 
 	if err != nil && err != migrate.ErrNoChange {

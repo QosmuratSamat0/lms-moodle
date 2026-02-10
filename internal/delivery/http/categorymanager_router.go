@@ -1,7 +1,6 @@
 package http
 
 import (
-
 	"github.com/ap1-final-mini-moodle/internal/delivery/http/middleware"
 	"github.com/ap1-final-mini-moodle/internal/domain/categorymanager"
 	authUC "github.com/ap1-final-mini-moodle/internal/usecase/auth"

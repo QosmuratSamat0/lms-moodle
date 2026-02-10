@@ -4,6 +4,12 @@
 ALTER TABLE users
     DROP CONSTRAINT IF EXISTS check_role;
 
+-- Drop foreign key constraints first
+ALTER TABLE courses DROP CONSTRAINT IF EXISTS courses_owner_teacher_id_fkey;
+ALTER TABLE assignments DROP CONSTRAINT IF EXISTS assignments_created_by_teacher_id_fkey;
+ALTER TABLE grades DROP CONSTRAINT IF EXISTS grades_graded_by_teacher_id_fkey;
+ALTER TABLE attendance_sessions DROP CONSTRAINT IF EXISTS attendance_sessions_created_by_teacher_id_fkey;
+
 -- Update courses table
 ALTER TABLE courses
     DROP INDEX IF EXISTS idx_courses_category_id,
@@ -45,6 +51,19 @@ SELECT user_id, first_name, last_name, department, created_at FROM teachers;
 
 DROP TABLE IF EXISTS teachers CASCADE;
 ALTER TABLE teachers_old RENAME TO teachers;
+
+-- Re-establish old foreign keys
+ALTER TABLE courses
+    ADD CONSTRAINT courses_owner_teacher_id_fkey FOREIGN KEY (owner_teacher_id) REFERENCES teachers(user_id) ON DELETE SET NULL;
+
+ALTER TABLE assignments
+    ADD CONSTRAINT assignments_created_by_teacher_id_fkey FOREIGN KEY (created_by_teacher_id) REFERENCES teachers(user_id) ON DELETE SET NULL;
+
+ALTER TABLE grades
+    ADD CONSTRAINT grades_graded_by_teacher_id_fkey FOREIGN KEY (graded_by_teacher_id) REFERENCES teachers(user_id) ON DELETE SET NULL;
+
+ALTER TABLE attendance_sessions
+    ADD CONSTRAINT attendance_sessions_created_by_teacher_id_fkey FOREIGN KEY (created_by_teacher_id) REFERENCES teachers(user_id) ON DELETE SET NULL;
 
 -- Drop admins table
 DROP TABLE IF EXISTS admins CASCADE;
