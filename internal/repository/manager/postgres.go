@@ -43,7 +43,7 @@ func (r *PostgresRepository) Create(ctx context.Context, m *manager.Manager) err
 
 func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*manager.Manager, error) {
 	query := `
-		SELECT m.id, m.user_id, m.employee_id, m.department, m.manages_categories, m.manages_teachers, m.is_active, m.created_at, m.updated_at,
+		SELECT m.id, m.user_id, COALESCE(m.employee_id,''), COALESCE(m.department,''), m.manages_categories, m.manages_teachers, m.is_active, m.created_at, m.updated_at,
 		       u.email, COALESCE(m.first_name, ''), COALESCE(m.last_name, '')
 		FROM managers m
 		LEFT JOIN users u ON m.user_id = u.id
@@ -78,7 +78,7 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*manager.M
 
 func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*manager.Manager, error) {
 	query := `
-		SELECT m.id, m.user_id, m.employee_id, m.department, m.manages_categories, m.manages_teachers, m.is_active, m.created_at, m.updated_at,
+		SELECT m.id, m.user_id, COALESCE(m.employee_id,''), COALESCE(m.department,''), m.manages_categories, m.manages_teachers, m.is_active, m.created_at, m.updated_at,
 		       u.email, COALESCE(m.first_name, ''), COALESCE(m.last_name, '')
 		FROM managers m
 		LEFT JOIN users u ON m.user_id = u.id
@@ -196,7 +196,7 @@ func (r *PostgresRepository) GetByDepartment(ctx context.Context, department str
 
 func (r *PostgresRepository) List(ctx context.Context, filter *manager.ManagerFilter) ([]*manager.Manager, int64, error) {
 	query := `
-		SELECT m.id, m.user_id, m.employee_id, m.department, m.manages_categories, m.manages_teachers, m.is_active, m.created_at, m.updated_at,
+		SELECT m.id, m.user_id, COALESCE(m.employee_id,''), COALESCE(m.department,''), m.manages_categories, m.manages_teachers, m.is_active, m.created_at, m.updated_at,
 		       u.email, COALESCE(m.first_name, ''), COALESCE(m.last_name, '')
 		FROM managers m
 		LEFT JOIN users u ON m.user_id = u.id

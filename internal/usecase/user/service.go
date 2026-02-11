@@ -27,7 +27,7 @@ func (s *Service) Register(input *user.CreateUserInput) (*user.User, error) {
 		Password:  hex.EncodeToString(hash[:]),
 		FirstName: input.FirstName,
 		LastName:  input.LastName,
-		Role:      user.RoleStudent, 
+		Role:      user.RoleUser,
 		Active:    true,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),

@@ -8106,8 +8106,7 @@ const docTemplate = `{
                 "email",
                 "first_name",
                 "last_name",
-                "password",
-                "role"
+                "password"
             ],
             "properties": {
                 "email": {
@@ -8122,9 +8121,6 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 6
-                },
-                "role": {
-                    "type": "string"
                 }
             }
         },
@@ -8751,12 +8747,14 @@ const docTemplate = `{
         "user.Role": {
             "type": "string",
             "enum": [
+                "",
                 "admin",
                 "teacher",
                 "student",
                 "manager"
             ],
             "x-enum-varnames": [
+                "RoleUser",
                 "RoleAdmin",
                 "RoleTeacher",
                 "RoleStudent",

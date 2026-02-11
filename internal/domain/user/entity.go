@@ -5,6 +5,7 @@ import "time"
 type Role string
 
 const (
+	RoleUser    Role = ""
 	RoleAdmin   Role = "admin"
 	RoleTeacher Role = "teacher"
 	RoleStudent Role = "student"
@@ -28,7 +29,6 @@ type CreateUserInput struct {
 	Password  string
 	FirstName string
 	LastName  string
-	Role      Role
 }
 
 type UpdateUserInput struct {

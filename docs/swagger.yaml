@@ -787,14 +787,11 @@ definitions:
       password:
         minLength: 6
         type: string
-      role:
-        type: string
     required:
     - email
     - first_name
     - last_name
     - password
-    - role
     type: object
   http.ResolveAppealRequest:
     properties:
@@ -1213,12 +1210,14 @@ definitions:
     type: object
   user.Role:
     enum:
+    - ""
     - admin
     - teacher
     - student
     - manager
     type: string
     x-enum-varnames:
+    - RoleUser
     - RoleAdmin
     - RoleTeacher
     - RoleStudent

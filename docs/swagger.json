@@ -8100,8 +8100,7 @@
                 "email",
                 "first_name",
                 "last_name",
-                "password",
-                "role"
+                "password"
             ],
             "properties": {
                 "email": {
@@ -8116,9 +8115,6 @@
                 "password": {
                     "type": "string",
                     "minLength": 6
-                },
-                "role": {
-                    "type": "string"
                 }
             }
         },
@@ -8745,12 +8741,14 @@
         "user.Role": {
             "type": "string",
             "enum": [
+                "",
                 "admin",
                 "teacher",
                 "student",
                 "manager"
             ],
             "x-enum-varnames": [
+                "RoleUser",
                 "RoleAdmin",
                 "RoleTeacher",
                 "RoleStudent",

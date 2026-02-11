@@ -41,7 +41,7 @@ func (r *PostgresRepository) Create(ctx context.Context, a *admin.Admin) error {
 
 func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*admin.Admin, error) {
 	query := `
-		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, 
+		SELECT a.id, a.user_id, COALESCE(a.employee_id,''), COALESCE(a.department,''), a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, 
 		       u.email, COALESCE(u.first_name, ''), COALESCE(u.last_name, '')
 		FROM admins a
 		LEFT JOIN users u ON a.user_id = u.id
@@ -73,7 +73,7 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*admin.Adm
 
 func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*admin.Admin, error) {
 	query := `
-		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, u.email
+		SELECT a.id, a.user_id, COALESCE(a.employee_id,''), COALESCE(a.department,''), a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, u.email
 		FROM admins a
 		LEFT JOIN users u ON a.user_id = u.id
 		WHERE a.user_id = $1`
@@ -127,7 +127,7 @@ func (r *PostgresRepository) GetByEmployeeID(ctx context.Context, employeeID str
 
 func (r *PostgresRepository) List(ctx context.Context, filter *admin.AdminFilter) ([]*admin.Admin, int64, error) {
 	query := `
-		SELECT a.id, a.user_id, a.employee_id, a.department, a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, u.email
+		SELECT a.id, a.user_id, COALESCE(a.employee_id,''), COALESCE(a.department,''), a.access_level, a.permissions, a.is_active, a.created_at, a.updated_at, u.email
 		FROM admins a
 		LEFT JOIN users u ON a.user_id = u.id
 		WHERE 1=1`

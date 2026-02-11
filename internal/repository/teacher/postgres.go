@@ -39,7 +39,7 @@ func (r *PostgresRepository) Create(ctx context.Context, t *teacher.Teacher) err
 
 func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*teacher.Teacher, error) {
 	query := `
-		SELECT t.id, t.user_id, t.employee_id, t.first_name, t.last_name, t.department, t.specialization, t.qualifications, t.bio, t.office_hours, t.phone, t.is_active, t.created_at, t.updated_at, u.email
+		SELECT t.id, t.user_id, COALESCE(t.employee_id,''), COALESCE(t.first_name,''), COALESCE(t.last_name,''), t.department, t.specialization, COALESCE(t.qualifications,''), COALESCE(t.bio,''), COALESCE(t.office_hours,''), COALESCE(t.phone,''), t.is_active, t.created_at, t.updated_at, u.email
 		FROM teachers t
 		LEFT JOIN users u ON t.user_id = u.id
 		WHERE t.id = $1`
@@ -60,7 +60,7 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*teacher.T
 
 func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*teacher.Teacher, error) {
 	query := `
-		SELECT t.id, t.user_id, t.employee_id, t.first_name, t.last_name, t.department, t.specialization, t.qualifications, t.bio, t.office_hours, t.phone, t.is_active, t.created_at, t.updated_at, u.email
+		SELECT t.id, t.user_id, COALESCE(t.employee_id,''), COALESCE(t.first_name,''), COALESCE(t.last_name,''), t.department, t.specialization, COALESCE(t.qualifications,''), COALESCE(t.bio,''), COALESCE(t.office_hours,''), COALESCE(t.phone,''), t.is_active, t.created_at, t.updated_at, u.email
 		FROM teachers t
 		LEFT JOIN users u ON t.user_id = u.id
 		WHERE t.user_id = $1`
@@ -81,7 +81,7 @@ func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*t
 
 func (r *PostgresRepository) GetByEmployeeID(ctx context.Context, employeeID string) (*teacher.Teacher, error) {
 	query := `
-		SELECT t.id, t.user_id, t.employee_id, t.first_name, t.last_name, t.department, t.specialization, t.qualifications, t.bio, t.office_hours, t.phone, t.is_active, t.created_at, t.updated_at, u.email
+		SELECT t.id, t.user_id, COALESCE(t.employee_id,''), COALESCE(t.first_name,''), COALESCE(t.last_name,''), t.department, t.specialization, COALESCE(t.qualifications,''), COALESCE(t.bio,''), COALESCE(t.office_hours,''), COALESCE(t.phone,''), t.is_active, t.created_at, t.updated_at, u.email
 		FROM teachers t
 		LEFT JOIN users u ON t.user_id = u.id
 		WHERE t.employee_id = $1`
@@ -102,7 +102,7 @@ func (r *PostgresRepository) GetByEmployeeID(ctx context.Context, employeeID str
 
 func (r *PostgresRepository) List(ctx context.Context, filter *teacher.TeacherFilter) ([]*teacher.Teacher, int64, error) {
 	query := `
-		SELECT t.id, t.user_id, t.employee_id, t.first_name, t.last_name, t.department, t.specialization, t.qualifications, t.bio, t.office_hours, t.phone, t.is_active, t.created_at, t.updated_at, u.email
+		SELECT t.id, t.user_id, COALESCE(t.employee_id,''), COALESCE(t.first_name,''), COALESCE(t.last_name,''), t.department, t.specialization, COALESCE(t.qualifications,''), COALESCE(t.bio,''), COALESCE(t.office_hours,''), COALESCE(t.phone,''), t.is_active, t.created_at, t.updated_at, u.email
 		FROM teachers t
 		LEFT JOIN users u ON t.user_id = u.id
 		WHERE 1=1`
