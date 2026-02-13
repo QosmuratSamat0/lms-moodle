@@ -22,7 +22,6 @@ func (s *Service) Enroll(input *enrollment.CreateEnrollmentInput) (*enrollment.E
 		StudentID:  input.StudentID,
 		EnrolledAt: time.Now(),
 		Status:     "active",
-		CreatedAt:  time.Now(),
 	}
 	if err := s.repo.Create(e); err != nil {
 		return nil, err
