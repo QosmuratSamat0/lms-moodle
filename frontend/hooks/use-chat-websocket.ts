@@ -7,7 +7,7 @@ import { chatService } from "@/services/chat";
 import type { ChatMessage } from "@/types/chat";
 
 const WS_BASE_URL =
-  process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/api/v1/ws";
+  process.env.NEXT_PUBLIC_WS_URL || "wss://lms-moodle-oxkg.onrender.com/api/v1/ws";
 
 // Outbound message types (sent to server)
 interface WSOutboundMessage {

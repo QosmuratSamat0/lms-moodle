@@ -34,7 +34,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # Build argument for API URL (baked at build time)
-ARG NEXT_PUBLIC_API_URL=http://localhost:8085/api/v1
+ARG NEXT_PUBLIC_API_URL=https://lms-moodle-oxkg.onrender.com/api/v1
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Build the application
@@ -74,8 +74,8 @@ EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
-ENV NEXT_PUBLIC_WS_URL=ws://localhost:8080/api/v1/ws
+ENV NEXT_PUBLIC_API_URL=https://lms-moodle-oxkg.onrender.com/api/v1
+ENV NEXT_PUBLIC_WS_URL=wss://lms-moodle-oxkg.onrender.com/api/v1/ws
 ENV NEXT_PUBLIC_USE_MOCK=false
 # Start the application
 CMD ["node", "server.js"]

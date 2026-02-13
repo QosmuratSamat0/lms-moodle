@@ -12,7 +12,7 @@ import type {
 import type { PaginationParams } from "@/types/common";
 
 const WS_BASE_URL =
-  process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/api/v1/ws";
+  process.env.NEXT_PUBLIC_WS_URL || "wss://lms-moodle-oxkg.onrender.com/api/v1/ws";
 
 type QueryParams = Record<string, string | number | boolean | undefined>;
 
