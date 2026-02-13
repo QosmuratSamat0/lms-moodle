@@ -40,7 +40,7 @@ func (s *Service) GetBySubmission(submissionID string) (*grade.Grade, error) {
 	return s.repo.GetBySubmission(submissionID)
 }
 
-func (s *Service) Update(id string, score int, feedback string) (*grade.Grade, error) {
+func (s *Service) Update(id string, score float64, feedback string) (*grade.Grade, error) {
 	g, err := s.repo.GetByID(id)
 	if err != nil {
 		return nil, err

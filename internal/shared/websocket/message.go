@@ -14,11 +14,16 @@ type InboundMessage struct {
 type OutboundMessage struct {
 	Type         string    `json:"type"`
 	ID           string    `json:"id,omitempty"`
-	RoomID       string    `json:"roomId,omitempty"`
-	SenderUserID string    `json:"senderUserId,omitempty"`
+	RoomID       string    `json:"room_id,omitempty"`
+	SenderUserID string    `json:"sender_id,omitempty"`
 	Content      string    `json:"content,omitempty"`
-	CreatedAt    time.Time `json:"createdAt,omitempty"`
+	CreatedAt    time.Time `json:"created_at,omitempty"`
 	Error        string    `json:"error,omitempty"`
+
+	// Extra sender info for the frontend
+	SenderFirstName string `json:"sender_first_name,omitempty"`
+	SenderLastName  string `json:"sender_last_name,omitempty"`
+	SenderEmail     string `json:"sender_email,omitempty"`
 }
 
 func NewErrorMessage(errMsg string) *OutboundMessage {

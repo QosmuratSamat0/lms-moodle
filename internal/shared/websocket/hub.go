@@ -21,8 +21,9 @@ type Hub struct {
 }
 
 type broadcastMessage struct {
-	roomID  uuid.UUID
-	message *OutboundMessage
+	roomID        uuid.UUID
+	message       *OutboundMessage
+	excludeUserID *uuid.UUID
 }
 
 func NewHub() *Hub {
@@ -72,6 +73,10 @@ func (h *Hub) Run() {
 			}
 
 			for client := range clients {
+				// Skip excluded user
+				if bm.excludeUserID != nil && client.UserID == *bm.excludeUserID {
+					continue
+				}
 				select {
 				case client.send <- data:
 				default:
@@ -97,6 +102,14 @@ func (h *Hub) Broadcast(roomID uuid.UUID, msg *OutboundMessage) {
 	h.broadcast <- &broadcastMessage{
 		roomID:  roomID,
 		message: msg,
+	}
+}
+
+func (h *Hub) BroadcastExclude(roomID uuid.UUID, msg *OutboundMessage, excludeUserID uuid.UUID) {
+	h.broadcast <- &broadcastMessage{
+		roomID:        roomID,
+		message:       msg,
+		excludeUserID: &excludeUserID,
 	}
 }
 
