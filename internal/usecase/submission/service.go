@@ -20,11 +20,10 @@ func (s *Service) Submit(input *submission.CreateSubmissionInput) (*submission.S
 		ID:           uuid.New().String(),
 		AssignmentID: input.AssignmentID,
 		StudentID:    input.StudentID,
-		Content:      input.Content,
+		ContentText:  input.ContentText,
 		FileURL:      input.FileURL,
 		SubmittedAt:  time.Now(),
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		Status:       "submitted",
 	}
 	if err := s.repo.Create(sub); err != nil {
 		return nil, err
@@ -46,6 +45,25 @@ func (s *Service) ListByAssignment(assignmentID string, skip, take int) ([]*subm
 
 func (s *Service) ListByStudent(studentID string, skip, take int) ([]*submission.Submission, error) {
 	return s.repo.ListByStudent(studentID, skip, take)
+}
+
+func (s *Service) Update(input *submission.UpdateSubmissionInput) (*submission.Submission, error) {
+	// Get existing submission
+	existing, err := s.repo.GetByID(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update fields
+	existing.ContentText = input.ContentText
+	existing.FileURL = input.FileURL
+
+	// Save to database
+	if err := s.repo.Update(existing); err != nil {
+		return nil, err
+	}
+
+	return existing, nil
 }
 
 func (s *Service) Delete(id string) error {
