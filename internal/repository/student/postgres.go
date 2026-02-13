@@ -38,16 +38,16 @@ func (r *PostgresRepository) Create(ctx context.Context, s *student.Student) err
 func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*student.Student, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.email, COALESCE(g.name, '')
-		FROM students s
-		JOIN users u ON s.user_id = u.id
-		LEFT JOIN groups g ON s.group_id = g.id
-		WHERE s.id = $1`
+			       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.first_name, u.last_name, u.email, COALESCE(g.name, '')
+			FROM students s
+			JOIN users u ON s.user_id = u.id
+			LEFT JOIN groups g ON s.group_id = g.id
+			WHERE s.id = $1`
 
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email, &s.GroupName,
+		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.FirstName, &s.LastName, &s.Email, &s.GroupName,
 	)
 	if err != nil {
 		return nil, err
@@ -58,16 +58,16 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*student.S
 func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*student.Student, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.email, COALESCE(g.name, '')
-		FROM students s
-		JOIN users u ON s.user_id = u.id
-		LEFT JOIN groups g ON s.group_id = g.id
-		WHERE s.user_id = $1`
+			       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.first_name, u.last_name, u.email, COALESCE(g.name, '')
+			FROM students s
+			JOIN users u ON s.user_id = u.id
+			LEFT JOIN groups g ON s.group_id = g.id
+			WHERE s.user_id = $1`
 
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, userID).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email, &s.GroupName,
+		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.FirstName, &s.LastName, &s.Email, &s.GroupName,
 	)
 	if err != nil {
 		return nil, err
@@ -78,16 +78,16 @@ func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*s
 func (r *PostgresRepository) GetByStudentCode(ctx context.Context, code string) (*student.Student, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.email, COALESCE(g.name, '')
-		FROM students s
-		JOIN users u ON s.user_id = u.id
-		LEFT JOIN groups g ON s.group_id = g.id
-		WHERE s.student_code = $1`
+			       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.first_name, u.last_name, u.email, COALESCE(g.name, '')
+			FROM students s
+			JOIN users u ON s.user_id = u.id
+			LEFT JOIN groups g ON s.group_id = g.id
+			WHERE s.student_code = $1`
 
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, code).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email, &s.GroupName,
+		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.FirstName, &s.LastName, &s.Email, &s.GroupName,
 	)
 	if err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func (r *PostgresRepository) GetWithDetails(ctx context.Context, id string) (*st
 func (r *PostgresRepository) List(ctx context.Context, filter *student.StudentFilter) ([]*student.Student, int64, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.email, COALESCE(g.name, '')
+		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.first_name, u.last_name, u.email, COALESCE(g.name, '')
 		FROM students s
 		JOIN users u ON s.user_id = u.id
 		LEFT JOIN groups g ON s.group_id = g.id
@@ -170,7 +170,7 @@ func (r *PostgresRepository) List(ctx context.Context, filter *student.StudentFi
 		var s student.Student
 		err := rows.Scan(
 			&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-			&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email, &s.GroupName,
+			&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.FirstName, &s.LastName, &s.Email, &s.GroupName,
 		)
 		if err != nil {
 			return nil, 0, err

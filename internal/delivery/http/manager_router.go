@@ -27,6 +27,16 @@ func (m *ManagerModule) Register(r *gin.Engine) {
 		// GET own profile — manager может видеть свой профиль
 		managers.GET("/me", m.handler.GetMyProfile)
 
+		// MANAGER SELF-MANAGEMENT — менеджер может управлять своим профилем
+		managers.PUT("/me/categories",
+			middleware.RequireRole("manager"),
+			m.handler.UpdateMyManagedCategories,
+		)
+		managers.PUT("/me/teachers",
+			middleware.RequireRole("manager"),
+			m.handler.UpdateMyManagedTeachers,
+		)
+
 		// LIST — только admin может видеть список всех managers
 		managers.GET("",
 			middleware.RequireRole("admin", "super_admin"),

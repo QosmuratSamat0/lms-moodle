@@ -21,6 +21,11 @@ type AddManagedTeacherRequest struct {
 	TeacherID string `json:"teacher_id" binding:"required"`
 }
 
+type UpdateManagedResourcesRequest struct {
+	Categories []string `json:"categories,omitempty"`
+	Teachers   []string `json:"teachers,omitempty"`
+}
+
 func NewManagerHandler(service *managerUC.Service) *ManagerHandler {
 	return &ManagerHandler{service: service}
 }
@@ -329,5 +334,109 @@ func (h *ManagerHandler) RemoveManagedTeacher(c *gin.Context) {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
+// UpdateMyManagedCategories updates the categories managed by the current manager
+// @Summary Update my managed categories
+// @Description Updates the list of categories managed by the current manager
+// @Tags managers
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body UpdateManagedResourcesRequest true "Update Categories Request"
+// @Success 204 "No Content"
+// @Router /api/v1/managers/me/categories [put]
+func (h *ManagerHandler) UpdateMyManagedCategories(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	// Get the manager by user ID first
+	m, err := h.service.GetByUserID(c.Request.Context(), userID.(string))
+	if err != nil {
+		status := getStatusCode(err)
+		c.JSON(status, gin.H{"error": err.Error()})
+		return
+	}
+
+	var req UpdateManagedResourcesRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Remove all existing categories first
+	if m.ManagesCategories != nil {
+		for _, catID := range m.ManagesCategories {
+			h.service.RemoveManagedCategory(c.Request.Context(), m.ID, catID)
+		}
+	}
+
+	// Add new categories
+	if req.Categories != nil {
+		for _, catID := range req.Categories {
+			if err := h.service.AddManagedCategory(c.Request.Context(), m.ID, catID); err != nil {
+				status := getStatusCode(err)
+				c.JSON(status, gin.H{"error": err.Error()})
+				return
+			}
+		}
+	}
+
+	c.JSON(http.StatusNoContent, nil)
+}
+
+// UpdateMyManagedTeachers updates the teachers managed by the current manager
+// @Summary Update my managed teachers
+// @Description Updates the list of teachers managed by the current manager
+// @Tags managers
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body UpdateManagedResourcesRequest true "Update Teachers Request"
+// @Success 204 "No Content"
+// @Router /api/v1/managers/me/teachers [put]
+func (h *ManagerHandler) UpdateMyManagedTeachers(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	// Get the manager by user ID first
+	m, err := h.service.GetByUserID(c.Request.Context(), userID.(string))
+	if err != nil {
+		status := getStatusCode(err)
+		c.JSON(status, gin.H{"error": err.Error()})
+		return
+	}
+
+	var req UpdateManagedResourcesRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Remove all existing teachers first
+	if m.ManagesTeachers != nil {
+		for _, teacherID := range m.ManagesTeachers {
+			h.service.RemoveManagedTeacher(c.Request.Context(), m.ID, teacherID)
+		}
+	}
+
+	// Add new teachers
+	if req.Teachers != nil {
+		for _, teacherID := range req.Teachers {
+			if err := h.service.AddManagedTeacher(c.Request.Context(), m.ID, teacherID); err != nil {
+				status := getStatusCode(err)
+				c.JSON(status, gin.H{"error": err.Error()})
+				return
+			}
+		}
+	}
+
 	c.JSON(http.StatusNoContent, nil)
 }
