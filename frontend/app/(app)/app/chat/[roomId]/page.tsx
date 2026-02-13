@@ -509,3 +509,9 @@ export default function ChatRoomPage() {
     </div>
   );
 }
+
+export async function generateStaticParams() {
+  // Return empty array - this is a dynamically rendered page
+  // Room IDs are fetched at runtime, not pre-rendered
+  return [];
+}
