@@ -93,7 +93,13 @@ func (r *PostgresRepository) RemoveMember(ctx context.Context, groupID, studentI
 
 func (r *PostgresRepository) GetMembers(ctx context.Context, groupID string) ([]*group.GroupMember, error) {
 	rows, err := r.db.Query(ctx,
-		`SELECT id, group_id, student_id, joined_at FROM group_members WHERE group_id = $1`, groupID)
+		`SELECT gm.id, gm.group_id, gm.student_id, gm.joined_at,
+		        COALESCE(s.first_name, u.email), COALESCE(s.last_name, ''), COALESCE(u.email, '')
+		 FROM group_members gm
+		 LEFT JOIN students s ON gm.student_id = s.user_id
+		 LEFT JOIN users u ON gm.student_id = u.id
+		 WHERE gm.group_id = $1
+		 ORDER BY s.last_name, s.first_name`, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +108,8 @@ func (r *PostgresRepository) GetMembers(ctx context.Context, groupID string) ([]
 	var members []*group.GroupMember
 	for rows.Next() {
 		m := &group.GroupMember{}
-		if err := rows.Scan(&m.ID, &m.GroupID, &m.StudentID, &m.JoinedAt); err != nil {
+		if err := rows.Scan(&m.ID, &m.GroupID, &m.StudentID, &m.JoinedAt,
+			&m.StudentFirstName, &m.StudentLastName, &m.StudentEmail); err != nil {
 			return nil, err
 		}
 		members = append(members, m)

@@ -31,7 +31,7 @@ func (r *PostgresRepository) GetStudentDashboard(ctx context.Context, studentID 
 
 	// Get course counts
 	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM enrollments WHERE student_id = $1`, studentID).Scan(&d.TotalCourses)
-	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM enrollments e JOIN courses c ON e.course_id = c.id WHERE e.student_id = $1 AND c.active = true`, studentID).Scan(&d.ActiveCourses)
+	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM enrollments e WHERE e.student_id = $1 AND e.status = 'active'`, studentID).Scan(&d.ActiveCourses)
 
 	// Get assignment counts
 	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM submissions WHERE student_id = $1`, studentID).Scan(&d.CompletedAssignments)
@@ -40,13 +40,13 @@ func (r *PostgresRepository) GetStudentDashboard(ctx context.Context, studentID 
 		FROM assignments a
 		JOIN enrollments e ON a.course_id = e.course_id
 		WHERE e.student_id = $1
-		AND a.due_date > NOW()
+		AND a.due_at > NOW()
 		AND NOT EXISTS (SELECT 1 FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = $1)
 	`, studentID).Scan(&d.PendingAssignments)
 
-	// Get quiz stats
-	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM quiz_attempts WHERE student_id = $1 AND submitted_at IS NOT NULL`, studentID).Scan(&d.TotalQuizzes)
-	r.db.QueryRow(ctx, `SELECT COALESCE(AVG(percentage), 0) FROM quiz_attempts WHERE student_id = $1 AND submitted_at IS NOT NULL`, studentID).Scan(&d.AverageQuizScore)
+	// Quiz stats - tables don't exist yet, set to 0
+	d.TotalQuizzes = 0
+	d.AverageQuizScore = 0
 
 	// Get attendance rate
 	d.AttendanceRate, _ = r.GetAttendanceRate(ctx, studentID)
@@ -76,14 +76,14 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 	}
 
 	// Get total courses
-	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM courses WHERE teacher_id = $1`, teacherID).Scan(&d.TotalCourses)
+	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM courses WHERE owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1)`, teacherID).Scan(&d.TotalCourses)
 
 	// Get total students
 	r.db.QueryRow(ctx, `
 		SELECT COUNT(DISTINCT e.student_id)
 		FROM enrollments e
 		JOIN courses c ON e.course_id = c.id
-		WHERE c.teacher_id = $1
+		WHERE c.owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1)
 	`, teacherID).Scan(&d.TotalStudents)
 
 	// Get pending submissions
@@ -92,7 +92,7 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		FROM submissions s
 		JOIN assignments a ON s.assignment_id = a.id
 		JOIN courses c ON a.course_id = c.id
-		WHERE c.teacher_id = $1
+		WHERE c.owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1)
 		AND NOT EXISTS (SELECT 1 FROM grades g WHERE g.submission_id = s.id)
 	`, teacherID).Scan(&d.PendingSubmissions)
 
@@ -104,7 +104,7 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		JOIN submissions s ON g.submission_id = s.id
 		JOIN assignments a ON s.assignment_id = a.id
 		JOIN courses c ON a.course_id = c.id
-		WHERE c.teacher_id = $1 AND ga.status = 'pending'
+		WHERE c.owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1) AND ga.status = 'pending'
 	`, teacherID).Scan(&d.PendingAppeals)
 
 	// Get recent submissions
@@ -115,7 +115,7 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		JOIN users u ON s.student_id = u.id
 		JOIN assignments a ON s.assignment_id = a.id
 		JOIN courses c ON a.course_id = c.id
-		WHERE c.teacher_id = $1
+		WHERE c.owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1)
 		ORDER BY s.submitted_at DESC
 		LIMIT 10
 	`, teacherID)
@@ -135,7 +135,7 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		       COALESCE((SELECT AVG(g.score / a.max_points * 100) FROM grades g JOIN submissions s ON g.submission_id = s.id JOIN assignments a ON s.assignment_id = a.id WHERE a.course_id = c.id), 0) as avg_grade,
 		       COALESCE((SELECT AVG(CASE WHEN am.status = 'present' THEN 1 ELSE 0 END) * 100 FROM attendance_marks am JOIN attendance_sessions ats ON am.session_id = ats.id WHERE ats.course_id = c.id), 0) as attendance
 		FROM courses c
-		WHERE c.teacher_id = $1
+		WHERE c.owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1)
 	`, teacherID)
 	if statsRows != nil {
 		defer statsRows.Close()
@@ -154,14 +154,14 @@ func (r *PostgresRepository) GetUpcomingDeadlines(ctx context.Context, studentID
 
 	// Assignments
 	rows, err := r.db.Query(ctx, `
-		SELECT a.id, 'assignment', c.id, c.title, a.title, a.due_date
+		SELECT a.id, 'assignment', c.id, c.title, a.title, a.due_at
 		FROM assignments a
 		JOIN courses c ON a.course_id = c.id
 		JOIN enrollments e ON c.id = e.course_id
 		WHERE e.student_id = $1
-		AND a.due_date > NOW()
+		AND a.due_at > NOW()
 		AND NOT EXISTS (SELECT 1 FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = $1)
-		ORDER BY a.due_date
+		ORDER BY a.due_at
 		LIMIT $2
 	`, studentID, limit)
 	if err != nil {
@@ -173,31 +173,11 @@ func (r *PostgresRepository) GetUpcomingDeadlines(ctx context.Context, studentID
 		var d dashboard.UpcomingDeadline
 		rows.Scan(&d.ID, &d.Type, &d.CourseID, &d.CourseName, &d.Title, &d.DueDate)
 		d.DaysLeft = int(math.Ceil(time.Until(d.DueDate).Hours() / 24))
+		d.Status = "pending"
 		deadlines = append(deadlines, d)
 	}
 
-	// Quizzes
-	quizRows, _ := r.db.Query(ctx, `
-		SELECT q.id, 'quiz', c.id, c.title, q.title, q.end_date
-		FROM quizzes q
-		JOIN courses c ON q.course_id = c.id
-		JOIN enrollments e ON c.id = e.course_id
-		WHERE e.student_id = $1
-		AND q.published = true
-		AND q.end_date > NOW()
-		AND NOT EXISTS (SELECT 1 FROM quiz_attempts qa WHERE qa.quiz_id = q.id AND qa.student_id = $1 AND qa.submitted_at IS NOT NULL)
-		ORDER BY q.end_date
-		LIMIT $2
-	`, studentID, limit)
-	if quizRows != nil {
-		defer quizRows.Close()
-		for quizRows.Next() {
-			var d dashboard.UpcomingDeadline
-			quizRows.Scan(&d.ID, &d.Type, &d.CourseID, &d.CourseName, &d.Title, &d.DueDate)
-			d.DaysLeft = int(math.Ceil(time.Until(d.DueDate).Hours() / 24))
-			deadlines = append(deadlines, d)
-		}
-	}
+	// Quizzes table doesn't exist yet - skip
 
 	return deadlines, nil
 }
@@ -265,7 +245,8 @@ func (r *PostgresRepository) GetCourseProgress(ctx context.Context, studentID st
 		SELECT c.id, c.title,
 		       (SELECT COUNT(*) FROM submissions s JOIN assignments a ON s.assignment_id = a.id WHERE a.course_id = c.id AND s.student_id = $1) as completed,
 		       (SELECT COUNT(*) FROM assignments WHERE course_id = c.id) as total,
-		       COALESCE((SELECT AVG(g.score / a.max_points * 100) FROM grades g JOIN submissions s ON g.submission_id = s.id JOIN assignments a ON s.assignment_id = a.id WHERE a.course_id = c.id AND s.student_id = $1), 0) as current_grade
+		       COALESCE((SELECT AVG(g.score / a.max_points * 100) FROM grades g JOIN submissions s ON g.submission_id = s.id JOIN assignments a ON s.assignment_id = a.id WHERE a.course_id = c.id AND s.student_id = $1), 0) as current_grade,
+		       COALESCE((SELECT u.first_name || ' ' || u.last_name FROM users u JOIN teachers t ON u.id = t.user_id WHERE t.id = c.owner_teacher_id), 'Unknown') as instructor_name
 		FROM courses c
 		JOIN enrollments e ON c.id = e.course_id
 		WHERE e.student_id = $1
@@ -277,9 +258,22 @@ func (r *PostgresRepository) GetCourseProgress(ctx context.Context, studentID st
 
 	for rows.Next() {
 		var p dashboard.CourseProgress
-		rows.Scan(&p.CourseID, &p.CourseName, &p.CompletedAssignments, &p.TotalAssignments, &p.CurrentGrade)
+		rows.Scan(&p.CourseID, &p.CourseName, &p.CompletedAssignments, &p.TotalAssignments, &p.CurrentGrade, &p.InstructorName)
 		if p.TotalAssignments > 0 {
 			p.ProgressPercent = float64(p.CompletedAssignments) / float64(p.TotalAssignments) * 100
+		}
+		// Compute letter grade
+		switch {
+		case p.CurrentGrade >= 90:
+			p.LetterGrade = "A"
+		case p.CurrentGrade >= 80:
+			p.LetterGrade = "B"
+		case p.CurrentGrade >= 70:
+			p.LetterGrade = "C"
+		case p.CurrentGrade >= 60:
+			p.LetterGrade = "D"
+		default:
+			p.LetterGrade = "F"
 		}
 		progress = append(progress, p)
 	}

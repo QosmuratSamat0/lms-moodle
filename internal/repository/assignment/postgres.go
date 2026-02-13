@@ -16,26 +16,45 @@ func NewPostgresRepository(db *pgxpool.Pool) assignment.Repository {
 }
 
 func (r *PostgresRepository) Create(a *assignment.Assignment) error {
+	// Auto-ensure teacher record exists (migration 000010 changed teachers PK to separate id)
+	if a.CreatedByTeacherID != nil && *a.CreatedByTeacherID != "" {
+		_, _ = r.db.Exec(context.Background(),
+			`INSERT INTO teachers (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING`,
+			*a.CreatedByTeacherID)
+	}
 	_, err := r.db.Exec(context.Background(),
-		`INSERT INTO assignments (id, course_id, title, description, max_points, due_date, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-		a.ID, a.CourseID, a.Title, a.Description, a.MaxPoints, a.DueDate, a.CreatedAt, a.UpdatedAt)
+		`INSERT INTO assignments (id, course_id, title, description, max_points, due_at, allow_late, created_by_teacher_id, grading_category, weight_percentage, created_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, (SELECT id FROM teachers WHERE user_id = $8), $9, $10, $11)`,
+		a.ID, a.CourseID, a.Title, a.Description, a.MaxPoints, a.DueAt, a.AllowLate, a.CreatedByTeacherID, a.GradingCategory, a.WeightPercentage, a.CreatedAt)
 	return err
 }
 
 func (r *PostgresRepository) GetByID(id string) (*assignment.Assignment, error) {
 	a := &assignment.Assignment{}
 	err := r.db.QueryRow(context.Background(),
-		`SELECT id, course_id, title, description, max_points, due_date, created_at, updated_at
-		 FROM assignments WHERE id = $1`, id).
-		Scan(&a.ID, &a.CourseID, &a.Title, &a.Description, &a.MaxPoints, &a.DueDate, &a.CreatedAt, &a.UpdatedAt)
+		`SELECT a.id, a.course_id, a.title, a.description, a.max_points, a.due_at, a.allow_late,
+		        COALESCE(a.created_by_teacher_id::text, ''), COALESCE(a.grading_category, 'register_midterm'),
+		        COALESCE(a.weight_percentage, 0), a.created_at,
+		        COALESCE(t.first_name, ''), COALESCE(t.last_name, '')
+		 FROM assignments a
+		 LEFT JOIN teachers t ON a.created_by_teacher_id = t.id
+		 WHERE a.id = $1`, id).
+		Scan(&a.ID, &a.CourseID, &a.Title, &a.Description, &a.MaxPoints, &a.DueAt, &a.AllowLate,
+			&a.CreatedByTeacherID, &a.GradingCategory, &a.WeightPercentage, &a.CreatedAt,
+			&a.TeacherFirstName, &a.TeacherLastName)
 	return a, err
 }
 
 func (r *PostgresRepository) ListByCourse(courseID string, skip, take int) ([]*assignment.Assignment, error) {
 	rows, err := r.db.Query(context.Background(),
-		`SELECT id, course_id, title, description, max_points, due_date, created_at, updated_at
-		 FROM assignments WHERE course_id=$1 OFFSET $2 LIMIT $3`, courseID, skip, take)
+		`SELECT a.id, a.course_id, a.title, COALESCE(a.description, ''), a.max_points, a.due_at, a.allow_late,
+		        COALESCE(a.grading_category, 'register_midterm'), COALESCE(a.weight_percentage, 0), a.created_at,
+		        COALESCE(c.title, '') as course_title,
+		        COALESCE(t.first_name, ''), COALESCE(t.last_name, '')
+		 FROM assignments a
+		 LEFT JOIN courses c ON a.course_id = c.id
+		 LEFT JOIN teachers t ON a.created_by_teacher_id = t.id
+		 WHERE a.course_id=$1 ORDER BY a.created_at DESC OFFSET $2 LIMIT $3`, courseID, skip, take)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +63,9 @@ func (r *PostgresRepository) ListByCourse(courseID string, skip, take int) ([]*a
 	var assignments []*assignment.Assignment
 	for rows.Next() {
 		a := &assignment.Assignment{}
-		if err := rows.Scan(&a.ID, &a.CourseID, &a.Title, &a.Description, &a.MaxPoints, &a.DueDate, &a.CreatedAt, &a.UpdatedAt); err != nil {
+		if err := rows.Scan(&a.ID, &a.CourseID, &a.Title, &a.Description, &a.MaxPoints, &a.DueAt, &a.AllowLate,
+			&a.GradingCategory, &a.WeightPercentage, &a.CreatedAt, &a.CourseTitle,
+			&a.TeacherFirstName, &a.TeacherLastName); err != nil {
 			return nil, err
 		}
 		assignments = append(assignments, a)
@@ -54,8 +75,10 @@ func (r *PostgresRepository) ListByCourse(courseID string, skip, take int) ([]*a
 
 func (r *PostgresRepository) Update(a *assignment.Assignment) error {
 	_, err := r.db.Exec(context.Background(),
-		`UPDATE assignments SET title=$1, description=$2, max_points=$3, due_date=$4, updated_at=$5 WHERE id=$6`,
-		a.Title, a.Description, a.MaxPoints, a.DueDate, a.UpdatedAt, a.ID)
+		`UPDATE assignments SET title=$1, description=$2, max_points=$3, due_at=$4, allow_late=$5,
+		        grading_category=$6, weight_percentage=$7 WHERE id=$8`,
+		a.Title, a.Description, a.MaxPoints, a.DueAt, a.AllowLate,
+		a.GradingCategory, a.WeightPercentage, a.ID)
 	return err
 }
 

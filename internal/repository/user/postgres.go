@@ -26,18 +26,28 @@ func (r *PostgresRepository) Create(u *user.User) error {
 func (r *PostgresRepository) GetByID(id string) (*user.User, error) {
 	u := &user.User{}
 	err := r.db.QueryRow(context.Background(),
-		`SELECT id, email, password_hash, role, is_active, created_at, updated_at
-		 FROM users WHERE id = $1`, id).
-		Scan(&u.ID, &u.Email, &u.Password, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt)
+		`SELECT u.id, u.email, u.password_hash, u.role, u.is_active, u.created_at, u.updated_at,
+		        COALESCE(s.first_name, t.first_name, '') as first_name,
+		        COALESCE(s.last_name, t.last_name, '') as last_name
+		 FROM users u
+		 LEFT JOIN students s ON u.id = s.user_id
+		 LEFT JOIN teachers t ON u.id = t.user_id
+		 WHERE u.id = $1`, id).
+		Scan(&u.ID, &u.Email, &u.Password, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt, &u.FirstName, &u.LastName)
 	return u, err
 }
 
 func (r *PostgresRepository) GetByEmail(email string) (*user.User, error) {
 	u := &user.User{}
 	err := r.db.QueryRow(context.Background(),
-		`SELECT id, email, password_hash, role, is_active, created_at, updated_at
-		 FROM users WHERE email = $1`, email).
-		Scan(&u.ID, &u.Email, &u.Password, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt)
+		`SELECT u.id, u.email, u.password_hash, u.role, u.is_active, u.created_at, u.updated_at,
+		        COALESCE(s.first_name, t.first_name, '') as first_name,
+		        COALESCE(s.last_name, t.last_name, '') as last_name
+		 FROM users u
+		 LEFT JOIN students s ON u.id = s.user_id
+		 LEFT JOIN teachers t ON u.id = t.user_id
+		 WHERE u.email = $1`, email).
+		Scan(&u.ID, &u.Email, &u.Password, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt, &u.FirstName, &u.LastName)
 	return u, err
 }
 
