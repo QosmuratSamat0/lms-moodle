@@ -8539,6 +8539,14 @@ const docTemplate = `{
                 "gpa": {
                     "type": "number"
                 },
+                "group_id": {
+                    "description": "Optional group assignment",
+                    "type": "string"
+                },
+                "group_name": {
+                    "description": "Group name via join",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },

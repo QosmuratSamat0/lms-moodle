@@ -40,6 +40,7 @@ import { useTeacherProfile } from "@/hooks/use-profile";
 import assignmentService from "@/services/assignments";
 import courseService from "@/services/courses";
 import type { Assignment } from "@/types";
+import type { Course, Enrollment } from "@/types/course";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -166,21 +167,21 @@ export default function DeadlinesPage() {
     if (isStudent() && enrollmentsData) {
       const enrollments = Array.isArray(enrollmentsData)
         ? enrollmentsData
-        : (enrollmentsData as any)?.enrollments || [];
+        : [];
       return enrollments
-        .filter((e: any) => e.status === "active")
-        .map((e: any) => e.course_id);
+        .filter((e: Enrollment) => e.status === "active")
+        .map((e: Enrollment) => e.course_id);
     }
     if (!isStudent() && coursesData) {
       const allCourses = Array.isArray(coursesData)
         ? coursesData
-        : (coursesData as any)?.courses || [];
+        : [];
       if (isTeacher() && teacherProfile?.id) {
         return allCourses
-          .filter((c: any) => c.owner_teacher_id === teacherProfile.id)
-          .map((c: any) => c.id);
+          .filter((c: Course) => c.owner_teacher_id === teacherProfile.id)
+          .map((c: Course) => c.id);
       }
-      return allCourses.map((c: any) => c.id);
+      return allCourses.map((c: Course) => c.id);
     }
     return [];
   }, [isStudent, isTeacher, enrollmentsData, coursesData, teacherProfile]);
@@ -368,7 +369,7 @@ export default function DeadlinesPage() {
         />
       ) : (
         <div className="space-y-6">
-          {Object.entries(groupedByDate).map(([date, dateAssignments]) => (
+          {(Object.entries(groupedByDate) as [string, Assignment[]][]).map(([date, dateAssignments]) => (
             <div key={date}>
               <h3 className="font-medium text-sm text-muted-foreground mb-3 sticky top-0 bg-background py-2">
                 {date}

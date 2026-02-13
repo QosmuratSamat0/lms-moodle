@@ -24,12 +24,12 @@ func (m *AuthModule) Register(router *gin.Engine) {
 		// Публичные endpoints
 		auth.POST("/login", m.handler.Login)
 		auth.POST("/refresh", m.handler.RefreshToken)
-		auth.POST("/verify", m.handler.Verify)
 
 		// Private endpoints (требуют аутентификации)
 		protected := auth.Group("")
 		protected.Use(middleware.AuthTokenMiddleware(m.authService))
 		{
+			protected.POST("/verify", m.handler.Verify)
 			protected.POST("/logout", m.handler.Logout)
 			protected.POST("/logout-everywhere", m.handler.LogoutEverywhere)
 			protected.GET("/sessions", m.handler.GetActiveSessions)

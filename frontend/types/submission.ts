@@ -37,7 +37,7 @@ export interface UpdateSubmissionRequest {
 export interface SubmissionListResponse {
   submissions: Submission[];
   total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
+  page?: number;
+  limit?: number;
+  total_pages?: number;
 }

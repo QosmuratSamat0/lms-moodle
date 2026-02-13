@@ -16,9 +16,10 @@ export interface Notification {
 export interface NotificationListResponse {
   notifications: Notification[];
   total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
+  unread_count?: number;
+  page?: number;
+  limit?: number;
+  total_pages?: number;
 }
 
 export interface UnreadCountResponse {

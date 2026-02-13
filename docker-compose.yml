@@ -11,6 +11,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -18,6 +23,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   api:
     build: .
@@ -30,11 +40,24 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: moodle
       REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-secret-key-change-in-production
       PORT: 8080
+      ENV: production
     depends_on:
-      - postgres
-      - redis
-    command: sh -c "cd /root && ./api"
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://api:8080/api/v1
+      NEXT_PUBLIC_WS_URL: ws://api:8080/api/v1/ws
+    depends_on:
+      - api
 
 volumes:
   postgres_data:

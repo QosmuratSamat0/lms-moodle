@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 export function MobileAppBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+
     // Check if mobile device
     const checkMobile = () => {
       const userAgent = navigator.userAgent || navigator.vendor;
@@ -40,7 +43,7 @@ export function MobileAppBanner() {
     window.open("/downloads/ednova.apk", "_blank");
   };
 
-  if (!isMobile || !isVisible) {
+  if (!isMounted || !isMobile || !isVisible) {
     return null;
   }
 

@@ -168,4 +168,4 @@ export const notificationServiceMock = {
 };
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-export default useMock ? notificationServiceMock : notificationService;
+export default (useMock ? notificationServiceMock : notificationService) as typeof notificationService;

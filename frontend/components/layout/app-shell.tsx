@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { SidebarNav } from "./sidebar-nav";
@@ -18,6 +18,11 @@ export function AppShell({ children }: AppShellProps) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuthStore();
   const { sidebarCollapsed } = useUIStore();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -25,7 +30,7 @@ export function AppShell({ children }: AppShellProps) {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading) {
+  if (!isMounted || isLoading) {
     return (
       <div className="flex h-screen items-center justify-center safe-area-inset">
         <div className="flex flex-col items-center gap-2">

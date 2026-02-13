@@ -226,4 +226,4 @@ export const courseServiceMock = {
 };
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-export default useMock ? courseServiceMock : courseService;
+export default (useMock ? courseServiceMock : courseService) as typeof courseService;

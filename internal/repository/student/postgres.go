@@ -19,8 +19,8 @@ func NewPostgresRepository(db *pgxpool.Pool) student.Repository {
 
 func (r *PostgresRepository) Create(ctx context.Context, s *student.Student) error {
 	query := `
-		INSERT INTO students (user_id, student_code, major, year, gpa, enrollment_status, admitted_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO students (user_id, student_code, major, year, gpa, enrollment_status, group_id, admitted_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at, updated_at`
 
 	if s.AdmittedAt.IsZero() {
@@ -31,22 +31,23 @@ func (r *PostgresRepository) Create(ctx context.Context, s *student.Student) err
 	}
 
 	return r.db.QueryRow(ctx, query,
-		s.UserID, s.StudentCode, s.Major, s.Year, s.GPA, s.Status, s.AdmittedAt,
+		s.UserID, s.StudentCode, s.Major, s.Year, s.GPA, s.Status, s.GroupID, s.AdmittedAt,
 	).Scan(&s.ID, &s.CreatedAt, &s.UpdatedAt)
 }
 
 func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*student.Student, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       s.admitted_at, s.created_at, s.updated_at, u.email
+		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.email, COALESCE(g.name, '')
 		FROM students s
 		JOIN users u ON s.user_id = u.id
+		LEFT JOIN groups g ON s.group_id = g.id
 		WHERE s.id = $1`
 
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email,
+		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email, &s.GroupName,
 	)
 	if err != nil {
 		return nil, err
@@ -57,15 +58,16 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id string) (*student.S
 func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*student.Student, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       s.admitted_at, s.created_at, s.updated_at, u.email
+		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.email, COALESCE(g.name, '')
 		FROM students s
 		JOIN users u ON s.user_id = u.id
+		LEFT JOIN groups g ON s.group_id = g.id
 		WHERE s.user_id = $1`
 
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, userID).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email,
+		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email, &s.GroupName,
 	)
 	if err != nil {
 		return nil, err
@@ -76,15 +78,16 @@ func (r *PostgresRepository) GetByUserID(ctx context.Context, userID string) (*s
 func (r *PostgresRepository) GetByStudentCode(ctx context.Context, code string) (*student.Student, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       s.admitted_at, s.created_at, s.updated_at, u.email
+		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.email, COALESCE(g.name, '')
 		FROM students s
 		JOIN users u ON s.user_id = u.id
+		LEFT JOIN groups g ON s.group_id = g.id
 		WHERE s.student_code = $1`
 
 	var s student.Student
 	err := r.db.QueryRow(ctx, query, code).Scan(
 		&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-		&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email,
+		&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email, &s.GroupName,
 	)
 	if err != nil {
 		return nil, err
@@ -116,9 +119,10 @@ func (r *PostgresRepository) GetWithDetails(ctx context.Context, id string) (*st
 func (r *PostgresRepository) List(ctx context.Context, filter *student.StudentFilter) ([]*student.Student, int64, error) {
 	query := `
 		SELECT s.id, s.user_id, s.student_code, s.major, s.year, s.gpa, s.enrollment_status,
-		       s.admitted_at, s.created_at, s.updated_at, u.email
+		       COALESCE(s.group_id::text, ''), s.admitted_at, s.created_at, s.updated_at, u.email, COALESCE(g.name, '')
 		FROM students s
 		JOIN users u ON s.user_id = u.id
+		LEFT JOIN groups g ON s.group_id = g.id
 		WHERE 1=1`
 
 	countQuery := `SELECT COUNT(*) FROM students s WHERE 1=1`
@@ -166,7 +170,7 @@ func (r *PostgresRepository) List(ctx context.Context, filter *student.StudentFi
 		var s student.Student
 		err := rows.Scan(
 			&s.ID, &s.UserID, &s.StudentCode, &s.Major, &s.Year, &s.GPA, &s.Status,
-			&s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email,
+			&s.GroupID, &s.AdmittedAt, &s.CreatedAt, &s.UpdatedAt, &s.Email, &s.GroupName,
 		)
 		if err != nil {
 			return nil, 0, err
@@ -188,10 +192,10 @@ func (r *PostgresRepository) ListByMajor(ctx context.Context, major string, limi
 func (r *PostgresRepository) Update(ctx context.Context, s *student.Student) error {
 	query := `
 		UPDATE students
-		SET major = $1, year = $2, gpa = $3, enrollment_status = $4, updated_at = NOW()
-		WHERE id = $5`
+		SET major = $1, year = $2, gpa = $3, enrollment_status = $4, group_id = $5, updated_at = NOW()
+		WHERE id = $6`
 
-	_, err := r.db.Exec(ctx, query, s.Major, s.Year, s.GPA, s.Status, s.ID)
+	_, err := r.db.Exec(ctx, query, s.Major, s.Year, s.GPA, s.Status, s.GroupID, s.ID)
 	return err
 }
 

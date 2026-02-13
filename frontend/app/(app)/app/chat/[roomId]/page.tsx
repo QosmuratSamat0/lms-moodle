@@ -137,9 +137,11 @@ function MessageBubble({
 
 function ChatHeader({
   room,
+  roomId,
   isLoading,
 }: {
   room?: { name?: string; type: string; participants?: ChatParticipant[] };
+  roomId: string;
   isLoading: boolean;
 }) {
   if (isLoading) {
@@ -393,7 +395,7 @@ export default function ChatRoomPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] -m-6 border rounded-lg overflow-hidden bg-background">
-      <ChatHeader room={room || undefined} isLoading={roomLoading} />
+      <ChatHeader room={room || undefined} roomId={roomId} isLoading={roomLoading} />
 
       {/* Messages Area */}
       <ScrollArea className="flex-1 p-4">
@@ -461,7 +463,7 @@ export default function ChatRoomPage() {
               </>
             )}
           </div>
-          {typingUsers.size > 0 && (
+          {typingUsers.length > 0 && (
             <span className="text-xs text-muted-foreground italic">
               Someone is typing...
             </span>

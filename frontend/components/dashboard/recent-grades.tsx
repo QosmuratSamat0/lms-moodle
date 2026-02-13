@@ -1,9 +1,9 @@
-import { Grade } from "@/types";
+import { RecentGrade } from "@/types/dashboard";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { Award } from "lucide-react";
 
 interface RecentGradesProps {
-  grades: Grade[];
+  grades: RecentGrade[];
   isLoading?: boolean;
 }
 

@@ -14,7 +14,8 @@ type Student struct {
 	Major       string    `json:"major" db:"major"`
 	Year        int       `json:"year" db:"year"` // 1, 2, 3, 4
 	GPA         float64   `json:"gpa" db:"gpa"`
-	Status      string    `json:"status" db:"status"` // active, graduated, suspended
+	Status      string    `json:"status" db:"status"`     // active, graduated, suspended
+	GroupID     string    `json:"group_id" db:"group_id"` // Optional group assignment
 	AdmittedAt  time.Time `json:"admitted_at" db:"admitted_at"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
@@ -23,6 +24,7 @@ type Student struct {
 	FirstName string `json:"first_name,omitempty" db:"first_name"`
 	LastName  string `json:"last_name,omitempty" db:"last_name"`
 	Email     string `json:"email,omitempty" db:"email"`
+	GroupName string `json:"group_name,omitempty" db:"group_name"` // Group name via join
 }
 
 type StudentWithDetails struct {
@@ -38,14 +40,16 @@ type CreateStudentInput struct {
 	StudentCode string    `json:"student_code" binding:"required"`
 	Major       string    `json:"major" binding:"required"`
 	Year        int       `json:"year" binding:"required,min=1,max=6"`
+	GroupID     string    `json:"group_id"`
 	AdmittedAt  time.Time `json:"admitted_at"`
 }
 
 type UpdateStudentInput struct {
-	Major  *string  `json:"major"`
-	Year   *int     `json:"year"`
-	GPA    *float64 `json:"gpa"`
-	Status *string  `json:"status"`
+	Major   *string  `json:"major"`
+	Year    *int     `json:"year"`
+	GPA     *float64 `json:"gpa"`
+	Status  *string  `json:"status"`
+	GroupID *string  `json:"group_id"`
 }
 
 type StudentFilter struct {

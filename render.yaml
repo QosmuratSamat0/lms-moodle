@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: mini-moodle-api
+    runtime: go
+    buildCommand: go build -o api ./cmd/api/main.go
+    startCommand: go run ./cmd/migrate/main.go up && ./api
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: DB_SSLMODE
+        value: "require"
+      - key: DB_HOST
+        fromDatabase:
+          name: postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: postgres
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: postgres
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: postgres
+          property: database
+
+databases:
+  - name: postgres
+    databaseName: moodle
+    user: postgres
+    plan: free

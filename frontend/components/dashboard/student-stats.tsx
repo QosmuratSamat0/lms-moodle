@@ -1,4 +1,4 @@
-import { BarChart, Students } from "lucide-react";
+import { BarChart, Users as Students } from "lucide-react";
 
 interface StudentStatsProps {
   totalCourses: number;
