@@ -1,0 +1,5704 @@
+basePath: /
+definitions:
+  admin.Admin:
+    properties:
+      access_level:
+        description: '"super_admin" | "admin"'
+        type: string
+      created_at:
+        type: string
+      department:
+        type: string
+      email:
+        type: string
+      employee_id:
+        type: string
+      first_name:
+        description: Populated via joins
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      permissions:
+        description: JSON array
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  admin.CreateAdminInput:
+    properties:
+      access_level:
+        type: string
+      department:
+        type: string
+      employee_id:
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+    required:
+    - access_level
+    - employee_id
+    - user_id
+    type: object
+  admin.UpdateAdminInput:
+    properties:
+      access_level:
+        type: string
+      department:
+        type: string
+      is_active:
+        type: boolean
+      permissions:
+        items:
+          type: string
+        type: array
+    type: object
+  announcement.Announcement:
+    properties:
+      author_id:
+        type: string
+      content:
+        type: string
+      course_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      pinned:
+        type: boolean
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  announcement.CreateAnnouncementInput:
+    properties:
+      content:
+        type: string
+      course_id:
+        type: string
+      pin:
+        type: boolean
+      title:
+        type: string
+    required:
+    - content
+    - course_id
+    - title
+    type: object
+  announcement.UpdateAnnouncementInput:
+    properties:
+      content:
+        type: string
+      pin:
+        type: boolean
+      title:
+        type: string
+    type: object
+  appeal.AppealStatus:
+    enum:
+    - pending
+    - approved
+    - rejected
+    type: string
+    x-enum-varnames:
+    - AppealPending
+    - AppealApproved
+    - AppealRejected
+  appeal.GradeAppeal:
+    properties:
+      created_at:
+        type: string
+      evidence:
+        type: string
+      grade_id:
+        type: string
+      id:
+        type: string
+      new_score:
+        type: number
+      reason:
+        type: string
+      resolved_at:
+        type: string
+      response:
+        type: string
+      status:
+        $ref: '#/definitions/appeal.AppealStatus'
+      student_id:
+        type: string
+      teacher_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  assignment.Assignment:
+    properties:
+      courseID:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      dueDate:
+        type: string
+      id:
+        type: string
+      maxPoints:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  attendance.Attendance:
+    properties:
+      courseID:
+        type: string
+      createdAt:
+        type: string
+      date:
+        type: string
+      id:
+        type: string
+      present:
+        type: boolean
+      studentID:
+        type: string
+    type: object
+  auth.Token:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  categorymanager.CategoryManager:
+    properties:
+      category_id:
+        type: string
+      category_name:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        description: Populated via joins
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      permission_level:
+        description: '"view" | "edit" | "admin"'
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  categorymanager.CreateCategoryManagerInput:
+    properties:
+      category_id:
+        type: string
+      permission_level:
+        type: string
+      user_id:
+        type: string
+    required:
+    - category_id
+    - permission_level
+    - user_id
+    type: object
+  categorymanager.UpdateCategoryManagerInput:
+    properties:
+      is_active:
+        type: boolean
+      permission_level:
+        type: string
+    type: object
+  chat.Message:
+    properties:
+      content:
+        type: string
+      courseID:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      senderID:
+        type: string
+    type: object
+  course.Course:
+    properties:
+      active:
+        type: boolean
+      code:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      maxPoints:
+        type: integer
+      teacherID:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  coursecategory.CourseCategory:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      order:
+        type: integer
+      total_courses:
+        description: Populated via joins
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  coursecategory.CreateCourseCategoryInput:
+    properties:
+      description:
+        type: string
+      icon:
+        type: string
+      name:
+        type: string
+      order:
+        type: integer
+    required:
+    - name
+    type: object
+  coursecategory.UpdateCourseCategoryInput:
+    properties:
+      description:
+        type: string
+      icon:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      order:
+        type: integer
+    type: object
+  dashboard.CourseProgress:
+    properties:
+      completed_assignments:
+        type: integer
+      course_id:
+        type: string
+      course_name:
+        type: string
+      current_grade:
+        type: number
+      progress_percent:
+        type: number
+      total_assignments:
+        type: integer
+    type: object
+  dashboard.CourseStats:
+    properties:
+      attendance_rate:
+        type: number
+      average_grade:
+        type: number
+      course_id:
+        type: string
+      course_name:
+        type: string
+      student_count:
+        type: integer
+      submission_rate:
+        type: number
+    type: object
+  dashboard.GradeTrend:
+    properties:
+      average_gpa:
+        type: number
+      month:
+        type: string
+      year:
+        type: integer
+    type: object
+  dashboard.RecentGrade:
+    properties:
+      course_name:
+        type: string
+      graded_at:
+        type: string
+      id:
+        type: string
+      max_points:
+        type: number
+      percentage:
+        type: number
+      score:
+        type: number
+      title:
+        type: string
+      type:
+        description: assignment, quiz
+        type: string
+    type: object
+  dashboard.RecentSubmission:
+    properties:
+      assignment_title:
+        type: string
+      course_id:
+        type: string
+      course_name:
+        type: string
+      graded:
+        type: boolean
+      id:
+        type: string
+      student_name:
+        type: string
+      submitted_at:
+        type: string
+    type: object
+  dashboard.StudentDashboard:
+    properties:
+      active_courses:
+        type: integer
+      attendance_rate:
+        type: number
+      average_quiz_score:
+        type: number
+      completed_assignments:
+        type: integer
+      course_progress:
+        items:
+          $ref: '#/definitions/dashboard.CourseProgress'
+        type: array
+      gpa:
+        type: number
+      grade_trends:
+        items:
+          $ref: '#/definitions/dashboard.GradeTrend'
+        type: array
+      pending_assignments:
+        type: integer
+      recent_grades:
+        items:
+          $ref: '#/definitions/dashboard.RecentGrade'
+        type: array
+      student_id:
+        type: string
+      student_name:
+        type: string
+      total_courses:
+        type: integer
+      total_quizzes:
+        type: integer
+      upcoming_deadlines:
+        items:
+          $ref: '#/definitions/dashboard.UpcomingDeadline'
+        type: array
+    type: object
+  dashboard.TeacherDashboard:
+    properties:
+      course_stats:
+        items:
+          $ref: '#/definitions/dashboard.CourseStats'
+        type: array
+      pending_appeals:
+        type: integer
+      pending_submissions:
+        type: integer
+      recent_submissions:
+        items:
+          $ref: '#/definitions/dashboard.RecentSubmission'
+        type: array
+      teacher_id:
+        type: string
+      teacher_name:
+        type: string
+      total_courses:
+        type: integer
+      total_students:
+        type: integer
+    type: object
+  dashboard.UpcomingDeadline:
+    properties:
+      course_id:
+        type: string
+      course_name:
+        type: string
+      days_left:
+        type: integer
+      due_date:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      type:
+        description: assignment, quiz
+        type: string
+    type: object
+  enrollment.Enrollment:
+    properties:
+      courseID:
+        type: string
+      createdAt:
+        type: string
+      enrolledAt:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+      studentID:
+        type: string
+    type: object
+  grade.Grade:
+    properties:
+      createdAt:
+        type: string
+      feedback:
+        type: string
+      gradedAt:
+        type: string
+      gradedBy:
+        type: string
+      id:
+        type: string
+      score:
+        type: integer
+      submissionID:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  group.Group:
+    properties:
+      course_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      max_students:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  group.GroupMember:
+    properties:
+      group_id:
+        type: string
+      id:
+        type: string
+      joined_at:
+        type: string
+      student_id:
+        type: string
+    type: object
+  http.AddGroupMemberRequest:
+    properties:
+      student_id:
+        type: string
+    required:
+    - student_id
+    type: object
+  http.AddManagedCategoryRequest:
+    properties:
+      category_id:
+        type: string
+    required:
+    - category_id
+    type: object
+  http.AddManagedTeacherRequest:
+    properties:
+      teacher_id:
+        type: string
+    required:
+    - teacher_id
+    type: object
+  http.CreateAppealRequest:
+    properties:
+      evidence:
+        type: string
+      grade_id:
+        type: string
+      reason:
+        minLength: 10
+        type: string
+    required:
+    - grade_id
+    - reason
+    type: object
+  http.CreateAssignmentRequest:
+    properties:
+      course_id:
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      max_points:
+        type: integer
+      title:
+        type: string
+    required:
+    - course_id
+    - due_date
+    - max_points
+    - title
+    type: object
+  http.CreateAttendanceRequest:
+    properties:
+      course_id:
+        type: string
+      date:
+        type: string
+      present:
+        type: boolean
+      student_id:
+        type: string
+    required:
+    - course_id
+    - date
+    - student_id
+    type: object
+  http.CreateCourseRequest:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      max_points:
+        type: integer
+      teacher_id:
+        type: string
+      title:
+        type: string
+    required:
+    - code
+    - max_points
+    - teacher_id
+    - title
+    type: object
+  http.CreateEnrollmentRequest:
+    properties:
+      course_id:
+        type: string
+      student_id:
+        type: string
+    required:
+    - course_id
+    - student_id
+    type: object
+  http.CreateGradeRequest:
+    properties:
+      feedback:
+        type: string
+      graded_by:
+        type: string
+      score:
+        minimum: 0
+        type: integer
+      submission_id:
+        type: string
+    required:
+    - graded_by
+    - score
+    - submission_id
+    type: object
+  http.CreateGroupRequest:
+    properties:
+      course_id:
+        type: string
+      description:
+        type: string
+      max_students:
+        type: integer
+      name:
+        type: string
+    required:
+    - course_id
+    - name
+    type: object
+  http.CreateMessageRequest:
+    properties:
+      content:
+        type: string
+      course_id:
+        type: string
+      sender_id:
+        type: string
+    required:
+    - content
+    - course_id
+    - sender_id
+    type: object
+  http.CreateQuizRequest:
+    properties:
+      course_id:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      max_attempts:
+        type: integer
+      questions:
+        items:
+          $ref: '#/definitions/http.questionReq'
+        minItems: 1
+        type: array
+      start_date:
+        type: string
+      time_limit_minutes:
+        type: integer
+      title:
+        type: string
+    required:
+    - course_id
+    - questions
+    - title
+    type: object
+  http.CreateStudentRequest:
+    properties:
+      admitted_at:
+        type: string
+      major:
+        type: string
+      student_code:
+        type: string
+      user_id:
+        type: string
+      year:
+        maximum: 6
+        minimum: 1
+        type: integer
+    required:
+    - major
+    - student_code
+    - user_id
+    - year
+    type: object
+  http.CreateSubmissionRequest:
+    properties:
+      assignment_id:
+        type: string
+      content:
+        type: string
+      file_url:
+        type: string
+      student_id:
+        type: string
+    required:
+    - assignment_id
+    - content
+    - student_id
+    type: object
+  http.CreateUploadRequest:
+    properties:
+      file_name:
+        type: string
+      file_size:
+        type: integer
+      file_url:
+        type: string
+      mime_type:
+        type: string
+      user_id:
+        type: string
+    required:
+    - file_name
+    - file_size
+    - file_url
+    - mime_type
+    - user_id
+    type: object
+  http.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  http.LogoutRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  http.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  http.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    type: object
+  http.ResolveAppealRequest:
+    properties:
+      new_score:
+        type: number
+      response:
+        type: string
+      status:
+        $ref: '#/definitions/appeal.AppealStatus'
+    required:
+    - response
+    - status
+    type: object
+  http.SubmitQuizRequest:
+    properties:
+      answers:
+        items:
+          $ref: '#/definitions/http.answerReq'
+        type: array
+    required:
+    - answers
+    type: object
+  http.UpdateCourseRequest:
+    properties:
+      active:
+        type: boolean
+      description:
+        type: string
+      max_points:
+        type: integer
+      title:
+        type: string
+    type: object
+  http.UpdateGroupRequest:
+    properties:
+      description:
+        type: string
+      max_students:
+        type: integer
+      name:
+        type: string
+    type: object
+  http.UpdateQuizRequest:
+    properties:
+      published:
+        type: boolean
+    type: object
+  http.UpdateStudentRequest:
+    properties:
+      gpa:
+        type: number
+      major:
+        type: string
+      status:
+        type: string
+      year:
+        type: integer
+    type: object
+  http.UserLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  http.answerReq:
+    properties:
+      answer:
+        type: string
+      question_id:
+        type: string
+    required:
+    - answer
+    - question_id
+    type: object
+  http.questionReq:
+    properties:
+      correct_answer:
+        type: string
+      options:
+        items:
+          type: string
+        type: array
+      points:
+        minimum: 1
+        type: integer
+      text:
+        type: string
+      type:
+        $ref: '#/definitions/quiz.QuestionType'
+    required:
+    - correct_answer
+    - points
+    - text
+    - type
+    type: object
+  manager.CreateManagerInput:
+    properties:
+      department:
+        type: string
+      employee_id:
+        type: string
+      manages_categories:
+        items:
+          type: string
+        type: array
+      manages_teachers:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+    required:
+    - department
+    - employee_id
+    - user_id
+    type: object
+  manager.Manager:
+    properties:
+      created_at:
+        type: string
+      department:
+        type: string
+      email:
+        type: string
+      employee_id:
+        type: string
+      first_name:
+        description: Populated via joins
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      manages_categories:
+        description: JSON array of category_ids
+        items:
+          type: string
+        type: array
+      manages_teachers:
+        description: JSON array of teacher_ids
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  manager.UpdateManagerInput:
+    properties:
+      department:
+        type: string
+      is_active:
+        type: boolean
+      manages_categories:
+        items:
+          type: string
+        type: array
+      manages_teachers:
+        items:
+          type: string
+        type: array
+    type: object
+  notification.Notification:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      read:
+        type: boolean
+      readAt:
+        type: string
+      title:
+        type: string
+      userID:
+        type: string
+    type: object
+  quiz.Question:
+    properties:
+      correct_answer:
+        type: string
+      id:
+        type: string
+      options:
+        description: Options for multiple choice
+        items:
+          type: string
+        type: array
+      order_index:
+        type: integer
+      points:
+        type: integer
+      quiz_id:
+        type: string
+      text:
+        type: string
+      type:
+        $ref: '#/definitions/quiz.QuestionType'
+    type: object
+  quiz.QuestionType:
+    enum:
+    - multiple_choice
+    - true_false
+    - short_answer
+    type: string
+    x-enum-varnames:
+    - MultipleChoice
+    - TrueFalse
+    - ShortAnswer
+  quiz.Quiz:
+    properties:
+      course_id:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      max_attempts:
+        description: 0 = unlimited
+        type: integer
+      published:
+        type: boolean
+      start_date:
+        type: string
+      time_limit_minutes:
+        description: in minutes, 0 = no limit
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  quiz.QuizAttempt:
+    properties:
+      id:
+        type: string
+      max_score:
+        type: integer
+      percentage:
+        type: number
+      quiz_id:
+        type: string
+      score:
+        type: number
+      started_at:
+        type: string
+      student_id:
+        type: string
+      submitted_at:
+        type: string
+    type: object
+  student.Student:
+    properties:
+      admitted_at:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        description: Populated via joins
+        type: string
+      gpa:
+        type: number
+      group_id:
+        description: Optional group assignment
+        type: string
+      group_name:
+        description: Group name via join
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      major:
+        type: string
+      status:
+        description: active, graduated, suspended
+        type: string
+      student_code:
+        description: e.g., "STU2024001"
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      year:
+        description: 1, 2, 3, 4
+        type: integer
+    type: object
+  submission.Submission:
+    properties:
+      assignmentID:
+        type: string
+      content:
+        type: string
+      createdAt:
+        type: string
+      fileURL:
+        type: string
+      gradedAt:
+        type: string
+      id:
+        type: string
+      studentID:
+        type: string
+      submittedAt:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  teacher.CreateTeacherInput:
+    properties:
+      bio:
+        type: string
+      department:
+        type: string
+      employee_id:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      office_hours:
+        type: string
+      phone:
+        type: string
+      qualifications:
+        type: string
+      specialization:
+        type: string
+      user_id:
+        type: string
+    required:
+    - employee_id
+    - first_name
+    - last_name
+    - user_id
+    type: object
+  teacher.Teacher:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      department:
+        type: string
+      email:
+        description: Populated via joins
+        type: string
+      employee_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      office_hours:
+        type: string
+      phone:
+        type: string
+      qualifications:
+        type: string
+      specialization:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  teacher.UpdateTeacherInput:
+    properties:
+      bio:
+        type: string
+      department:
+        type: string
+      is_active:
+        type: boolean
+      office_hours:
+        type: string
+      phone:
+        type: string
+      qualifications:
+        type: string
+      specialization:
+        type: string
+    type: object
+  upload.Upload:
+    properties:
+      createdAt:
+        type: string
+      fileName:
+        type: string
+      fileSize:
+        type: integer
+      fileURL:
+        type: string
+      id:
+        type: string
+      mimeType:
+        type: string
+      userID:
+        type: string
+    type: object
+  user.Role:
+    enum:
+    - ""
+    - admin
+    - teacher
+    - student
+    - manager
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAdmin
+    - RoleTeacher
+    - RoleStudent
+    - RoleManager
+  user.UpdateUserInput:
+    properties:
+      active:
+        type: boolean
+      firstName:
+        type: string
+      lastName:
+        type: string
+    type: object
+  user.User:
+    properties:
+      active:
+        type: boolean
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/user.Role'
+      updatedAt:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a Mini Moodle API server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Mini Moodle API
+  version: "1.0"
+paths:
+  /api/v1/admins:
+    get:
+      description: Returns a paginated list of all admins (Admin only)
+      parameters:
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Admins list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List admins
+      tags:
+      - admins
+    post:
+      consumes:
+      - application/json
+      description: Create a new admin profile (Super Admin only)
+      parameters:
+      - description: Create Admin Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/admin.CreateAdminInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created admin
+          schema:
+            $ref: '#/definitions/admin.Admin'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create admin
+      tags:
+      - admins
+  /api/v1/admins/{id}:
+    delete:
+      description: Deletes an admin profile by ID (Super Admin only)
+      parameters:
+      - description: Admin ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Admin not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete admin
+      tags:
+      - admins
+    get:
+      description: Returns admin profile by ID (Admin only)
+      parameters:
+      - description: Admin ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Admin details
+          schema:
+            $ref: '#/definitions/admin.Admin'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Admin not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get admin by ID
+      tags:
+      - admins
+    put:
+      consumes:
+      - application/json
+      description: Update admin profile details (Admin only)
+      parameters:
+      - description: Admin ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/admin.UpdateAdminInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated admin
+          schema:
+            $ref: '#/definitions/admin.Admin'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Admin not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update admin
+      tags:
+      - admins
+  /api/v1/admins/me:
+    get:
+      description: Returns profile of currently logged-in admin
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Admin details
+          schema:
+            $ref: '#/definitions/admin.Admin'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Admin not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get my profile
+      tags:
+      - admins
+  /api/v1/admins/user/{userID}:
+    get:
+      description: Returns admin profile by user ID (Admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Admin details
+          schema:
+            $ref: '#/definitions/admin.Admin'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Admin not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get admin by User ID
+      tags:
+      - admins
+  /api/v1/announcements:
+    post:
+      consumes:
+      - application/json
+      description: Create a new course announcement (Teacher/Admin only)
+      parameters:
+      - description: Create Announcement Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/announcement.CreateAnnouncementInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created announcement
+          schema:
+            $ref: '#/definitions/announcement.Announcement'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create announcement
+      tags:
+      - announcements
+  /api/v1/announcements/{id}:
+    delete:
+      description: Deletes an announcement by ID (Author/Admin only)
+      parameters:
+      - description: Announcement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Announcement not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete announcement
+      tags:
+      - announcements
+    get:
+      description: Returns announcement details by ID
+      parameters:
+      - description: Announcement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Announcement details
+          schema:
+            $ref: '#/definitions/announcement.Announcement'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Announcement not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get announcement by ID
+      tags:
+      - announcements
+    put:
+      consumes:
+      - application/json
+      description: Update announcement details (Author/Admin only)
+      parameters:
+      - description: Announcement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/announcement.UpdateAnnouncementInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated announcement
+          schema:
+            $ref: '#/definitions/announcement.Announcement'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Announcement not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update announcement
+      tags:
+      - announcements
+  /api/v1/appeals:
+    get:
+      description: Returns a paginated list of appeals created by the current student
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Appeals list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List student appeals
+      tags:
+      - appeals
+    post:
+      consumes:
+      - application/json
+      description: Create a new appeal for a grade (Student only)
+      parameters:
+      - description: Create Appeal Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateAppealRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created appeal
+          schema:
+            $ref: '#/definitions/appeal.GradeAppeal'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create appeal
+      tags:
+      - appeals
+  /api/v1/appeals/{id}:
+    delete:
+      description: Deletes an appeal by ID (Student/Admin only)
+      parameters:
+      - description: Appeal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Appeal not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete appeal
+      tags:
+      - appeals
+    get:
+      description: Returns appeal details by ID
+      parameters:
+      - description: Appeal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Appeal details
+          schema:
+            $ref: '#/definitions/appeal.GradeAppeal'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Appeal not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get appeal by ID
+      tags:
+      - appeals
+  /api/v1/appeals/{id}/resolve:
+    put:
+      consumes:
+      - application/json
+      description: Resolve a grade appeal by accepting or rejecting it (Teacher/Admin
+        only)
+      parameters:
+      - description: Appeal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Resolve Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.ResolveAppealRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Resolved appeal
+          schema:
+            $ref: '#/definitions/appeal.GradeAppeal'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Appeal not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Resolve appeal
+      tags:
+      - appeals
+  /api/v1/assignments:
+    post:
+      consumes:
+      - application/json
+      description: Create a new course assignment (Teacher/Admin only)
+      parameters:
+      - description: Create Assignment Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created assignment
+          schema:
+            $ref: '#/definitions/assignment.Assignment'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create assignment
+      tags:
+      - assignments
+  /api/v1/assignments/{id}:
+    delete:
+      description: Deletes an assignment by ID (Teacher/Admin only)
+      parameters:
+      - description: Assignment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Assignment not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete assignment
+      tags:
+      - assignments
+    get:
+      description: Returns assignment details by ID
+      parameters:
+      - description: Assignment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Assignment details
+          schema:
+            $ref: '#/definitions/assignment.Assignment'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Assignment not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get assignment by ID
+      tags:
+      - assignments
+  /api/v1/assignments/course/{courseId}:
+    get:
+      description: Returns a paginated list of assignments for a course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseId
+        required: true
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Assignments list
+          schema:
+            items:
+              $ref: '#/definitions/assignment.Assignment'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List course assignments
+      tags:
+      - assignments
+  /api/v1/attendance:
+    post:
+      consumes:
+      - application/json
+      description: Records attendance for a student in a course (Teacher/Admin only)
+      parameters:
+      - description: Attendance Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateAttendanceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created attendance
+          schema:
+            $ref: '#/definitions/attendance.Attendance'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Record attendance
+      tags:
+      - attendance
+  /api/v1/attendance/{id}:
+    delete:
+      description: Deletes an attendance record by ID (Admin only)
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Attendance not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete attendance
+      tags:
+      - attendance
+  /api/v1/attendance/course/{courseId}:
+    get:
+      description: Returns a paginated list of attendance records for a course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseId
+        required: true
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attendance list
+          schema:
+            items:
+              $ref: '#/definitions/attendance.Attendance'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List course attendance
+      tags:
+      - attendance
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return tokens
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tokens and user info
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /api/v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Deactivate current session
+      parameters:
+      - description: Logout Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - auth
+  /api/v1/auth/logout-everywhere:
+    post:
+      description: Deactivate all user sessions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Logout from all devices
+      tags:
+      - auth
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get new access token using refresh token
+      parameters:
+      - description: Refresh Token Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New tokens
+          schema:
+            $ref: '#/definitions/auth.Token'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid refresh token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh access token
+      tags:
+      - auth
+  /api/v1/auth/sessions:
+    get:
+      description: Returns list of all active sessions for current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Sessions list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get active sessions
+      tags:
+      - auth
+  /api/v1/auth/sessions/{session_id}:
+    delete:
+      description: Deactivate a specific session by its ID
+      parameters:
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Revoke specific session
+      tags:
+      - auth
+  /api/v1/auth/verify:
+    post:
+      description: Validate current JWT token and return user claims
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token claims
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Verify token
+      tags:
+      - auth
+  /api/v1/categories:
+    get:
+      description: Gets a paginated list of all course categories
+      parameters:
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns data (array of CourseCategory), limit, and offset
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all categories
+      tags:
+      - course-categories
+    post:
+      consumes:
+      - application/json
+      description: Creates a new course category (Admin only)
+      parameters:
+      - description: Create Category Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/coursecategory.CreateCourseCategoryInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/coursecategory.CourseCategory'
+      security:
+      - BearerAuth: []
+      summary: Create course category
+      tags:
+      - course-categories
+  /api/v1/categories/{id}:
+    delete:
+      description: Removes a course category (Admin only)
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete category
+      tags:
+      - course-categories
+    get:
+      description: Gets a specific course category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/coursecategory.CourseCategory'
+      security:
+      - BearerAuth: []
+      summary: Get category by ID
+      tags:
+      - course-categories
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing course category (Admin only)
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Category Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/coursecategory.UpdateCourseCategoryInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/coursecategory.CourseCategory'
+      security:
+      - BearerAuth: []
+      summary: Update category
+      tags:
+      - course-categories
+  /api/v1/category-managers:
+    get:
+      description: Gets a paginated list of all category manager assignments
+      parameters:
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns data (array of CategoryManager), limit, and offset
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all assignments
+      tags:
+      - category-managers
+    post:
+      consumes:
+      - application/json
+      description: Assigns a user as a manager for a specific category (Admin only)
+      parameters:
+      - description: Create Category Manager Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/categorymanager.CreateCategoryManagerInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/categorymanager.CategoryManager'
+      security:
+      - BearerAuth: []
+      summary: Create category manager
+      tags:
+      - category-managers
+  /api/v1/category-managers/{id}:
+    delete:
+      description: Removes a category manager assignment (Admin only)
+      parameters:
+      - description: Category Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete assignment
+      tags:
+      - category-managers
+    get:
+      description: Gets a specific category manager assignment
+      parameters:
+      - description: Category Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/categorymanager.CategoryManager'
+      security:
+      - BearerAuth: []
+      summary: Get category manager by ID
+      tags:
+      - category-managers
+    put:
+      consumes:
+      - application/json
+      description: Updates permissions or details of a category manager (Admin/Manager
+        only)
+      parameters:
+      - description: Category Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Category Manager Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/categorymanager.UpdateCategoryManagerInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/categorymanager.CategoryManager'
+      security:
+      - BearerAuth: []
+      summary: Update assignment
+      tags:
+      - category-managers
+  /api/v1/category-managers/{id}/details:
+    get:
+      description: Gets a specific category manager assignment including related data
+      parameters:
+      - description: Category Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/categorymanager.CategoryManager'
+      security:
+      - BearerAuth: []
+      summary: Get assignment with details
+      tags:
+      - category-managers
+  /api/v1/category-managers/by-category/{categoryId}:
+    get:
+      description: Gets all managers for a specific category
+      parameters:
+      - description: Category ID
+        in: path
+        name: categoryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/categorymanager.CategoryManager'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List assignments by category
+      tags:
+      - category-managers
+  /api/v1/category-managers/by-user/{userID}:
+    get:
+      description: Gets all category manager records for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/categorymanager.CategoryManager'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List assignments by user
+      tags:
+      - category-managers
+  /api/v1/category-managers/user-category:
+    get:
+      description: Gets a specific category manager assignment using user and category
+        IDs
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: Category ID
+        in: query
+        name: category_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/categorymanager.CategoryManager'
+      security:
+      - BearerAuth: []
+      summary: Get assignment by user and category
+      tags:
+      - category-managers
+  /api/v1/chat:
+    post:
+      consumes:
+      - application/json
+      description: Sends a new message to a course chat
+      parameters:
+      - description: Message Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created message
+          schema:
+            $ref: '#/definitions/chat.Message'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Send message
+      tags:
+      - chat
+  /api/v1/chat/{id}:
+    delete:
+      description: Deletes a chat message by ID (Admin only)
+      parameters:
+      - description: Message ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Message not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete message
+      tags:
+      - chat
+  /api/v1/chat/course/{courseId}:
+    get:
+      description: Returns a paginated list of chat messages for a course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseId
+        required: true
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 20
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages list
+          schema:
+            items:
+              $ref: '#/definitions/chat.Message'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List chat messages
+      tags:
+      - chat
+  /api/v1/courses:
+    get:
+      description: Returns a paginated list of courses
+      parameters:
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Courses list
+          schema:
+            items:
+              $ref: '#/definitions/course.Course'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List courses
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: Create a new course (Admin only)
+      parameters:
+      - description: Create Course Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created course
+          schema:
+            $ref: '#/definitions/course.Course'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create course
+      tags:
+      - courses
+  /api/v1/courses/{courseID}/announcements:
+    get:
+      description: Returns a paginated list of announcements for a course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseID
+        required: true
+        type: string
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Announcements list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List course announcements
+      tags:
+      - announcements
+  /api/v1/courses/{courseID}/quizzes:
+    get:
+      description: Returns a paginated list of quizzes for a course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseID
+        required: true
+        type: string
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Quizzes list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List course quizzes
+      tags:
+      - quizzes
+  /api/v1/courses/{courseId}/groups:
+    get:
+      description: Returns a list of all groups in a course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Groups list
+          schema:
+            items:
+              $ref: '#/definitions/group.Group'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List course groups
+      tags:
+      - groups
+  /api/v1/courses/{id}:
+    delete:
+      description: Deletes a course by ID (Admin only)
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Course not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete course
+      tags:
+      - courses
+    get:
+      description: Returns course details by ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Course details
+          schema:
+            $ref: '#/definitions/course.Course'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Course not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get course by ID
+      tags:
+      - courses
+    put:
+      consumes:
+      - application/json
+      description: Update course details (Teacher/Admin only)
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated course
+          schema:
+            $ref: '#/definitions/course.Course'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Course not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update course
+      tags:
+      - courses
+  /api/v1/dashboard/student:
+    get:
+      description: Gets an overview of courses, assignments, and grades for the student
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dashboard.StudentDashboard'
+      security:
+      - BearerAuth: []
+      summary: Get student dashboard
+      tags:
+      - dashboard
+  /api/v1/dashboard/student/courses/{courseId}:
+    get:
+      description: Gets detailed statistics like attendance and grades for a specific
+        course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dashboard.CourseProgress'
+      security:
+      - BearerAuth: []
+      summary: Get student course stats
+      tags:
+      - dashboard
+  /api/v1/dashboard/teacher:
+    get:
+      description: Gets an overview of courses, students, and grading activities for
+        the teacher
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dashboard.TeacherDashboard'
+      security:
+      - BearerAuth: []
+      summary: Get teacher dashboard
+      tags:
+      - dashboard
+  /api/v1/enrollments:
+    post:
+      consumes:
+      - application/json
+      description: Enrolls a student in a course
+      parameters:
+      - description: Enrollment Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateEnrollmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created enrollment
+          schema:
+            $ref: '#/definitions/enrollment.Enrollment'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Enroll student
+      tags:
+      - enrollments
+  /api/v1/enrollments/{id}:
+    delete:
+      description: Deletes an enrollment by ID (Teacher/Admin only)
+      parameters:
+      - description: Enrollment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Remove enrollment
+      tags:
+      - enrollments
+  /api/v1/enrollments/course/{courseId}:
+    get:
+      description: Returns a paginated list of student enrollments for a course
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseId
+        required: true
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Enrollments list
+          schema:
+            items:
+              $ref: '#/definitions/enrollment.Enrollment'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List course enrollments
+      tags:
+      - enrollments
+  /api/v1/enrollments/student/{studentId}:
+    get:
+      description: Returns a paginated list of course enrollments for a student
+      parameters:
+      - description: Student ID
+        in: path
+        name: studentId
+        required: true
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Enrollments list
+          schema:
+            items:
+              $ref: '#/definitions/enrollment.Enrollment'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List student enrollments
+      tags:
+      - enrollments
+  /api/v1/grades:
+    post:
+      consumes:
+      - application/json
+      description: Grades a student submission (Teacher/Admin only)
+      parameters:
+      - description: Grade Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateGradeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created grade
+          schema:
+            $ref: '#/definitions/grade.Grade'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Grade submission
+      tags:
+      - grades
+  /api/v1/grades/{id}:
+    delete:
+      description: Deletes a grade by ID (Admin only)
+      parameters:
+      - description: Grade ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Grade not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete grade
+      tags:
+      - grades
+    get:
+      description: Returns grade details by ID
+      parameters:
+      - description: Grade ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Grade details
+          schema:
+            $ref: '#/definitions/grade.Grade'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Grade not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get grade by ID
+      tags:
+      - grades
+  /api/v1/groups:
+    post:
+      consumes:
+      - application/json
+      description: Create a new student group in a course (Teacher/Admin only)
+      parameters:
+      - description: Create Group Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created group
+          schema:
+            $ref: '#/definitions/group.Group'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create group
+      tags:
+      - groups
+  /api/v1/groups/{id}:
+    delete:
+      description: Deletes a group by ID (Admin only)
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+      security:
+      - BearerAuth: []
+      summary: Delete group
+      tags:
+      - groups
+    get:
+      description: Returns group details by ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group details
+          schema:
+            $ref: '#/definitions/group.Group'
+      security:
+      - BearerAuth: []
+      summary: Get group by ID
+      tags:
+      - groups
+    put:
+      consumes:
+      - application/json
+      description: Update group details like name or capacity (Teacher/Admin only)
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated group
+          schema:
+            $ref: '#/definitions/group.Group'
+      security:
+      - BearerAuth: []
+      summary: Update group
+      tags:
+      - groups
+  /api/v1/groups/{id}/members:
+    get:
+      description: Gets list of students in a group (Course members only)
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/group.GroupMember'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List group members
+      tags:
+      - groups
+    post:
+      consumes:
+      - application/json
+      description: Adds a student to a specific group (Teacher/Admin only)
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Add Member Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.AddGroupMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Added member
+          schema:
+            $ref: '#/definitions/group.GroupMember'
+      security:
+      - BearerAuth: []
+      summary: Add group member
+      tags:
+      - groups
+  /api/v1/groups/{id}/members/{memberId}:
+    delete:
+      description: Removes a student from a specific group (Teacher/Admin only)
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Member ID
+        in: path
+        name: memberId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+      security:
+      - BearerAuth: []
+      summary: Remove group member
+      tags:
+      - groups
+  /api/v1/managers:
+    get:
+      description: Gets a paginated list of all manager profiles
+      parameters:
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns data (array of Manager), limit, and offset
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all managers
+      tags:
+      - managers
+    post:
+      consumes:
+      - application/json
+      description: Creates a new manager profile (Admin only)
+      parameters:
+      - description: Create Manager Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/manager.CreateManagerInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/manager.Manager'
+      security:
+      - BearerAuth: []
+      summary: Create manager
+      tags:
+      - managers
+  /api/v1/managers/{id}:
+    delete:
+      description: Removes a manager profile (Admin only)
+      parameters:
+      - description: Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete manager
+      tags:
+      - managers
+    get:
+      description: Gets a specific manager profile
+      parameters:
+      - description: Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/manager.Manager'
+      security:
+      - BearerAuth: []
+      summary: Get manager by ID
+      tags:
+      - managers
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing manager profile (Admin only)
+      parameters:
+      - description: Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Manager Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/manager.UpdateManagerInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/manager.Manager'
+      security:
+      - BearerAuth: []
+      summary: Update manager
+      tags:
+      - managers
+  /api/v1/managers/{id}/categories:
+    post:
+      consumes:
+      - application/json
+      description: Assigns a course category to be managed by this manager (Admin
+        only)
+      parameters:
+      - description: Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Add Category Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.AddManagedCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Add managed category
+      tags:
+      - managers
+  /api/v1/managers/{id}/categories/{categoryId}:
+    delete:
+      description: Removes a course category from this manager's responsibilities
+        (Admin only)
+      parameters:
+      - description: Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Category ID
+        in: path
+        name: categoryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Remove managed category
+      tags:
+      - managers
+  /api/v1/managers/{id}/details:
+    get:
+      description: Gets a specific manager profile including managed categories and
+        teachers
+      parameters:
+      - description: Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/manager.Manager'
+      security:
+      - BearerAuth: []
+      summary: Get manager with details
+      tags:
+      - managers
+  /api/v1/managers/{id}/teachers:
+    post:
+      consumes:
+      - application/json
+      description: Assigns a teacher to be managed by this manager (Admin only)
+      parameters:
+      - description: Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Add Teacher Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.AddManagedTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Add managed teacher
+      tags:
+      - managers
+  /api/v1/managers/{id}/teachers/{teacherId}:
+    delete:
+      description: Removes a teacher from this manager's responsibilities (Admin only)
+      parameters:
+      - description: Manager ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Teacher ID
+        in: path
+        name: teacherId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Remove managed teacher
+      tags:
+      - managers
+  /api/v1/managers/department:
+    get:
+      description: Gets all managers in a specific department
+      parameters:
+      - description: Department Name
+        in: query
+        name: department
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/manager.Manager'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List managers by department
+      tags:
+      - managers
+  /api/v1/managers/me:
+    get:
+      description: Gets the current manager's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/manager.Manager'
+      security:
+      - BearerAuth: []
+      summary: Get my profile
+      tags:
+      - managers
+  /api/v1/managers/user/{userID}:
+    get:
+      description: Gets a manager profile associated with a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/manager.Manager'
+      security:
+      - BearerAuth: []
+      summary: Get manager by user ID
+      tags:
+      - managers
+  /api/v1/notifications:
+    get:
+      description: Returns a paginated list of notifications for the current user
+      parameters:
+      - description: User ID (optional, normally from context)
+        in: path
+        name: userID
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notifications list
+          schema:
+            items:
+              $ref: '#/definitions/notification.Notification'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List user notifications
+      tags:
+      - notifications
+  /api/v1/notifications/{id}:
+    delete:
+      description: Deletes a notification by ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Notification not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete notification
+      tags:
+      - notifications
+  /api/v1/notifications/{id}/read:
+    patch:
+      description: Updates notification status to read
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Notification not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Mark notification as read
+      tags:
+      - notifications
+  /api/v1/quiz-attempts/{attemptID}/result:
+    get:
+      description: Returns the result and score of a specific quiz attempt
+      parameters:
+      - description: Attempt ID
+        in: path
+        name: attemptID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attempt details
+          schema:
+            $ref: '#/definitions/quiz.QuizAttempt'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get attempt result
+      tags:
+      - quizzes
+  /api/v1/quiz-attempts/{attemptID}/submit:
+    post:
+      consumes:
+      - application/json
+      description: Submits answers and calculates the result for a quiz attempt
+      parameters:
+      - description: Attempt ID
+        in: path
+        name: attemptID
+        required: true
+        type: string
+      - description: Submit Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.SubmitQuizRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Submission result
+          schema:
+            $ref: '#/definitions/quiz.QuizAttempt'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Attempt not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Submit quiz attempt
+      tags:
+      - quizzes
+  /api/v1/quizzes:
+    post:
+      consumes:
+      - application/json
+      description: Create a new quiz with questions (Teacher/Admin only)
+      parameters:
+      - description: Create Quiz Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateQuizRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created quiz
+          schema:
+            $ref: '#/definitions/quiz.Quiz'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create quiz
+      tags:
+      - quizzes
+  /api/v1/quizzes/{id}:
+    delete:
+      description: Deletes a quiz by ID (Admin only)
+      parameters:
+      - description: Quiz ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Quiz not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete quiz
+      tags:
+      - quizzes
+    get:
+      description: Returns quiz details by ID
+      parameters:
+      - description: Quiz ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Quiz details
+          schema:
+            $ref: '#/definitions/quiz.Quiz'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Quiz not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get quiz by ID
+      tags:
+      - quizzes
+    put:
+      consumes:
+      - application/json
+      description: Update quiz details (e.g., publish status) (Teacher/Admin only)
+      parameters:
+      - description: Quiz ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateQuizRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Quiz not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update quiz
+      tags:
+      - quizzes
+  /api/v1/quizzes/{id}/attempts:
+    get:
+      description: Returns a list of all attempts by the current student for a specific
+        quiz
+      parameters:
+      - description: Quiz ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attempts list
+          schema:
+            items:
+              $ref: '#/definitions/quiz.QuizAttempt'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get student attempts
+      tags:
+      - quizzes
+    post:
+      description: Creates a new quiz attempt for the current student
+      parameters:
+      - description: Quiz ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created attempt
+          schema:
+            $ref: '#/definitions/quiz.QuizAttempt'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Quiz not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Start quiz attempt
+      tags:
+      - quizzes
+  /api/v1/quizzes/{id}/questions:
+    get:
+      description: Returns a list of questions for a quiz (Student sees questions
+        without correct answers)
+      parameters:
+      - description: Quiz ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Questions list
+          schema:
+            items:
+              $ref: '#/definitions/quiz.Question'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get quiz questions
+      tags:
+      - quizzes
+  /api/v1/students:
+    get:
+      description: Returns a paginated list of students with optional filtering
+      parameters:
+      - description: Major
+        in: query
+        name: major
+        type: string
+      - description: Year
+        in: query
+        name: year
+        type: integer
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Students list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List students
+      tags:
+      - students
+    post:
+      consumes:
+      - application/json
+      description: Create a new student profile (Admin only)
+      parameters:
+      - description: Create Student Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateStudentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created student
+          schema:
+            $ref: '#/definitions/student.Student'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create student
+      tags:
+      - students
+  /api/v1/students/{id}:
+    delete:
+      description: Deletes a student profile by ID (Admin only)
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete student
+      tags:
+      - students
+    get:
+      description: Returns student profile details by ID
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student details
+          schema:
+            $ref: '#/definitions/student.Student'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Student not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get student by ID
+      tags:
+      - students
+    put:
+      consumes:
+      - application/json
+      description: Update student profile details like major, year or GPA
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateStudentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated student
+          schema:
+            $ref: '#/definitions/student.Student'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update student
+      tags:
+      - students
+  /api/v1/students/{id}/details:
+    get:
+      description: Returns student profile along with related user information
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student details with user info
+          schema:
+            $ref: '#/definitions/student.Student'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get student with details
+      tags:
+      - students
+  /api/v1/students/{id}/enrollments:
+    get:
+      description: Returns a list of all course enrollments for a specific student
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Enrollments list
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get student enrollments
+      tags:
+      - students
+  /api/v1/students/{id}/groups:
+    get:
+      description: Returns a list of all groups the student belongs to
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Groups list
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get student groups
+      tags:
+      - students
+  /api/v1/students/{studentID}/groups:
+    get:
+      description: Gets all groups the student belongs to
+      parameters:
+      - description: Student ID
+        in: path
+        name: studentID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/group.Group'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List student's groups
+      tags:
+      - groups
+  /api/v1/students/me:
+    get:
+      description: Returns the profile of the currently logged-in student
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student profile
+          schema:
+            $ref: '#/definitions/student.Student'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get my profile
+      tags:
+      - students
+  /api/v1/students/user/{userID}:
+    get:
+      description: Returns student profile details by User ID
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student details
+          schema:
+            $ref: '#/definitions/student.Student'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Student not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get student by User ID
+      tags:
+      - students
+  /api/v1/submissions:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new submission for an assignment
+      parameters:
+      - description: Submission Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateSubmissionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created submission
+          schema:
+            $ref: '#/definitions/submission.Submission'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Submit assignment
+      tags:
+      - submissions
+  /api/v1/submissions/{id}:
+    delete:
+      description: Deletes a submission by ID
+      parameters:
+      - description: Submission ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Submission not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete submission
+      tags:
+      - submissions
+    get:
+      description: Returns submission details by ID
+      parameters:
+      - description: Submission ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Submission details
+          schema:
+            $ref: '#/definitions/submission.Submission'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Submission not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get submission by ID
+      tags:
+      - submissions
+  /api/v1/submissions/assignment/{assignmentId}:
+    get:
+      description: Returns a paginated list of submissions for an assignment
+      parameters:
+      - description: Assignment ID
+        in: path
+        name: assignmentId
+        required: true
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Submissions list
+          schema:
+            items:
+              $ref: '#/definitions/submission.Submission'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List assignment submissions
+      tags:
+      - submissions
+  /api/v1/submissions/student/{studentId}:
+    get:
+      description: Returns a paginated list of submissions from a student
+      parameters:
+      - description: Student ID
+        in: path
+        name: studentId
+        required: true
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Submissions list
+          schema:
+            items:
+              $ref: '#/definitions/submission.Submission'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List student submissions
+      tags:
+      - submissions
+  /api/v1/teacher/appeals:
+    get:
+      description: Returns a paginated list of appeals for the current teacher's courses
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Appeals list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List teacher appeals
+      tags:
+      - appeals
+  /api/v1/teachers:
+    get:
+      description: Returns a paginated list of teachers
+      parameters:
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Teachers list
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List teachers
+      tags:
+      - teachers
+    post:
+      consumes:
+      - application/json
+      description: Create a new teacher profile (Admin only)
+      parameters:
+      - description: Create Teacher Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/teacher.CreateTeacherInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created teacher
+          schema:
+            $ref: '#/definitions/teacher.Teacher'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create teacher
+      tags:
+      - teachers
+  /api/v1/teachers/{id}:
+    delete:
+      description: Deletes a teacher profile by ID (Admin only)
+      parameters:
+      - description: Teacher ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+      security:
+      - BearerAuth: []
+      summary: Delete teacher
+      tags:
+      - teachers
+    get:
+      description: Returns teacher profile details by ID
+      parameters:
+      - description: Teacher ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Teacher details
+          schema:
+            $ref: '#/definitions/teacher.Teacher'
+      security:
+      - BearerAuth: []
+      summary: Get teacher by ID
+      tags:
+      - teachers
+    put:
+      consumes:
+      - application/json
+      description: Update teacher profile details like degree or department
+      parameters:
+      - description: Teacher ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/teacher.UpdateTeacherInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated teacher
+          schema:
+            $ref: '#/definitions/teacher.Teacher'
+      security:
+      - BearerAuth: []
+      summary: Update teacher
+      tags:
+      - teachers
+  /api/v1/teachers/{id}/courses:
+    get:
+      description: Returns a list of all courses taught by a specific teacher
+      parameters:
+      - description: Teacher ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Courses list
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get teacher courses
+      tags:
+      - teachers
+  /api/v1/teachers/{id}/groups:
+    get:
+      description: Returns a list of all groups assigned to a specific teacher
+      parameters:
+      - description: Teacher ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Groups list
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get teacher groups
+      tags:
+      - teachers
+  /api/v1/teachers/me:
+    get:
+      description: Returns the profile of the currently logged-in teacher
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Teacher profile
+          schema:
+            $ref: '#/definitions/teacher.Teacher'
+      security:
+      - BearerAuth: []
+      summary: Get my profile
+      tags:
+      - teachers
+  /api/v1/teachers/user/{userID}:
+    get:
+      description: Returns teacher profile details by User ID
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Teacher details
+          schema:
+            $ref: '#/definitions/teacher.Teacher'
+      security:
+      - BearerAuth: []
+      summary: Get teacher by User ID
+      tags:
+      - teachers
+  /api/v1/uploads:
+    post:
+      consumes:
+      - application/json
+      description: Records file upload metadata
+      parameters:
+      - description: Upload Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateUploadRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Recorded upload
+          schema:
+            $ref: '#/definitions/upload.Upload'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Record upload
+      tags:
+      - uploads
+  /api/v1/uploads/{id}:
+    delete:
+      description: Deletes an upload record by ID (Admin only)
+      parameters:
+      - description: Upload ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+      security:
+      - BearerAuth: []
+      summary: Delete upload
+      tags:
+      - uploads
+    get:
+      description: Returns upload metadata by ID
+      parameters:
+      - description: Upload ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Upload details
+          schema:
+            $ref: '#/definitions/upload.Upload'
+      security:
+      - BearerAuth: []
+      summary: Get upload by ID
+      tags:
+      - uploads
+  /api/v1/uploads/user/{userID}:
+    get:
+      description: Returns a paginated list of uploads for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uploads list
+          schema:
+            items:
+              $ref: '#/definitions/upload.Upload'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List user uploads
+      tags:
+      - uploads
+  /api/v1/users:
+    get:
+      description: Returns a paginated list of users (Admin only)
+      parameters:
+      - default: 0
+        description: Skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Take
+        in: query
+        name: take
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users list
+          schema:
+            items:
+              $ref: '#/definitions/user.User'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - users
+  /api/v1/users/{id}:
+    delete:
+      description: Deletes a user by ID (Admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - users
+    get:
+      description: Returns user details by their unique ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details
+          schema:
+            $ref: '#/definitions/user.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: Update user first name, last name or active status
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated user
+          schema:
+            $ref: '#/definitions/user.User'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - users
+  /api/v1/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return token (Legacy endpoint)
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user (Old)
+      tags:
+      - users
+  /api/v1/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: Registration Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created user
+          schema:
+            $ref: '#/definitions/user.User'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register user
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    description: 'JWT token with Bearer prefix. Example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
