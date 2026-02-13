@@ -14,9 +14,14 @@ type SubmissionHandler struct {
 
 type CreateSubmissionRequest struct {
 	AssignmentID string  `json:"assignment_id" binding:"required"`
-	StudentID    string  `json:"student_id" binding:"required"`
-	Content      string  `json:"content" binding:"required"`
+	StudentID    string  `json:"student_id"`
+	ContentText  string  `json:"content_text"`
 	FileURL      *string `json:"file_url"`
+}
+
+type UpdateSubmissionRequest struct {
+	ContentText string  `json:"content_text"`
+	FileURL     *string `json:"file_url"`
 }
 
 func NewSubmissionHandler(service *submissionUC.Service) *SubmissionHandler {
@@ -42,10 +47,22 @@ func (h *SubmissionHandler) Submit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// Auto-populate student_id from JWT if not provided
+	studentID := req.StudentID
+	if studentID == "" {
+		if uid, exists := c.Get("userID"); exists {
+			studentID = uid.(string)
+		}
+	}
+	if studentID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "student_id is required"})
+		return
+	}
+
 	s, err := h.service.Submit(&submission.CreateSubmissionInput{
 		AssignmentID: req.AssignmentID,
-		StudentID:    req.StudentID,
-		Content:      req.Content,
+		StudentID:    studentID,
+		ContentText:  req.ContentText,
 		FileURL:      req.FileURL,
 	})
 	if err != nil {
@@ -140,6 +157,60 @@ func (h *SubmissionHandler) ListByStudent(c *gin.Context) {
 	c.JSON(http.StatusOK, submissions)
 }
 
+// Update updates a submission
+// @Summary Update submission
+// @Description Updates an existing submission
+// @Tags submissions
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Submission ID"
+// @Param request body UpdateSubmissionRequest true "Update Request"
+// @Success 200 {object} submission.Submission "Updated submission"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 404 {object} map[string]string "Submission not found"
+// @Failure 500 {object} map[string]string "Internal error"
+// @Router /api/v1/submissions/{id} [put]
+func (h *SubmissionHandler) Update(c *gin.Context) {
+	id := c.Param("id")
+	var req UpdateSubmissionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get existing submission to check ownership
+	existing, err := h.service.GetByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "submission not found"})
+		return
+	}
+
+	// Check if user is the owner (for students)
+	if userID, exists := c.Get("userID"); exists {
+		if role, roleExists := c.Get("role"); roleExists {
+			// Students can only update their own submissions
+			if role == "student" && userID.(string) != existing.StudentID {
+				c.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own submissions"})
+				return
+			}
+		}
+	}
+
+	s, err := h.service.Update(&submission.UpdateSubmissionInput{
+		ID:          id,
+		ContentText: req.ContentText,
+		FileURL:     req.FileURL,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, s)
+}
+
 // Delete deletes a submission
 // @Summary Delete submission
 // @Description Deletes a submission by ID
@@ -155,6 +226,25 @@ func (h *SubmissionHandler) ListByStudent(c *gin.Context) {
 // @Router /api/v1/submissions/{id} [delete]
 func (h *SubmissionHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
+
+	// Get existing submission to check ownership
+	existing, err := h.service.GetByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "submission not found"})
+		return
+	}
+
+	// Check if user is the owner (for students)
+	if userID, exists := c.Get("userID"); exists {
+		if role, roleExists := c.Get("role"); roleExists {
+			// Students can only delete their own submissions
+			if role == "student" && userID.(string) != existing.StudentID {
+				c.JSON(http.StatusForbidden, gin.H{"error": "you can only delete your own submissions"})
+				return
+			}
+		}
+	}
+
 	if err := h.service.Delete(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

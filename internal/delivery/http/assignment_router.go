@@ -33,6 +33,12 @@ func (m *AssignmentModule) Register(r *gin.Engine) {
 			m.handler.Create,
 		)
 
+		// UPDATE — только teacher/admin
+		assignments.PUT("/:id",
+			middleware.RequireRole("teacher", "admin", "super_admin"),
+			m.handler.Update,
+		)
+
 		// DELETE — только teacher (owner) или admin
 		assignments.DELETE("/:id",
 			middleware.RequireRole("teacher", "admin", "super_admin"),

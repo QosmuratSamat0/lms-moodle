@@ -34,9 +34,15 @@ func (m *SubmissionModule) Register(r *gin.Engine) {
 			m.handler.Submit,
 		)
 
-		// DELETE — только admin или owner
+		// UPDATE — students can update their own, teachers/admins can update any
+		submissions.PUT("/:id",
+			middleware.RequireRole("student", "teacher", "admin", "super_admin"),
+			m.handler.Update,
+		)
+
+		// DELETE — students can delete their own, teachers/admins can delete any
 		submissions.DELETE("/:id",
-			middleware.RequireRole("admin", "super_admin", "teacher"),
+			middleware.RequireRole("student", "teacher", "admin", "super_admin"),
 			m.handler.Delete,
 		)
 	}

@@ -20,19 +20,33 @@ func NewChatModule(handler *ChatHandler, authService *authUC.Service) *ChatModul
 
 func (m *ChatModule) Register(r *gin.Engine) {
 	api := r.Group("/api/v1")
+
+	// WebSocket endpoint (auth via query param token)
+	api.GET("/ws/chat/:roomId", m.handler.HandleWebSocket)
+
+	// REST endpoints (auth via Bearer token)
 	chat := api.Group("/chat")
 	chat.Use(middleware.AuthTokenMiddleware(m.authService))
 	{
-		// VIEW — все в группе могут видеть
-		chat.GET("/course/:courseId", m.handler.ListByCourse)
+		// User search (for new message dialog)
+		chat.GET("/users/search", m.handler.SearchUsers)
 
-		// CREATE — все может отправить сообщение
-		chat.POST("", m.handler.SendMessage)
+		// Rooms
+		chat.GET("/rooms", m.handler.ListRooms)
+		chat.POST("/rooms", m.handler.CreateRoom)
+		chat.POST("/rooms/direct", m.handler.GetOrCreateDM)
+		chat.GET("/rooms/:id", m.handler.GetRoom)
+		chat.DELETE("/rooms/:id", m.handler.DeleteRoom)
 
-		// DELETE — owner или admin
-		chat.DELETE("/:id",
-			middleware.RequireRole("admin", "super_admin"),
-			m.handler.Delete,
-		)
+		// Messages
+		chat.GET("/rooms/:id/messages", m.handler.ListMessages)
+		chat.POST("/rooms/:id/messages", m.handler.SendMessage)
+		chat.DELETE("/rooms/:id/messages/:messageId", m.handler.DeleteMessage)
+
+		// Members
+		chat.GET("/rooms/:id/members", m.handler.ListMembers)
+		chat.POST("/rooms/:id/members", m.handler.AddMember)
+		chat.DELETE("/rooms/:id/members/:userId", m.handler.RemoveMember)
+		chat.POST("/rooms/:id/leave", m.handler.LeaveRoom)
 	}
 }

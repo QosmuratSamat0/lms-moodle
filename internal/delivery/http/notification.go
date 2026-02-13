@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	"github.com/ap1-final-mini-moodle/internal/domain/notification"
 	notificationUC "github.com/ap1-final-mini-moodle/internal/usecase/notification"
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +22,6 @@ func NewNotificationHandler(service *notificationUC.Service) *NotificationHandle
 // @Tags notifications
 // @Security BearerAuth
 // @Produce json
-// @Param userID path string false "User ID (optional, normally from context)"
 // @Param skip query int false "Skip" default(0)
 // @Param take query int false "Take" default(10)
 // @Success 200 {array} notification.Notification "Notifications list"
@@ -29,21 +29,43 @@ func NewNotificationHandler(service *notificationUC.Service) *NotificationHandle
 // @Failure 500 {object} map[string]string "Internal error"
 // @Router /api/v1/notifications [get]
 func (h *NotificationHandler) ListByUser(c *gin.Context) {
-	userID := c.Param("userID")
+	// Get userID from JWT claims
+	claims, err := GetTokenClaimsFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
 	var req struct {
 		Skip int `form:"skip,default=0"`
-		Take int `form:"take,default=10"`
+		Take int `form:"take,default=50"`
 	}
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	notifications, err := h.service.ListByUser(userID, req.Skip, req.Take)
+	notifications, err := h.service.ListByUser(claims.UserID, req.Skip, req.Take)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, notifications)
+	if notifications == nil {
+		notifications = []*notification.Notification{}
+	}
+
+	// Count unread
+	unreadCount := 0
+	for _, n := range notifications {
+		if !n.Read {
+			unreadCount++
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"notifications": notifications,
+		"total":         len(notifications),
+		"unread_count":  unreadCount,
+	})
 }
 
 // MarkAsRead marks a notification as read
@@ -63,7 +85,34 @@ func (h *NotificationHandler) MarkAsRead(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, gin.H{"message": "marked as read"})
+}
+
+func (h *NotificationHandler) MarkAllAsRead(c *gin.Context) {
+	claims, err := GetTokenClaimsFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	if err := h.service.MarkAllAsRead(claims.UserID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "all marked as read"})
+}
+
+func (h *NotificationHandler) UnreadCount(c *gin.Context) {
+	claims, err := GetTokenClaimsFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	count, err := h.service.UnreadCount(claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"unread_count": count})
 }
 
 // Delete deletes a notification

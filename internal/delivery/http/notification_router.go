@@ -25,9 +25,11 @@ func (m *NotificationModule) Register(r *gin.Engine) {
 	{
 		// VIEW — only own notifications
 		notifications.GET("", m.handler.ListByUser)
+		notifications.GET("/unread-count", m.handler.UnreadCount)
 
-		// UPDATE — только owner
+		// UPDATE
 		notifications.PATCH("/:id/read", m.handler.MarkAsRead)
+		notifications.POST("/read-all", m.handler.MarkAllAsRead)
 
 		// DELETE — только owner или admin
 		notifications.DELETE("/:id",

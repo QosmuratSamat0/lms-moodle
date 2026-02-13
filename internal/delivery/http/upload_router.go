@@ -20,6 +20,10 @@ func NewUploadModule(handler *UploadHandler, authService *authUC.Service) *Uploa
 
 func (m *UploadModule) Register(r *gin.Engine) {
 	api := r.Group("/api/v1")
+
+	// Public route for serving uploaded files (no auth needed)
+	api.GET("/uploads/files/:filename", m.handler.ServeFile)
+
 	uploads := api.Group("/uploads")
 	uploads.Use(middleware.AuthTokenMiddleware(m.authService))
 	{

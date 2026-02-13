@@ -1,58 +1,137 @@
 package http
 
 import (
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/upload"
 	uploadUC "github.com/ap1-final-mini-moodle/internal/usecase/upload"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UploadHandler struct {
-	service *uploadUC.Service
-}
-
-type CreateUploadRequest struct {
-	UserID   string `json:"user_id" binding:"required"`
-	FileName string `json:"file_name" binding:"required"`
-	FileURL  string `json:"file_url" binding:"required"`
-	FileSize int64  `json:"file_size" binding:"required"`
-	MimeType string `json:"mime_type" binding:"required"`
+	service   *uploadUC.Service
+	uploadDir string
 }
 
 func NewUploadHandler(service *uploadUC.Service) *UploadHandler {
-	return &UploadHandler{service: service}
+	dir := "./uploads"
+	os.MkdirAll(dir, 0755)
+	return &UploadHandler{service: service, uploadDir: dir}
 }
 
-// Upload records a file upload
-// @Summary Record upload
-// @Description Records file upload metadata
+// Upload handles actual file upload via multipart form
+// @Summary Upload a file
+// @Description Uploads a file and returns its metadata with a download URL
 // @Tags uploads
 // @Security BearerAuth
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
-// @Param request body CreateUploadRequest true "Upload Request"
-// @Success 201 {object} upload.Upload "Recorded upload"
+// @Success 201 {object} map[string]interface{} "Upload result"
+// @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Router /api/v1/uploads [post]
 func (h *UploadHandler) Upload(c *gin.Context) {
-	var req CreateUploadRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file provided: " + err.Error()})
 		return
 	}
+	defer file.Close()
+
+	// Get user ID from JWT
+	userID := ""
+	if uid, exists := c.Get("userID"); exists {
+		userID = uid.(string)
+	}
+
+	// Generate unique filename
+	ext := filepath.Ext(header.Filename)
+	safeExt := strings.ToLower(ext)
+	uniqueName := uuid.New().String() + safeExt
+
+	// Save file to disk
+	destPath := filepath.Join(h.uploadDir, uniqueName)
+	dest, err := os.Create(destPath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
+	defer dest.Close()
+
+	if _, err := io.Copy(dest, file); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to write file"})
+		return
+	}
+
+	// Build the download URL
+	scheme := "http"
+	if c.Request.TLS != nil {
+		scheme = "https"
+	}
+	host := c.Request.Host
+	fileURL := fmt.Sprintf("%s://%s/api/v1/uploads/files/%s", scheme, host, uniqueName)
+
+	// Detect MIME type
+	mimeType := header.Header.Get("Content-Type")
+	if mimeType == "" {
+		mimeType = "application/octet-stream"
+	}
+
+	// Record in database
 	u, err := h.service.Upload(&upload.CreateUploadInput{
-		UserID:   req.UserID,
-		FileName: req.FileName,
-		FileURL:  req.FileURL,
-		FileSize: req.FileSize,
-		MimeType: req.MimeType,
+		UserID:   userID,
+		FileName: header.Filename,
+		FileURL:  fileURL,
+		FileSize: header.Size,
+		MimeType: mimeType,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		// File saved but DB record failed — still return URL
+		c.JSON(http.StatusCreated, gin.H{
+			"id":            "",
+			"url":           fileURL,
+			"secure_url":    fileURL,
+			"original_name": header.Filename,
+			"size":          header.Size,
+			"format":        safeExt,
+			"resource_type": mimeType,
+		})
 		return
 	}
-	c.JSON(http.StatusCreated, u)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"id":            u.ID,
+		"url":           fileURL,
+		"secure_url":    fileURL,
+		"original_name": header.Filename,
+		"size":          header.Size,
+		"format":        safeExt,
+		"resource_type": mimeType,
+		"file_url":      fileURL,
+		"file_name":     header.Filename,
+		"created_at":    u.CreatedAt,
+	})
+}
+
+// ServeFile serves an uploaded file by filename
+func (h *UploadHandler) ServeFile(c *gin.Context) {
+	filename := c.Param("filename")
+	// Prevent directory traversal
+	filename = filepath.Base(filename)
+	filePath := filepath.Join(h.uploadDir, filename)
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+		return
+	}
+
+	c.File(filePath)
 }
 
 // GetByID returns an upload record by ID
