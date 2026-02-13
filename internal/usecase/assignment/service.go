@@ -16,15 +16,28 @@ func NewService(repo assignment.Repository) *Service {
 }
 
 func (s *Service) Create(input *assignment.CreateAssignmentInput) (*assignment.Assignment, error) {
+	// Ensure max_points is at least 1 to satisfy database constraint
+	maxPoints := input.MaxPoints
+	if maxPoints <= 0 {
+		maxPoints = 1
+	}
+
 	a := &assignment.Assignment{
-		ID:          uuid.New().String(),
-		CourseID:    input.CourseID,
-		Title:       input.Title,
-		Description: input.Description,
-		MaxPoints:   input.MaxPoints,
-		DueDate:     input.DueDate,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		ID:                 uuid.New().String(),
+		CourseID:           input.CourseID,
+		Title:              input.Title,
+		Description:        input.Description,
+		MaxPoints:          maxPoints,
+		DueAt:              input.DueAt,
+		AllowLate:          input.AllowLate,
+		CreatedByTeacherID: input.CreatedByTeacherID,
+		GradingCategory:    input.GradingCategory,
+		WeightPercentage:   input.WeightPercentage,
+		FileURL:            input.FileURL,
+		CreatedAt:          time.Now(),
+	}
+	if a.GradingCategory == "" {
+		a.GradingCategory = "register_midterm"
 	}
 	if err := s.repo.Create(a); err != nil {
 		return nil, err
@@ -54,10 +67,21 @@ func (s *Service) Update(id string, input *assignment.UpdateAssignmentInput) (*a
 	if input.MaxPoints != nil {
 		a.MaxPoints = *input.MaxPoints
 	}
-	if input.DueDate != nil {
-		a.DueDate = *input.DueDate
+	if input.DueAt != nil {
+		a.DueAt = input.DueAt
 	}
-	a.UpdatedAt = time.Now()
+	if input.AllowLate != nil {
+		a.AllowLate = *input.AllowLate
+	}
+	if input.GradingCategory != nil {
+		a.GradingCategory = *input.GradingCategory
+	}
+	if input.WeightPercentage != nil {
+		a.WeightPercentage = *input.WeightPercentage
+	}
+	if input.FileURL != nil {
+		a.FileURL = input.FileURL
+	}
 	if err := s.repo.Update(a); err != nil {
 		return nil, err
 	}
