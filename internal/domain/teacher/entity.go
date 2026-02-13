@@ -64,13 +64,13 @@ type TeacherGroup struct {
 }
 
 type TeacherCourse struct {
-	ID          string    `db:"id"`
-	Code        string    `db:"code"`
-	Title       string    `db:"title"`
-	Description string    `db:"description"`
-	TeacherID   string    `db:"teacher_id"`
-	MaxPoints   int       `db:"max_points"`
-	Active      bool      `db:"active"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
+	ID          string    `db:"id" json:"id"`
+	Code        string    `db:"code" json:"code"`
+	Title       string    `db:"title" json:"title"`
+	Description string    `db:"description" json:"description"`
+	TeacherID   string    `db:"teacher_id" json:"owner_teacher_id"`
+	MaxPoints   int       `db:"max_points" json:"max_points"`
+	Active      bool      `db:"active" json:"is_active"`
+	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
 }

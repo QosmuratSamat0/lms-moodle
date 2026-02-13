@@ -3,19 +3,19 @@ package grade
 import "time"
 
 type Grade struct {
-	ID           string    `db:"id"`
-	SubmissionID string    `db:"submission_id"`
-	Score        int       `db:"score"`
-	Feedback     string    `db:"feedback"`
-	GradedBy     string    `db:"graded_by"`
-	GradedAt     time.Time `db:"graded_at"`
-	CreatedAt    time.Time `db:"created_at"`
-	UpdatedAt    time.Time `db:"updated_at"`
+	ID           string    `db:"id" json:"id"`
+	SubmissionID string    `db:"submission_id" json:"submission_id"`
+	Score        float64   `db:"score" json:"score"`
+	Feedback     string    `db:"feedback" json:"feedback"`
+	GradedBy     string    `db:"graded_by_teacher_id" json:"graded_by"`
+	GradedAt     time.Time `db:"graded_at" json:"graded_at"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type CreateGradeInput struct {
 	SubmissionID string
-	Score        int
+	Score        float64
 	Feedback     string
 	GradedBy     string
 }

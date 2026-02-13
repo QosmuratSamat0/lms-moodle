@@ -5,7 +5,7 @@ import "time"
 type StudentDashboard struct {
 	StudentID            string             `json:"student_id"`
 	StudentName          string             `json:"student_name"`
-	GPA                  float64            `json:"gpa"`
+	GPA                  float64            `json:"overall_gpa"`
 	TotalCourses         int                `json:"total_courses"`
 	ActiveCourses        int                `json:"active_courses"`
 	CompletedAssignments int                `json:"completed_assignments"`
@@ -16,24 +16,25 @@ type StudentDashboard struct {
 	UpcomingDeadlines    []UpcomingDeadline `json:"upcoming_deadlines"`
 	RecentGrades         []RecentGrade      `json:"recent_grades"`
 	GradeTrends          []GradeTrend       `json:"grade_trends"`
-	CourseProgress       []CourseProgress   `json:"course_progress"`
+	CourseProgress       []CourseProgress   `json:"course_stats"`
 }
 
 type UpcomingDeadline struct {
 	ID         string    `json:"id"`
-	Type       string    `json:"type"` // assignment, quiz
+	Type       string    `json:"type"`
 	CourseID   string    `json:"course_id"`
-	CourseName string    `json:"course_name"`
+	CourseName string    `json:"course_title"`
 	Title      string    `json:"title"`
-	DueDate    time.Time `json:"due_date"`
-	DaysLeft   int       `json:"days_left"`
+	DueDate    time.Time `json:"due_at"`
+	DaysLeft   int       `json:"days_remaining"`
+	Status     string    `json:"status"`
 }
 
 type RecentGrade struct {
 	ID         string    `json:"id"`
-	Type       string    `json:"type"` // assignment, quiz
-	CourseName string    `json:"course_name"`
-	Title      string    `json:"title"`
+	Type       string    `json:"type"`
+	CourseName string    `json:"course_title"`
+	Title      string    `json:"assignment_title"`
 	Score      float64   `json:"score"`
 	MaxPoints  float64   `json:"max_points"`
 	Percentage float64   `json:"percentage"`
@@ -43,16 +44,18 @@ type RecentGrade struct {
 type GradeTrend struct {
 	Month      string  `json:"month"`
 	Year       int     `json:"year"`
-	AverageGPA float64 `json:"average_gpa"`
+	AverageGPA float64 `json:"average_percentage"`
 }
 
 type CourseProgress struct {
 	CourseID             string  `json:"course_id"`
-	CourseName           string  `json:"course_name"`
+	CourseName           string  `json:"course_title"`
 	CompletedAssignments int     `json:"completed_assignments"`
 	TotalAssignments     int     `json:"total_assignments"`
-	ProgressPercent      float64 `json:"progress_percent"`
+	ProgressPercent      float64 `json:"progress_percentage"`
 	CurrentGrade         float64 `json:"current_grade"`
+	InstructorName       string  `json:"instructor_name"`
+	LetterGrade          string  `json:"letter_grade"`
 }
 
 type TeacherDashboard struct {

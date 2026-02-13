@@ -13,10 +13,13 @@ type Group struct {
 }
 
 type GroupMember struct {
-	ID        string    `json:"id"`
-	GroupID   string    `json:"group_id"`
-	StudentID string    `json:"student_id"`
-	JoinedAt  time.Time `json:"joined_at"`
+	ID               string    `json:"id"`
+	GroupID          string    `json:"group_id"`
+	StudentID        string    `json:"student_id"`
+	JoinedAt         time.Time `json:"joined_at"`
+	StudentFirstName string    `json:"student_first_name,omitempty"`
+	StudentLastName  string    `json:"student_last_name,omitempty"`
+	StudentEmail     string    `json:"student_email,omitempty"`
 }
 
 type CreateGroupInput struct {
