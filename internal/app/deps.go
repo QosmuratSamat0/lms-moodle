@@ -51,6 +51,7 @@ import (
 	userUC "github.com/ap1-final-mini-moodle/internal/usecase/user"
 
 	authShared "github.com/ap1-final-mini-moodle/internal/shared/auth"
+	"github.com/ap1-final-mini-moodle/internal/shared/websocket"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -67,6 +68,7 @@ type Deps struct {
 	AttendanceSvc      *attendanceUC.Service
 	NotificationSvc    *notificationUC.Service
 	ChatSvc            *chatUC.Service
+	WSHub              *websocket.Hub
 	UploadSvc          *uploadUC.Service
 	GroupSvc           *groupUC.Service
 	AnnouncementSvc    *announcementUC.Service
@@ -120,6 +122,10 @@ func BuildDeps(db *pgxpool.Pool, cfg *config.Config) *Deps {
 	attendanceService := attendanceUC.NewService(attendanceRepository)
 	notificationService := notificationUC.NewService(notificationRepository)
 	chatService := chatUC.NewService(chatRepository)
+
+	// WebSocket Hub
+	wsHub := websocket.NewHub()
+	go wsHub.Run()
 	uploadService := uploadUC.NewService(uploadRepository)
 	groupService := groupUC.NewService(groupRepository)
 	announcementService := announcementUC.NewService(announcementRepository)
@@ -153,6 +159,7 @@ func BuildDeps(db *pgxpool.Pool, cfg *config.Config) *Deps {
 		AttendanceSvc:       attendanceService,
 		NotificationSvc:     notificationService,
 		ChatSvc:             chatService,
+		WSHub:               wsHub,
 		UploadSvc:           uploadService,
 		GroupSvc:            groupService,
 		AnnouncementSvc:     announcementService,
@@ -174,13 +181,13 @@ func BuildHTTPModules(d *Deps, jwtSecret string) []http.RoutesRegistrar {
 	// Handlers
 	userHandler := http.NewUserHandler(d.UserSvc)
 	courseHandler := http.NewCourseHandler(d.CourseSvc)
-	assignmentHandler := http.NewAssignmentHandler(d.AssignmentSvc)
+	assignmentHandler := http.NewAssignmentHandler(d.AssignmentSvc, d.NotificationSvc, d.EnrollmentSvc)
 	enrollmentHandler := http.NewEnrollmentHandler(d.EnrollmentSvc)
 	submissionHandler := http.NewSubmissionHandler(d.SubmissionSvc)
-	gradeHandler := http.NewGradeHandler(d.GradeSvc)
-	attendanceHandler := http.NewAttendanceHandler(d.AttendanceSvc)
+	gradeHandler := http.NewGradeHandler(d.GradeSvc, d.NotificationSvc, d.SubmissionSvc)
+	attendanceHandler := http.NewAttendanceHandler(d.AttendanceSvc, d.NotificationSvc)
 	notificationHandler := http.NewNotificationHandler(d.NotificationSvc)
-	chatHandler := http.NewChatHandler(d.ChatSvc)
+	chatHandler := http.NewChatHandler(d.ChatSvc, d.AuthSvc, d.WSHub)
 	uploadHandler := http.NewUploadHandler(d.UploadSvc)
 	groupHandler := http.NewGroupHandler(d.GroupSvc)
 	announcementHandler := http.NewAnnouncementHandler(d.AnnouncementSvc)
