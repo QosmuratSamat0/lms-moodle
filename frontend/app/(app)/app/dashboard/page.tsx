@@ -35,6 +35,7 @@ import {
   getDaysUntil,
 } from "@/lib/helpers";
 import courseService from "@/services/courses";
+import type { Course } from "@/types/course";
 import assignmentService from "@/services/assignments";
 import notificationService from "@/services/notifications";
 import { useTeacherProfile } from "@/hooks/use-profile";
@@ -70,7 +71,7 @@ export default function DashboardPage() {
   const enrolledCourseIds = useMemo(() => {
     const enrollments = Array.isArray(enrollmentsData)
       ? enrollmentsData
-      : enrollmentsData?.enrollments || [];
+      : [];
     return new Set(enrollments.map((e: { course_id: string }) => e.course_id));
   }, [enrollmentsData]);
 
@@ -90,26 +91,26 @@ export default function DashboardPage() {
   const filteredCourses = useMemo(() => {
     const courses = Array.isArray(coursesData)
       ? coursesData
-      : (coursesData as any)?.courses || [];
+      : [];
     if (isTeacher) {
       // Filter by teacher's profile ID (owner_teacher_id)
       if (teacherProfile?.id) {
         return courses.filter(
-          (course: any) => course.owner_teacher_id === teacherProfile.id,
+          (course: Course) => course.owner_teacher_id === teacherProfile.id,
         );
       }
       return [];
     }
     // For students, filter by enrolled courses
     if (enrolledCourseIds.size > 0) {
-      return courses.filter((course: any) => enrolledCourseIds.has(course.id));
+      return courses.filter((course: Course) => enrolledCourseIds.has(course.id));
     }
     return [];
   }, [coursesData, isTeacher, teacherProfile, enrolledCourseIds]);
 
   // Get course IDs for fetching assignments
   const dashboardCourseIds = useMemo(() => {
-    return filteredCourses.map((c: any) => c.id);
+    return filteredCourses.map((c: Course) => c.id);
   }, [filteredCourses]);
 
   // Fetch assignments for each relevant course
@@ -276,7 +277,7 @@ export default function DashboardPage() {
                 </div>
               ) : filteredCourses.length > 0 ? (
                 <div className="space-y-2 sm:space-y-4">
-                  {filteredCourses.slice(0, 4).map((course) => (
+                  {filteredCourses.slice(0, 4).map((course: Course) => (
                     <Link
                       key={course.id}
                       href={`/app/courses/${course.id}`}

@@ -261,4 +261,4 @@ export const submissionServiceMock = {
 };
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-export default useMock ? submissionServiceMock : submissionService;
+export default (useMock ? submissionServiceMock : submissionService) as typeof submissionService;

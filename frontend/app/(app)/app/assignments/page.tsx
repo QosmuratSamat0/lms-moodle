@@ -42,6 +42,7 @@ import assignmentService from "@/services/assignments";
 import courseService from "@/services/courses";
 import submissionService from "@/services/submissions";
 import type { Assignment } from "@/types";
+import type { Course, Enrollment } from "@/types/course";
 import type { Submission } from "@/types/submission";
 
 const containerVariants = {
@@ -181,22 +182,22 @@ export default function AssignmentsPage() {
     if (isStudent() && enrollmentsData) {
       const enrollments = Array.isArray(enrollmentsData)
         ? enrollmentsData
-        : (enrollmentsData as any)?.enrollments || [];
+        : [];
       return enrollments
-        .filter((e: any) => e.status === "active")
-        .map((e: any) => e.course_id);
+        .filter((e: Enrollment) => e.status === "active")
+        .map((e: Enrollment) => e.course_id);
     }
     // For teachers - filter courses by ownership
     if ((isTeacher() || !isStudent()) && coursesData) {
       const allCourses = Array.isArray(coursesData)
         ? coursesData
-        : (coursesData as any)?.courses || [];
+        : [];
       if (isTeacher() && teacherProfile?.id) {
         return allCourses
-          .filter((c: any) => c.owner_teacher_id === teacherProfile.id)
-          .map((c: any) => c.id);
+          .filter((c: Course) => c.owner_teacher_id === teacherProfile.id)
+          .map((c: Course) => c.id);
       }
-      return allCourses.map((c: any) => c.id);
+      return allCourses.map((c: Course) => c.id);
     }
     return [];
   }, [
@@ -215,7 +216,7 @@ export default function AssignmentsPage() {
       if (courseIds.length === 0) return { assignments: [] };
 
       const results = await Promise.all(
-        courseIds.map((courseId) =>
+        courseIds.map((courseId: string) =>
           assignmentService.getByCourse(courseId, { limit: 100 }),
         ),
       );
@@ -260,10 +261,10 @@ export default function AssignmentsPage() {
     if (isStudent() && enrollmentsData) {
       const enrollments = Array.isArray(enrollmentsData)
         ? enrollmentsData
-        : (enrollmentsData as any)?.enrollments || [];
+        : [];
       return enrollments
-        .filter((e: any) => e.status === "active")
-        .map((e: any) => ({
+        .filter((e: Enrollment) => e.status === "active")
+        .map((e: Enrollment) => ({
           id: e.course_id,
           title: e.course_title || "Unknown Course",
         }));
@@ -271,13 +272,13 @@ export default function AssignmentsPage() {
     // For teachers - filter their own courses
     const allCourses = Array.isArray(coursesData)
       ? coursesData
-      : (coursesData as any)?.courses || [];
+      : [];
     if (isTeacher() && teacherProfile?.id) {
       return allCourses
-        .filter((c: any) => c.owner_teacher_id === teacherProfile.id)
-        .map((c: any) => ({ id: c.id, title: c.title }));
+        .filter((c: Course) => c.owner_teacher_id === teacherProfile.id)
+        .map((c: Course) => ({ id: c.id, title: c.title }));
     }
-    return allCourses.map((c: any) => ({ id: c.id, title: c.title }));
+    return allCourses.map((c: Course) => ({ id: c.id, title: c.title }));
   }, [isStudent, isTeacher, enrollmentsData, coursesData, teacherProfile]);
 
   // Filter assignments
@@ -466,7 +467,7 @@ export default function AssignmentsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All courses</SelectItem>
-              {courses.map((course) => (
+              {courses.map((course: { id: string; title: string }) => (
                 <SelectItem key={course.id} value={course.id}>
                   {course.title}
                 </SelectItem>

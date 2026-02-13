@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { getFullName, formatDate } from "@/lib/helpers";
 import { useAuthStore } from "@/store/auth-store";
 import courseService from "@/services/courses";
+import type { Course } from "@/types/course";
 import { useTeacherProfile } from "@/hooks/use-profile";
 
 const containerVariants = {
@@ -67,13 +68,13 @@ export default function CoursesPage() {
 
   // Filter courses based on user role
   const filteredCourses = useMemo(() => {
-    const courses = Array.isArray(data) ? data : data?.courses || [];
+    const courses = Array.isArray(data) ? data : [];
 
     // For teachers, show courses they own
     if (isTeacher) {
       if (teacherProfile?.id) {
         return courses.filter(
-          (course) => course.owner_teacher_id === teacherProfile.id,
+          (course: Course) => course.owner_teacher_id === teacherProfile.id,
         );
       }
       return [];
@@ -81,7 +82,7 @@ export default function CoursesPage() {
 
     // For students, only show enrolled courses
     if (isStudent && enrolledCourseIds.size > 0) {
-      return courses.filter((course) => enrolledCourseIds.has(course.id));
+      return courses.filter((course: Course) => enrolledCourseIds.has(course.id));
     }
     if (isStudent) return [];
 

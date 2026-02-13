@@ -47,9 +47,9 @@ export interface UpdateAssignmentRequest {
 export interface AssignmentListResponse {
   assignments: Assignment[];
   total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
+  page?: number;
+  limit?: number;
+  total_pages?: number;
 }
 
 export interface AssignmentFilters {
