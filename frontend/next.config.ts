@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Enable standalone output for Docker deployment
-  output: "standalone",
+  // Use standalone for Docker, default for Netlify
+  output: process.env.NETLIFY ? undefined : "standalone",
 };
 
 export default nextConfig;
