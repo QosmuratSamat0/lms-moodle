@@ -7,3 +7,5 @@ export { default as notificationService } from "./notifications";
 export { default as scheduleService } from "./schedule";
 export { default as groupService } from "./groups";
 export { default as dashboardService } from "./dashboard";
+export { default as quizService } from "./quizzes";
+export { default as appealService } from "./appeals";

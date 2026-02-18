@@ -47,8 +47,8 @@ export function LoginDialog() {
 
   const loginMutation = useMutation({
     mutationFn: authService.login,
-    onSuccess: (data) => {
-      login(data.user, data.access_token, data.refresh_token);
+    onSuccess: (data, variables) => {
+      login(data.user, data.access_token, data.refresh_token, variables.remember);
       toast.success("Welcome back!");
       setLoginModalOpen(false);
       reset();
@@ -63,6 +63,7 @@ export function LoginDialog() {
     loginMutation.mutate({
       email: data.email,
       password: data.password,
+      remember: data.remember,
     });
   };
 

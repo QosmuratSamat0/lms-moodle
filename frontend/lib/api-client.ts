@@ -6,35 +6,63 @@ const API_BASE_URL =
 // Token management
 const TOKEN_KEY = "lms_access_token";
 const REFRESH_TOKEN_KEY = "lms_refresh_token";
+const REMEMBER_ME_KEY = "lms_remember_me";
+
+// Get the appropriate storage based on remember me setting
+const getStorage = (): Storage | null => {
+  if (typeof window === "undefined") return null;
+  const rememberMe = localStorage.getItem(REMEMBER_ME_KEY) === "true";
+  return rememberMe ? localStorage : sessionStorage;
+};
 
 export const tokenStorage = {
+  setRememberMe: (remember: boolean): void => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(REMEMBER_ME_KEY, String(remember));
+  },
+
+  getRememberMe: (): boolean => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(REMEMBER_ME_KEY) === "true";
+  },
+
   getAccessToken: (): string | null => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem(TOKEN_KEY);
+    // Check both storages for backwards compatibility
+    return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
   },
 
   setAccessToken: (token: string): void => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(TOKEN_KEY, token);
+    const storage = getStorage();
+    if (!storage) return;
+    storage.setItem(TOKEN_KEY, token);
   },
 
   getRefreshToken: (): string | null => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    // Check both storages for backwards compatibility
+    return sessionStorage.getItem(REFRESH_TOKEN_KEY) || localStorage.getItem(REFRESH_TOKEN_KEY);
   },
 
   setRefreshToken: (token: string): void => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    const storage = getStorage();
+    if (!storage) return;
+    storage.setItem(REFRESH_TOKEN_KEY, token);
   },
 
   clearTokens: (): void => {
     if (typeof window === "undefined") return;
+    // Clear from both storages
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
   },
 
-  setTokens: (accessToken: string, refreshToken: string): void => {
+  setTokens: (accessToken: string, refreshToken: string, rememberMe?: boolean): void => {
+    if (rememberMe !== undefined) {
+      tokenStorage.setRememberMe(rememberMe);
+    }
     tokenStorage.setAccessToken(accessToken);
     tokenStorage.setRefreshToken(refreshToken);
   },

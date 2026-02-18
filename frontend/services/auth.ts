@@ -11,8 +11,11 @@ import type { UpdateProfileData, ChangePasswordData } from "@/schemas/profile";
 
 export const authService = {
   login: async (data: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>("/auth/login", data);
-    tokenStorage.setTokens(response.access_token, response.refresh_token);
+    const response = await api.post<LoginResponse>("/auth/login", {
+      email: data.email,
+      password: data.password,
+    });
+    tokenStorage.setTokens(response.access_token, response.refresh_token, data.remember);
     return response;
   },
 
