@@ -281,6 +281,7 @@ export function useChat({ roomId, onError }: UseChatOptions) {
   // Send message (prefer WebSocket, fallback to REST)
   const sendMessage = useCallback(
     async (content: string, replyToId?: string) => {
+      // Try WebSocket first if connected
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         const message: WSOutboundMessage = {
           type: "message",
@@ -292,23 +293,22 @@ export function useChat({ roomId, onError }: UseChatOptions) {
           return true;
         } catch (error) {
           console.error("Failed to send WebSocket message:", error);
+          // Fall through to REST fallback
         }
       }
 
-      // Fallback to REST API ONLY if not connected to WS
-      if (!isConnected) {
-        try {
-          const message = await chatService.sendMessage(roomId, {
-            content,
-            reply_to_id: replyToId,
-          });
-          setMessages((prev) => [...prev, message]);
-          return true;
-        } catch (err) {
-          console.error("Failed to send message via REST:", err);
-          onErrorRef.current?.((err as Error).message);
-          return false;
-        }
+      // Fallback to REST API
+      try {
+        const message = await chatService.sendMessage(roomId, {
+          content,
+          reply_to_id: replyToId,
+        });
+        setMessages((prev) => [...prev, message]);
+        return true;
+      } catch (err) {
+        console.error("Failed to send message via REST:", err);
+        onErrorRef.current?.((err as Error).message);
+        return false;
       }
     },
     [roomId],

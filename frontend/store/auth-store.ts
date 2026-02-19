@@ -9,7 +9,7 @@ interface AuthState {
   isLoading: boolean;
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
-  login: (user: User, accessToken: string, refreshToken: string) => void;
+  login: (user: User, accessToken: string, refreshToken: string, rememberMe?: boolean) => void;
   logout: () => void;
   hasRole: (roles: UserRole | UserRole[]) => boolean;
   isTeacher: () => boolean;
@@ -31,8 +31,8 @@ export const useAuthStore = create<AuthState>()(
 
       setLoading: (isLoading) => set({ isLoading }),
 
-      login: (user, accessToken, refreshToken) => {
-        tokenStorage.setTokens(accessToken, refreshToken);
+      login: (user, accessToken, refreshToken, rememberMe = false) => {
+        tokenStorage.setTokens(accessToken, refreshToken, rememberMe);
         set({
           user,
           isAuthenticated: true,

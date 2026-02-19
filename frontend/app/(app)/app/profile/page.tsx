@@ -45,7 +45,7 @@ import {
 import authService from "@/services/auth";
 
 export default function ProfilePage() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, setUser } = useAuthStore();
   const queryClient = useQueryClient();
 
   const profileForm = useForm<UpdateProfileData>({
@@ -69,7 +69,15 @@ export default function ProfilePage() {
 
   const updateProfileMutation = useMutation({
     mutationFn: (data: UpdateProfileData) => authService.updateProfile(data),
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
+      // Update the user in auth store with the response from server
+      if (user) {
+        setUser({
+          ...user,
+          first_name: updatedUser.first_name,
+          last_name: updatedUser.last_name,
+        });
+      }
       toast.success("Profile updated successfully");
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },

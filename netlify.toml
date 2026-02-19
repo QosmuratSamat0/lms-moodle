@@ -1,0 +1,11 @@
+[build]
+  base = "frontend"
+  publish = ".next"
+  command = "npm run build"
+
+[build.environment]
+  NEXT_PUBLIC_API_URL = "https://lms-moodle-oxkg.onrender.com/api/v1"
+  NEXT_PUBLIC_WS_URL = "wss://lms-moodle-oxkg.onrender.com/api/v1/ws"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
