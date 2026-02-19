@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/shared/config"
+	"github.com/ap1-final-mini-moodle/internal/shared/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -35,6 +36,15 @@ func InitDatabaseWithConfig(cfg *config.Config) *pgxpool.Pool {
 
 	log.Println("Database connected successfully")
 	return pool
+}
+
+func InitRedisWithConfig(cfg *config.Config) *database.RedisClient {
+	redisClient, err := database.NewRedis(cfg.RedisURL)
+	if err != nil {
+		log.Fatalf("Failed to initialize Redis: %v", err)
+	}
+	log.Println("Redis connected successfully")
+	return redisClient
 }
 
 type App struct {
@@ -80,7 +90,7 @@ func (a *App) startBackgroundWorkers() {
 func (a *App) notificationWorker() {
 	defer a.wg.Done()
 
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
 	for {

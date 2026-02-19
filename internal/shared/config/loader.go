@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -40,7 +41,7 @@ type Config struct {
 	AccessTokenDuration  time.Duration
 	RefreshTokenDuration time.Duration
 
-	RedisURL string
+	RedisURL RedisURL
 
 	CloudinaryURL string
 }
@@ -62,7 +63,12 @@ func Load() *Config {
 		AccessTokenDuration:  parseDuration(getEnv("ACCESS_TOKEN_DURATION", "15m")),
 		RefreshTokenDuration: parseDuration(getEnv("REFRESH_TOKEN_DURATION", "168h")),
 
-		RedisURL: getEnv("REDIS_URL", "redis://localhost:6379"),
+		RedisURL: RedisURL{
+			Host:     getEnv("REDIS_HOST", "localhost"),
+			Port:     getEnv("REDIS_PORT", "6379"),
+			Password: getEnv("REDIS_PASSWORD", ""),
+			DB:       getEnvAsInt("REDIS_DB", 0),
+		},
 
 		CloudinaryURL: getEnv("CLOUDINARY_URL", ""),
 	}
@@ -78,6 +84,18 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func getEnvAsInt(key string, defaultVal int) int {
+	valStr := getEnv(key, "")
+	if valStr == "" {
+		return defaultVal
+	}
+	val, err := strconv.Atoi(valStr)
+	if err != nil {
+		return defaultVal
+	}
+	return val
 }
 
 func parseDuration(s string) time.Duration {

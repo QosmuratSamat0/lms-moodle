@@ -2,38 +2,45 @@ package dashboard
 
 import (
 	"context"
+	"encoding/json"
 	"math"
 	"time"
 
 	"github.com/ap1-final-mini-moodle/internal/domain/dashboard"
+	"github.com/ap1-final-mini-moodle/internal/shared/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type PostgresRepository struct {
-	db *pgxpool.Pool
+	db    *pgxpool.Pool
+	redis *database.RedisClient
 }
 
-func NewPostgresRepository(db *pgxpool.Pool) dashboard.Repository {
-	return &PostgresRepository{db: db}
+func NewPostgresRepository(db *pgxpool.Pool, redis *database.RedisClient) dashboard.Repository {
+	return &PostgresRepository{db: db, redis: redis}
 }
 
 func (r *PostgresRepository) GetStudentDashboard(ctx context.Context, studentID string) (*dashboard.StudentDashboard, error) {
+	cacheKey := "dashboard:student:" + studentID
+	cached, err := r.redis.Get(ctx, cacheKey)
 	d := &dashboard.StudentDashboard{StudentID: studentID}
 
-	// Get student name
-	err := r.db.QueryRow(ctx, `SELECT first_name || ' ' || last_name FROM users WHERE id = $1`, studentID).Scan(&d.StudentName)
+	if err == nil && cached != "" {
+		if err := json.Unmarshal([]byte(cached), d); err == nil {
+			return d, nil
+		}
+	}
+
+	err = r.db.QueryRow(ctx, `SELECT first_name || ' ' || last_name FROM users WHERE id = $1`, studentID).Scan(&d.StudentName)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get GPA
 	d.GPA, _ = r.CalculateGPA(ctx, studentID)
 
-	// Get course counts
 	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM enrollments WHERE student_id = $1`, studentID).Scan(&d.TotalCourses)
 	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM enrollments e WHERE e.student_id = $1 AND e.status = 'active'`, studentID).Scan(&d.ActiveCourses)
 
-	// Get assignment counts
 	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM submissions WHERE student_id = $1`, studentID).Scan(&d.CompletedAssignments)
 	r.db.QueryRow(ctx, `
 		SELECT COUNT(*)
@@ -44,41 +51,45 @@ func (r *PostgresRepository) GetStudentDashboard(ctx context.Context, studentID 
 		AND NOT EXISTS (SELECT 1 FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = $1)
 	`, studentID).Scan(&d.PendingAssignments)
 
-	// Quiz stats - tables don't exist yet, set to 0
 	d.TotalQuizzes = 0
 	d.AverageQuizScore = 0
 
-	// Get attendance rate
 	d.AttendanceRate, _ = r.GetAttendanceRate(ctx, studentID)
 
-	// Get upcoming deadlines
 	d.UpcomingDeadlines, _ = r.GetUpcomingDeadlines(ctx, studentID, 5)
 
-	// Get recent grades
 	d.RecentGrades, _ = r.GetRecentGrades(ctx, studentID, 5)
 
-	// Get grade trends
 	d.GradeTrends, _ = r.GetGradeTrends(ctx, studentID, 6)
 
-	// Get course progress
 	d.CourseProgress, _ = r.GetCourseProgress(ctx, studentID)
+
+	data, err := json.Marshal(d)
+	if err == nil {
+		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
+	}
 
 	return d, nil
 }
 
 func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID string) (*dashboard.TeacherDashboard, error) {
+	cacheKey := "dashboard:teacher:" + teacherID
+	cached, err := r.redis.Get(ctx, cacheKey)
 	d := &dashboard.TeacherDashboard{TeacherID: teacherID}
 
-	// Get teacher name
-	err := r.db.QueryRow(ctx, `SELECT first_name || ' ' || last_name FROM users WHERE id = $1`, teacherID).Scan(&d.TeacherName)
+	if err == nil && cached != "" {
+		if err := json.Unmarshal([]byte(cached), d); err == nil {
+			return d, nil
+		}
+	}
+
+	err = r.db.QueryRow(ctx, `SELECT first_name || ' ' || last_name FROM users WHERE id = $1`, teacherID).Scan(&d.TeacherName)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get total courses
 	r.db.QueryRow(ctx, `SELECT COUNT(*) FROM courses WHERE owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1)`, teacherID).Scan(&d.TotalCourses)
 
-	// Get total students
 	r.db.QueryRow(ctx, `
 		SELECT COUNT(DISTINCT e.student_id)
 		FROM enrollments e
@@ -86,7 +97,6 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		WHERE c.owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1)
 	`, teacherID).Scan(&d.TotalStudents)
 
-	// Get pending submissions
 	r.db.QueryRow(ctx, `
 		SELECT COUNT(*)
 		FROM submissions s
@@ -96,7 +106,6 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		AND NOT EXISTS (SELECT 1 FROM grades g WHERE g.submission_id = s.id)
 	`, teacherID).Scan(&d.PendingSubmissions)
 
-	// Get pending appeals
 	r.db.QueryRow(ctx, `
 		SELECT COUNT(*)
 		FROM grade_appeals ga
@@ -107,7 +116,6 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		WHERE c.owner_teacher_id = (SELECT id FROM teachers WHERE user_id = $1) AND ga.status = 'pending'
 	`, teacherID).Scan(&d.PendingAppeals)
 
-	// Get recent submissions
 	rows, _ := r.db.Query(ctx, `
 		SELECT s.id, u.first_name || ' ' || u.last_name, c.id, c.title, a.title, s.submitted_at,
 		       EXISTS(SELECT 1 FROM grades g WHERE g.submission_id = s.id) as graded
@@ -128,7 +136,6 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		}
 	}
 
-	// Get course stats
 	statsRows, _ := r.db.Query(ctx, `
 		SELECT c.id, c.title,
 		       (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as student_count,
@@ -145,14 +152,24 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 			d.CourseStats = append(d.CourseStats, cs)
 		}
 	}
+	data, err := json.Marshal(d)
+	if err == nil {
+		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
+	}
 
 	return d, nil
 }
 
 func (r *PostgresRepository) GetUpcomingDeadlines(ctx context.Context, studentID string, limit int) ([]dashboard.UpcomingDeadline, error) {
+	cacheKey := "dashboard:student:" + studentID + ":upcoming_deadlines"
+	cached, err := r.redis.Get(ctx, cacheKey)
 	var deadlines []dashboard.UpcomingDeadline
+	if err == nil && cached != "" {
+		if err := json.Unmarshal([]byte(cached), &deadlines); err == nil {
+			return deadlines, nil
+		}
+	}
 
-	// Assignments
 	rows, err := r.db.Query(ctx, `
 		SELECT a.id, 'assignment', c.id, c.title, a.title, a.due_at
 		FROM assignments a
@@ -177,13 +194,23 @@ func (r *PostgresRepository) GetUpcomingDeadlines(ctx context.Context, studentID
 		deadlines = append(deadlines, d)
 	}
 
-	// Quizzes table doesn't exist yet - skip
+	data, err := json.Marshal(deadlines)
+	if err == nil {
+		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
+	}
 
 	return deadlines, nil
 }
 
 func (r *PostgresRepository) GetRecentGrades(ctx context.Context, studentID string, limit int) ([]dashboard.RecentGrade, error) {
+	cacheKey := "dashboard:student:" + studentID + ":recent_grades"
+	cached, err := r.redis.Get(ctx, cacheKey)
 	var grades []dashboard.RecentGrade
+	if err == nil && cached != "" {
+		if err := json.Unmarshal([]byte(cached), &grades); err == nil {
+			return grades, nil
+		}
+	}
 
 	rows, err := r.db.Query(ctx, `
 		SELECT g.id, 'assignment', c.title, a.title, g.score, a.max_points, (g.score / a.max_points * 100), g.graded_at
@@ -205,12 +232,23 @@ func (r *PostgresRepository) GetRecentGrades(ctx context.Context, studentID stri
 		rows.Scan(&g.ID, &g.Type, &g.CourseName, &g.Title, &g.Score, &g.MaxPoints, &g.Percentage, &g.GradedAt)
 		grades = append(grades, g)
 	}
-
+	data, err := json.Marshal(grades)
+	if err == nil {
+		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
+	}
 	return grades, nil
 }
 
 func (r *PostgresRepository) GetGradeTrends(ctx context.Context, studentID string, months int) ([]dashboard.GradeTrend, error) {
+	cacheKey := "dashboard:student:" + studentID + ":grade_trends"
+	cached, err := r.redis.Get(ctx, cacheKey)
 	var trends []dashboard.GradeTrend
+
+	if err == nil && cached != "" {
+		if err := json.Unmarshal([]byte(cached), &trends); err == nil {
+			return trends, nil
+		}
+	}
 
 	rows, err := r.db.Query(ctx, `
 		SELECT TO_CHAR(g.graded_at, 'Mon') as month,
@@ -234,12 +272,23 @@ func (r *PostgresRepository) GetGradeTrends(ctx context.Context, studentID strin
 		rows.Scan(&t.Month, &t.Year, &t.AverageGPA)
 		trends = append(trends, t)
 	}
+	data, err := json.Marshal(trends)
+	if err == nil {
+		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
+	}
 
 	return trends, nil
 }
 
 func (r *PostgresRepository) GetCourseProgress(ctx context.Context, studentID string) ([]dashboard.CourseProgress, error) {
+	cacheKey := "dashboard:student:" + studentID + ":course_progress"
+	cached, err := r.redis.Get(ctx, cacheKey)
 	var progress []dashboard.CourseProgress
+	if err == nil && cached != "" {
+		if err := json.Unmarshal([]byte(cached), &progress); err == nil {
+			return progress, nil
+		}
+	}
 
 	rows, err := r.db.Query(ctx, `
 		SELECT c.id, c.title,
@@ -262,7 +311,6 @@ func (r *PostgresRepository) GetCourseProgress(ctx context.Context, studentID st
 		if p.TotalAssignments > 0 {
 			p.ProgressPercent = float64(p.CompletedAssignments) / float64(p.TotalAssignments) * 100
 		}
-		// Compute letter grade
 		switch {
 		case p.CurrentGrade >= 90:
 			p.LetterGrade = "A"
@@ -277,25 +325,52 @@ func (r *PostgresRepository) GetCourseProgress(ctx context.Context, studentID st
 		}
 		progress = append(progress, p)
 	}
+	data, err := json.Marshal(progress)
+	if err == nil {
+		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
+	}
 
 	return progress, nil
 }
 
 func (r *PostgresRepository) CalculateGPA(ctx context.Context, studentID string) (float64, error) {
+	cacheKey := "dashboard:student:" + studentID + ":gpa"
+	cached, err := r.redis.Get(ctx, cacheKey)
+	if err == nil && cached != "" {
+		var gpa float64
+		if err := json.Unmarshal([]byte(cached), &gpa); err == nil {
+			return gpa, nil
+		}
+	}
 	var gpa float64
-	err := r.db.QueryRow(ctx, `
+	err = r.db.QueryRow(ctx, `
 		SELECT COALESCE(AVG(g.score / a.max_points * 4.0), 0)
 		FROM grades g
 		JOIN submissions s ON g.submission_id = s.id
 		JOIN assignments a ON s.assignment_id = a.id
 		WHERE s.student_id = $1
 	`, studentID).Scan(&gpa)
+	if err == nil {
+		data, err := json.Marshal(gpa)
+		if err == nil {
+			_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
+		}
+	}
 	return math.Round(gpa*100) / 100, err
+	
 }
 
 func (r *PostgresRepository) GetAttendanceRate(ctx context.Context, studentID string) (float64, error) {
+	cacheKey := "dashboard:student:" + studentID + ":attendance_rate"
+	cached, err := r.redis.Get(ctx, cacheKey)
+	if err == nil && cached != "" {
+		var rate float64
+		if err := json.Unmarshal([]byte(cached), &rate); err == nil {
+			return rate, nil
+		}
+	}
 	var rate float64
-	err := r.db.QueryRow(ctx, `
+	err = r.db.QueryRow(ctx, `
 		SELECT COALESCE(
 			(SELECT COUNT(*) FILTER (WHERE am.status = 'present') * 100.0 / NULLIF(COUNT(*), 0)
 			 FROM attendance_marks am
@@ -303,5 +378,9 @@ func (r *PostgresRepository) GetAttendanceRate(ctx context.Context, studentID st
 			), 0
 		)
 	`, studentID).Scan(&rate)
+	data, err := json.Marshal(rate)
+	if err == nil {
+		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
+	}
 	return math.Round(rate*100) / 100, err
 }

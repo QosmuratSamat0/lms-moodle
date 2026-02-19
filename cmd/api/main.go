@@ -43,9 +43,11 @@ func main() {
 	cfg := config.Load()
 
 	db := appDeps.InitDatabaseWithConfig(cfg)
+	redis := appDeps.InitRedisWithConfig(cfg)
 	defer db.Close()
+	defer redis.Close()
 
-	deps := appDeps.BuildDeps(db, cfg)
+	deps := appDeps.BuildDeps(db, redis, cfg)
 
 	modules := appDeps.BuildHTTPModules(deps, cfg.JWTSecret)
 

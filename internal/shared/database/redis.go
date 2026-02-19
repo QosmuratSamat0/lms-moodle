@@ -36,6 +36,34 @@ func NewRedis(cfg config.RedisURL) (*RedisClient, error) {
 	return &RedisClient{Client: client}, nil
 }
 
+func (r *RedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	err := r.Client.Set(ctx, key, value, expiration).Err()
+	if err != nil {
+		return fmt.Errorf("failed to set key in redis: %w", err)
+	}
+	return nil
+
+}
+
+func (r *RedisClient) Get(ctx context.Context, key string) (string, error) {
+	val, err := r.Client.Get(ctx, key).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return "", nil // Key does not exist
+		}
+		return "", fmt.Errorf("failed to get key from redis: %w", err)
+	}
+	return val, nil
+}
+
+func (r *RedisClient) Del(ctx context.Context, key string) error {
+	err := r.Client.Del(ctx, key).Err()
+	if err != nil {
+		return fmt.Errorf("failed to delete key from redis: %w", err)
+	}
+	return nil
+}
+
 func (r *RedisClient) Close() error {
 	return r.Client.Close()
 }

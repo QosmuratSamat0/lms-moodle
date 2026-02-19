@@ -26,6 +26,7 @@ import (
 	uploadRepo "github.com/ap1-final-mini-moodle/internal/repository/upload"
 	userRepo "github.com/ap1-final-mini-moodle/internal/repository/user"
 	"github.com/ap1-final-mini-moodle/internal/shared/config"
+	"github.com/ap1-final-mini-moodle/internal/shared/database"
 
 	adminUC "github.com/ap1-final-mini-moodle/internal/usecase/admin"
 	announcementUC "github.com/ap1-final-mini-moodle/internal/usecase/announcement"
@@ -87,10 +88,10 @@ type Deps struct {
 	CategoryManagerRepo categorymanager.Repository
 }
 
-func BuildDeps(db *pgxpool.Pool, cfg *config.Config) *Deps {
+func BuildDeps(db *pgxpool.Pool, redis *database.RedisClient, cfg *config.Config) *Deps {
 	// Repositories
 	userRepository := userRepo.NewPostgresRepository(db)
-	courseRepository := courseRepo.NewPostgresRepository(db)
+	courseRepository := courseRepo.NewRepository(db, redis)
 	enrollmentRepository := enrollmentRepo.NewPostgresRepository(db)
 	assignmentRepository := assignmentRepo.NewPostgresRepository(db)
 	submissionRepository := submissionRepo.NewPostgresRepository(db)
@@ -103,14 +104,14 @@ func BuildDeps(db *pgxpool.Pool, cfg *config.Config) *Deps {
 	announcementRepository := announcementRepo.NewPostgresRepository(db)
 	quizRepository := quizRepo.NewPostgresRepository(db)
 	appealRepository := appealRepo.NewPostgresRepository(db)
-	dashboardRepository := dashboardRepo.NewPostgresRepository(db)
+	dashboardRepository := dashboardRepo.NewPostgresRepository(db, redis)
 	studentRepository := studentRepo.NewPostgresRepository(db)
 	teacherRepository := teacherRepo.NewPostgresRepository(db)
 	adminRepository := adminRepo.NewPostgresRepository(db)
 	managerRepository := managerRepo.NewPostgresRepository(db)
 	categorymanagerRepository := categorymanagerRepo.NewPostgresRepository(db)
 	coursecategoryRepository := coursecategoryRepo.NewPostgresRepository(db)
-	authRepository := authRepo.NewPostgresRepository(db)
+	authRepository := authRepo.NewPostgresRepository(db, redis)
 
 	// Services
 	userService := userUC.NewService(userRepository)
