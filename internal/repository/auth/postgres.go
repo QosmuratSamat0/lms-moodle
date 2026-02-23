@@ -55,9 +55,11 @@ func (r *PostgresRepository) CreateSession(ctx context.Context, session *auth.Re
 	data, err := json.Marshal(session)
 	expiration := time.Until(session.ExpiresAt)
 
-	_ = r.redis.Set(ctx, "session:"+session.ID, data, expiration)
-	_ = r.redis.Set(ctx, key, data, expiration)
-	_ = r.redis.Del(ctx, "sessions:user:"+session.UserID)
+	if r.redis != nil {
+		_ = r.redis.Set(ctx, "session:"+session.ID, data, expiration)
+		_ = r.redis.Set(ctx, key, data, expiration)
+		_ = r.redis.Del(ctx, "sessions:user:"+session.UserID)
+	}
 
 	return nil
 }
@@ -65,25 +67,28 @@ func (r *PostgresRepository) CreateSession(ctx context.Context, session *auth.Re
 func (r *PostgresRepository) GetSessionByRefreshToken(ctx context.Context, token string) (*auth.RefreshSession, error) {
 	ctx = context.Background()
 	cacheKey := fmt.Sprintf("session:refresh:%x", sha256.Sum256([]byte(token)))
-	cached, err := r.redis.Get(ctx, cacheKey)
+
 	query := `
 		SELECT id, user_id, refresh_token, expires_at, issued_at, is_active, user_agent, ip_address, created_at, updated_at
 		FROM refresh_sessions
 		WHERE refresh_token = $1 AND is_active = true
 	`
 
-	if err == nil && cached != "" {
-		var session auth.RefreshSession
-		if err := json.Unmarshal([]byte(cached), &session); err == nil {
-			if time.Now().After(session.ExpiresAt) {
-				return nil, fmt.Errorf("refresh token expired")
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var session auth.RefreshSession
+			if err := json.Unmarshal([]byte(cached), &session); err == nil {
+				if time.Now().After(session.ExpiresAt) {
+					return nil, fmt.Errorf("refresh token expired")
+				}
+				return &session, nil
 			}
-			return &session, nil
 		}
 	}
 
 	var session auth.RefreshSession
-	err = r.db.QueryRow(ctx, query, token).Scan(
+	err := r.db.QueryRow(ctx, query, token).Scan(
 		&session.ID,
 		&session.UserID,
 		&session.RefreshToken,

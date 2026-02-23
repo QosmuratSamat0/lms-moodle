@@ -15,6 +15,29 @@ type RedisClient struct {
 	Client *redis.Client
 }
 
+// NullRedisClient is a no-op Redis client used when Redis is unavailable
+type NullRedisClient struct{}
+
+func (n *NullRedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	return nil // no-op
+}
+
+func (n *NullRedisClient) Get(ctx context.Context, key string) (string, error) {
+	return "", nil // no-op, returns empty string
+}
+
+func (n *NullRedisClient) Del(ctx context.Context, key string) error {
+	return nil // no-op
+}
+
+func (n *NullRedisClient) Close() error {
+	return nil // no-op
+}
+
+func (n *NullRedisClient) Health(ctx context.Context) error {
+	return nil // no-op
+}
+
 func NewRedis(cfg config.RedisURL) (*RedisClient, error) {
 	opts := &redis.Options{
 		Addr:         fmt.Sprintf("%s:%s", cfg.Host, cfg.Port),

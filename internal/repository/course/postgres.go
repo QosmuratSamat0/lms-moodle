@@ -30,7 +30,7 @@ func (r *PostgresRepository) Create(c *course.Course) error {
 		return err
 	}
 	data, err := json.Marshal(c)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		_ = r.redis.Set(ctx, "course:"+c.ID, data, 10*time.Minute)
 		_ = r.redis.Set(ctx, "course:code:"+c.Code, data, 10*time.Minute)
 	}
@@ -41,16 +41,18 @@ func (r *PostgresRepository) GetByID(id string) (*course.Course, error) {
 	ctx := context.Background()
 	cacheKey := "course:" + id
 
-	cached, err := r.redis.Get(ctx, cacheKey)
-	if err == nil && cached != "" {
-		var c course.Course
-		if err := json.Unmarshal([]byte(cached), &c); err == nil {
-			return &c, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var c course.Course
+			if err := json.Unmarshal([]byte(cached), &c); err == nil {
+				return &c, nil
+			}
 		}
 	}
 
 	c := &course.Course{}
-	err = r.db.QueryRow(context.Background(),
+	err := r.db.QueryRow(context.Background(),
 		`SELECT c.id, c.code, c.title, c.description, c.owner_teacher_id, c.max_points, c.is_active, c.created_at, c.updated_at,
 		        COALESCE(t.first_name, ''), COALESCE(t.last_name, '')
 		 FROM courses c
@@ -63,7 +65,7 @@ func (r *PostgresRepository) GetByID(id string) (*course.Course, error) {
 	}
 
 	data, err := json.Marshal(c)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 	}
 
@@ -73,16 +75,18 @@ func (r *PostgresRepository) GetByID(id string) (*course.Course, error) {
 func (r *PostgresRepository) GetByCode(code string) (*course.Course, error) {
 	ctx := context.Background()
 	cacheKey := "course:code:" + code
-	cached, err := r.redis.Get(ctx, cacheKey)
-	if err == nil && cached != "" {
-		var c course.Course
-		if err := json.Unmarshal([]byte(cached), &c); err == nil {
-			return &c, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var c course.Course
+			if err := json.Unmarshal([]byte(cached), &c); err == nil {
+				return &c, nil
+			}
 		}
 	}
 
 	c := &course.Course{}
-	err = r.db.QueryRow(context.Background(),
+	err := r.db.QueryRow(context.Background(),
 		`SELECT c.id, c.code, c.title, c.description, c.owner_teacher_id, c.max_points, c.is_active, c.created_at, c.updated_at,
 		        COALESCE(t.first_name, ''), COALESCE(t.last_name, '')
 		 FROM courses c

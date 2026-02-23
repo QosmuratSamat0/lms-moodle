@@ -41,7 +41,8 @@ func InitDatabaseWithConfig(cfg *config.Config) *pgxpool.Pool {
 func InitRedisWithConfig(cfg *config.Config) *database.RedisClient {
 	redisClient, err := database.NewRedis(cfg.RedisURL)
 	if err != nil {
-		log.Fatalf("Failed to initialize Redis: %v", err)
+		log.Printf("Warning: Redis initialization failed, running without caching: %v", err)
+		return nil
 	}
 	log.Println("Redis connected successfully")
 	return redisClient

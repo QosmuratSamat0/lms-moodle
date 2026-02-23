@@ -16,7 +16,6 @@ func NewPostgresRepository(db *pgxpool.Pool) assignment.Repository {
 }
 
 func (r *PostgresRepository) Create(a *assignment.Assignment) error {
-	// Auto-ensure teacher record exists (migration 000010 changed teachers PK to separate id)
 	if a.CreatedByTeacherID != nil && *a.CreatedByTeacherID != "" {
 		_, _ = r.db.Exec(context.Background(),
 			`INSERT INTO teachers (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING`,

@@ -22,16 +22,18 @@ func NewPostgresRepository(db *pgxpool.Pool, redis *database.RedisClient) dashbo
 
 func (r *PostgresRepository) GetStudentDashboard(ctx context.Context, studentID string) (*dashboard.StudentDashboard, error) {
 	cacheKey := "dashboard:student:" + studentID
-	cached, err := r.redis.Get(ctx, cacheKey)
 	d := &dashboard.StudentDashboard{StudentID: studentID}
 
-	if err == nil && cached != "" {
-		if err := json.Unmarshal([]byte(cached), d); err == nil {
-			return d, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			if err := json.Unmarshal([]byte(cached), d); err == nil {
+				return d, nil
+			}
 		}
 	}
 
-	err = r.db.QueryRow(ctx, `SELECT first_name || ' ' || last_name FROM users WHERE id = $1`, studentID).Scan(&d.StudentName)
+	err := r.db.QueryRow(ctx, `SELECT first_name || ' ' || last_name FROM users WHERE id = $1`, studentID).Scan(&d.StudentName)
 	if err != nil {
 		return nil, err
 	}
@@ -62,10 +64,8 @@ func (r *PostgresRepository) GetStudentDashboard(ctx context.Context, studentID 
 
 	d.GradeTrends, _ = r.GetGradeTrends(ctx, studentID, 6)
 
-	d.CourseProgress, _ = r.GetCourseProgress(ctx, studentID)
-
 	data, err := json.Marshal(d)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 	}
 
@@ -74,12 +74,15 @@ func (r *PostgresRepository) GetStudentDashboard(ctx context.Context, studentID 
 
 func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID string) (*dashboard.TeacherDashboard, error) {
 	cacheKey := "dashboard:teacher:" + teacherID
-	cached, err := r.redis.Get(ctx, cacheKey)
 	d := &dashboard.TeacherDashboard{TeacherID: teacherID}
+	var err error
 
-	if err == nil && cached != "" {
-		if err := json.Unmarshal([]byte(cached), d); err == nil {
-			return d, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			if err := json.Unmarshal([]byte(cached), d); err == nil {
+				return d, nil
+			}
 		}
 	}
 
@@ -153,7 +156,7 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 		}
 	}
 	data, err := json.Marshal(d)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 	}
 
@@ -162,11 +165,13 @@ func (r *PostgresRepository) GetTeacherDashboard(ctx context.Context, teacherID 
 
 func (r *PostgresRepository) GetUpcomingDeadlines(ctx context.Context, studentID string, limit int) ([]dashboard.UpcomingDeadline, error) {
 	cacheKey := "dashboard:student:" + studentID + ":upcoming_deadlines"
-	cached, err := r.redis.Get(ctx, cacheKey)
 	var deadlines []dashboard.UpcomingDeadline
-	if err == nil && cached != "" {
-		if err := json.Unmarshal([]byte(cached), &deadlines); err == nil {
-			return deadlines, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			if err := json.Unmarshal([]byte(cached), &deadlines); err == nil {
+				return deadlines, nil
+			}
 		}
 	}
 
@@ -195,7 +200,7 @@ func (r *PostgresRepository) GetUpcomingDeadlines(ctx context.Context, studentID
 	}
 
 	data, err := json.Marshal(deadlines)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 	}
 
@@ -204,11 +209,13 @@ func (r *PostgresRepository) GetUpcomingDeadlines(ctx context.Context, studentID
 
 func (r *PostgresRepository) GetRecentGrades(ctx context.Context, studentID string, limit int) ([]dashboard.RecentGrade, error) {
 	cacheKey := "dashboard:student:" + studentID + ":recent_grades"
-	cached, err := r.redis.Get(ctx, cacheKey)
 	var grades []dashboard.RecentGrade
-	if err == nil && cached != "" {
-		if err := json.Unmarshal([]byte(cached), &grades); err == nil {
-			return grades, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			if err := json.Unmarshal([]byte(cached), &grades); err == nil {
+				return grades, nil
+			}
 		}
 	}
 
@@ -233,7 +240,7 @@ func (r *PostgresRepository) GetRecentGrades(ctx context.Context, studentID stri
 		grades = append(grades, g)
 	}
 	data, err := json.Marshal(grades)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 	}
 	return grades, nil
@@ -241,12 +248,14 @@ func (r *PostgresRepository) GetRecentGrades(ctx context.Context, studentID stri
 
 func (r *PostgresRepository) GetGradeTrends(ctx context.Context, studentID string, months int) ([]dashboard.GradeTrend, error) {
 	cacheKey := "dashboard:student:" + studentID + ":grade_trends"
-	cached, err := r.redis.Get(ctx, cacheKey)
 	var trends []dashboard.GradeTrend
 
-	if err == nil && cached != "" {
-		if err := json.Unmarshal([]byte(cached), &trends); err == nil {
-			return trends, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			if err := json.Unmarshal([]byte(cached), &trends); err == nil {
+				return trends, nil
+			}
 		}
 	}
 
@@ -273,7 +282,7 @@ func (r *PostgresRepository) GetGradeTrends(ctx context.Context, studentID strin
 		trends = append(trends, t)
 	}
 	data, err := json.Marshal(trends)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 	}
 
@@ -282,11 +291,13 @@ func (r *PostgresRepository) GetGradeTrends(ctx context.Context, studentID strin
 
 func (r *PostgresRepository) GetCourseProgress(ctx context.Context, studentID string) ([]dashboard.CourseProgress, error) {
 	cacheKey := "dashboard:student:" + studentID + ":course_progress"
-	cached, err := r.redis.Get(ctx, cacheKey)
 	var progress []dashboard.CourseProgress
-	if err == nil && cached != "" {
-		if err := json.Unmarshal([]byte(cached), &progress); err == nil {
-			return progress, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			if err := json.Unmarshal([]byte(cached), &progress); err == nil {
+				return progress, nil
+			}
 		}
 	}
 
@@ -326,7 +337,7 @@ func (r *PostgresRepository) GetCourseProgress(ctx context.Context, studentID st
 		progress = append(progress, p)
 	}
 	data, err := json.Marshal(progress)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 	}
 
@@ -335,11 +346,14 @@ func (r *PostgresRepository) GetCourseProgress(ctx context.Context, studentID st
 
 func (r *PostgresRepository) CalculateGPA(ctx context.Context, studentID string) (float64, error) {
 	cacheKey := "dashboard:student:" + studentID + ":gpa"
-	cached, err := r.redis.Get(ctx, cacheKey)
-	if err == nil && cached != "" {
-		var gpa float64
-		if err := json.Unmarshal([]byte(cached), &gpa); err == nil {
-			return gpa, nil
+	var err error
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var gpa float64
+			if err := json.Unmarshal([]byte(cached), &gpa); err == nil {
+				return gpa, nil
+			}
 		}
 	}
 	var gpa float64
@@ -350,27 +364,29 @@ func (r *PostgresRepository) CalculateGPA(ctx context.Context, studentID string)
 		JOIN assignments a ON s.assignment_id = a.id
 		WHERE s.student_id = $1
 	`, studentID).Scan(&gpa)
-	if err == nil {
+	if err == nil && r.redis != nil {
 		data, err := json.Marshal(gpa)
 		if err == nil {
 			_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 		}
 	}
 	return math.Round(gpa*100) / 100, err
-	
+
 }
 
 func (r *PostgresRepository) GetAttendanceRate(ctx context.Context, studentID string) (float64, error) {
 	cacheKey := "dashboard:student:" + studentID + ":attendance_rate"
-	cached, err := r.redis.Get(ctx, cacheKey)
-	if err == nil && cached != "" {
-		var rate float64
-		if err := json.Unmarshal([]byte(cached), &rate); err == nil {
-			return rate, nil
+	if r.redis != nil {
+		cached, err := r.redis.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var rate float64
+			if err := json.Unmarshal([]byte(cached), &rate); err == nil {
+				return rate, nil
+			}
 		}
 	}
 	var rate float64
-	err = r.db.QueryRow(ctx, `
+	err := r.db.QueryRow(ctx, `
 		SELECT COALESCE(
 			(SELECT COUNT(*) FILTER (WHERE am.status = 'present') * 100.0 / NULLIF(COUNT(*), 0)
 			 FROM attendance_marks am
@@ -378,8 +394,8 @@ func (r *PostgresRepository) GetAttendanceRate(ctx context.Context, studentID st
 			), 0
 		)
 	`, studentID).Scan(&rate)
-	data, err := json.Marshal(rate)
-	if err == nil {
+	if r.redis != nil {
+		data, _ := json.Marshal(rate)
 		_ = r.redis.Set(ctx, cacheKey, data, 10*time.Minute)
 	}
 	return math.Round(rate*100) / 100, err

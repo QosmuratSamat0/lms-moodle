@@ -55,7 +55,6 @@ func TestRegisterUser(t *testing.T) {
 		Password:  "password123",
 		FirstName: "John",
 		LastName:  "Doe",
-		Role:      user.RoleStudent,
 	}
 
 	u, err := service.Register(input)
@@ -84,7 +83,6 @@ func TestUpdateUser(t *testing.T) {
 		Password:  "password123",
 		FirstName: "John",
 		LastName:  "Doe",
-		Role:      user.RoleStudent,
 	}
 	u, _ := service.Register(input)
 
@@ -113,7 +111,6 @@ func TestGetUserByID(t *testing.T) {
 		Password:  "password123",
 		FirstName: "John",
 		LastName:  "Doe",
-		Role:      user.RoleStudent,
 	}
 
 	created, _ := service.Register(input)

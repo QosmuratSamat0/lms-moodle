@@ -45,7 +45,9 @@ func main() {
 	db := appDeps.InitDatabaseWithConfig(cfg)
 	redis := appDeps.InitRedisWithConfig(cfg)
 	defer db.Close()
-	defer redis.Close()
+	if redis != nil {
+		defer redis.Close()
+	}
 
 	deps := appDeps.BuildDeps(db, redis, cfg)
 
