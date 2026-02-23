@@ -21,10 +21,11 @@ type Database struct {
 }
 
 type RedisURL struct {
-	Host     string
-	Port     string
-	Password string
-	DB       int
+	Host       string
+	Port       string
+	Password   string
+	DB         int
+	TLSEnabled bool
 }
 
 type Config struct {
@@ -64,10 +65,11 @@ func Load() *Config {
 		RefreshTokenDuration: parseDuration(getEnv("REFRESH_TOKEN_DURATION", "168h")),
 
 		RedisURL: RedisURL{
-			Host:     getEnv("REDIS_HOST", "localhost"),
-			Port:     getEnv("REDIS_PORT", "6379"),
-			Password: getEnv("REDIS_PASSWORD", ""),
-			DB:       getEnvAsInt("REDIS_DB", 0),
+			Host:       getEnv("REDIS_HOST", "localhost"),
+			Port:       getEnv("REDIS_PORT", "6379"),
+			Password:   getEnv("REDIS_PASSWORD", ""),
+			DB:         getEnvAsInt("REDIS_DB", 0),
+			TLSEnabled: getEnv("REDIS_TLS_ENABLED", "false") == "true",
 		},
 
 		CloudinaryURL: getEnv("CLOUDINARY_URL", ""),

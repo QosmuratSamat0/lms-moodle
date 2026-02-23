@@ -16,20 +16,24 @@ type RedisClient struct {
 }
 
 func NewRedis(cfg config.RedisURL) (*RedisClient, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", cfg.Host, cfg.Port),
-		Password: cfg.Password,
-		DB:       cfg.DB,
-
-		TLSConfig: &tls.Config{
-			MinVersion: tls.VersionTLS12,
-		},
+	opts := &redis.Options{
+		Addr:         fmt.Sprintf("%s:%s", cfg.Host, cfg.Port),
+		Password:     cfg.Password,
+		DB:           cfg.DB,
 		DialTimeout:  5 * time.Second,
 		ReadTimeout:  3 * time.Second,
 		WriteTimeout: 3 * time.Second,
 		PoolSize:     10,
 		MinIdleConns: 5,
-	})
+	}
+
+	if cfg.TLSEnabled {
+		opts.TLSConfig = &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		}
+	}
+
+	client := redis.NewClient(opts)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
