@@ -3,6 +3,7 @@ package database
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"time"
 
@@ -16,9 +17,13 @@ type RedisClient struct {
 
 func NewRedis(cfg config.RedisURL) (*RedisClient, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr:         fmt.Sprintf("%s:%s", cfg.Host, cfg.Port),
-		Password:     cfg.Password,
-		DB:           cfg.DB,
+		Addr:     fmt.Sprintf("%s:%s", cfg.Host, cfg.Port),
+		Password: cfg.Password,
+		DB:       cfg.DB,
+
+		TLSConfig: &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		},
 		DialTimeout:  5 * time.Second,
 		ReadTimeout:  3 * time.Second,
 		WriteTimeout: 3 * time.Second,

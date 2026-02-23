@@ -57,14 +57,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Получаем пользователя
 	user, err := h.userService.GetByEmailAndPassword(req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
-	// Подготавливаем данные пользователя для токена
 	userData := &authShared.UserData{
 		ID:        user.ID,
 		Email:     user.Email,
@@ -73,11 +71,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		Role:      string(user.Role),
 	}
 
-	// Получаем user agent и IP адрес
 	userAgent := c.Request.UserAgent()
 	ipAddress := c.ClientIP()
 
-	// Выдаём токены
 	token, err := h.authService.IssueTokens(c.Request.Context(), userData, userAgent, ipAddress)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to issue tokens"})
@@ -120,7 +116,6 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// Получаем новые токены
 	token, err := h.authService.RefreshAccessToken(c.Request.Context(), req.RefreshToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid refresh token"})
@@ -135,7 +130,6 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	})
 }
 
-// Logout деактивирует текущую сессию
 // @Summary Logout user
 // @Description Deactivate current session
 // @Tags auth
@@ -170,7 +164,6 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "logged out successfully"})
 }
 
-// LogoutEverywhere деактивирует все сессии пользователя
 // @Summary Logout from all devices
 // @Description Deactivate all user sessions
 // @Tags auth
@@ -195,7 +188,6 @@ func (h *AuthHandler) LogoutEverywhere(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "logged out from all devices successfully"})
 }
 
-// GetActiveSessions получает список активных сессий пользователя
 // @Summary Get active sessions
 // @Description Returns list of all active sessions for current user
 // @Tags auth
@@ -218,7 +210,6 @@ func (h *AuthHandler) GetActiveSessions(c *gin.Context) {
 		return
 	}
 
-	// Преобразуем для API
 	var sessionsData []gin.H
 	for _, session := range sessions {
 		sessionsData = append(sessionsData, gin.H{
